@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="CycleRent" />
+	<dubbo:registry address="zookeeper://172.22.145.118:2181?backup=172.17.137.11:2181,172.22.145.122:2181" />
+
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+ 
+	<dubbo:service interface="com.tydic.beijing.billing.interfacex.service.RetryCycleRentService"
+		ref="RetryCycleRent" retries="0" timeout="30000" />
+
+
+	<bean id="RetryCycleRent"
+		class="com.tydic.beijing.billing.cyclerent.service.impl.CycleRentAndRes2AccountImpl">
+		<property name="cabOps" ref="createAccountBook"></property>
+		<property name="ctatOps" ref="controlTradeActTagOps"></property>
+		<property name="ops" ref="CycleRentOps"></property>
+	</bean>
+
+	<bean id="CycleRentOps" class="com.tydic.beijing.billing.cyclerent.biz.CycleRentOps">
+		<property name="bcOps" ref="balanceChangeOps"></property>
+	</bean>
+	<bean id="dSBalanceType"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType" />
+	
+	<bean id="controlTradeActTagOps"
+		class="com.tydic.beijing.billing.cyclerent.biz.ControlTradeActTagOps">
+	</bean>
+
+	<bean id="createAccountBook"
+		class="com.tydic.beijing.billing.account.service.impl.CreateAccountBookImpl">
+		<property name="ops" ref="createAccountBookOps"></property>
+	</bean>
+	<bean id="balanceChangeOps" class="com.tydic.beijing.billing.cyclerent.biz.BalanceChangeOps" />
+	<bean id="createAccountBookOps"
+		class="com.tydic.beijing.billing.account.biz.CreateAccountBookOps">
+		<property name="balanceTypes" ref="dSBalanceType"></property>
+	</bean>
+
+</beans>

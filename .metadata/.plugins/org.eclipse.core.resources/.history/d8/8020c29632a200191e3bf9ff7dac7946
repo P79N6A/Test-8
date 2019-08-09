@@ -1,0 +1,15 @@
+package test;
+
+public class Test2 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String value="17909879939";
+		for (int i = 2; i >= 1; i--) {
+			System.out.println("i"+i);
+			 String tmp = value.substring(0, i);
+			 System.out.println("tmp"+tmp);
+		}
+	}
+
+}

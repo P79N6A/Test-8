@@ -1,0 +1,1 @@
+grep "<dubbo:monitor protocol=\"registry\" />" -rl ./ |xargs sed -i "s/"\<dubbo:monitor\ protocol=\"registry\"\ \\/\>"/""/"

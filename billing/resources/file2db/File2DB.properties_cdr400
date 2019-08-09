@@ -1,0 +1,19 @@
+TableName = cdr_cdr400_
+Spilt = |
+TableColumn = SERIALNO long|VERSION long|TICKETTYPE long|TIMESTAMP String|HOSTID String|SERVICESCENARIOUS long|CHARGEDPARTY String|CALLINGPARTY String|CALLEDPARTY String|ORIGNIALCALLINGPARTY String|ORIGNIALCALLEDPARTY String|PAYFLAG long|SERVID String|CUSTID String|BRAND String|SESSIONID String|SESSIONTERMINATEDTIME String|TERMINATEDCAUSE long|ORIGNIALHOST String|BALANCEINFO String|ACCUMLATORINFO String|TARIFFINFO String|MASTERPRODUCTID String|BEARERCAPABILITY String|SESSIONBEGINTIME String|PRODUCTID String|SPC_PRODUCTID String|SP_PRODUCTID String|SERVICEID String|CONTENTID String|ORDERMETHODID String|PUSHID String|CP_ID String|SPID String|MESSAGEID String|SERVICECAPACITY long|CHARGINGTYPE String|NOTES String|VALUEADDSERVICETYPE String|CHARGINGID String|APNNI String|CLIENTIP String|QOS String|MTMODE long|MTAMOUNT long|MTMONEY long|MTCHARGEADD long|STRING1 String|STRING2 String|STRING3 String|STRING4 String|INT1 long|INT2 long|INSERT_DATE Date|PARTITION_NO String
+KeyColumn = 
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 12
+MonthColumn = PARTITION_NO
+InsertLogFlag = 1
+LogTable = log_file2db_cdr400
+
+commit_num = 50
+file_dir = /home/billing_dev/data/account/CdrCdr400
+bak_dir = /home/billing_dev/data/account/cdr400_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

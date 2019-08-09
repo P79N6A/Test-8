@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	
+	<bean id="CycleRentThread"
+		class="com.tydic.beijing.billing.cyclerent.thread.CycleRentThread" scope="prototype"/>
+	
+	<bean id="CycleRentMain"
+		class="com.tydic.beijing.billing.cyclerent.CycleRentBatchMain" />
+
+	<bean id="CycleRentBatchOps" class="com.tydic.beijing.billing.cyclerent.biz.CycleRentBatchOps" scope="prototype">
+	</bean>
+	<bean id="dSBalanceType"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType" scope="prototype"/>
+	
+	<bean id="controlTradeActTagOps"
+		class="com.tydic.beijing.billing.cyclerent.biz.ControlTradeActTagOps">
+	</bean>
+
+	<bean id="createAccountBook"
+		class="com.tydic.beijing.billing.account.service.impl.CreateAccountBookImpl" scope="prototype">
+		<property name="ops" ref="createAccountBookOps"></property>
+	</bean>
+	<bean id="balanceChangeOps" class="com.tydic.beijing.billing.cyclerent.biz.BalanceChangeOps" />
+	<bean id="createAccountBookOps"
+		class="com.tydic.beijing.billing.account.biz.CreateAccountBookOps" scope="prototype">
+		<property name="balanceTypes" ref="dSBalanceType"></property>
+	</bean>
+
+</beans>

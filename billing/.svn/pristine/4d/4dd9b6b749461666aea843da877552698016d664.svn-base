@@ -1,0 +1,78 @@
+2014-10-30 22:57:24  [ DubboServerHandler-172.168.1.217:20880-thread-2:1 ] - [ ERROR ] [com.alibaba.dubbo.rpc.filter.ExceptionFilter]   [DUBBO] Got unchecked and undeclared exception which called by 172.168.1.217. service: com.tydic.beijing.billing.outerf.api.QuerySubsAcctBalance, method: querySubsAcctBalance, exception: org.springframework.jdbc.UncategorizedSQLException: 
+### Error querying database.  Cause: java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+### The error may exist in resource-index-0-inputstream
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: outerf.infouser.getByDeviceNumber(?)
+### Cause: java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+; uncategorized SQLException for SQL []; SQL state [null]; error code [0]; 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz; nested exception is java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz, dubbo version: 2.4.9, current host: 172.168.1.217
+org.springframework.jdbc.UncategorizedSQLException: 
+### Error querying database.  Cause: java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+### The error may exist in resource-index-0-inputstream
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: outerf.infouser.getByDeviceNumber(?)
+### Cause: java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+; uncategorized SQLException for SQL []; SQL state [null]; error code [0]; 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz; nested exception is java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:83)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:80)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:80)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:73)
+	at com.tydic.uda.resolver.jdbc.JdbcDataOperate$SqlSessionInterceptor.invoke(JdbcDataOperate.java:199)
+	at $Proxy7.selectList(Unknown Source)
+	at com.tydic.uda.resolver.jdbc.JdbcDataOperate.query(JdbcDataOperate.java:146)
+	at com.tydic.uda.service.support.DataServiceTemplate.query(DataServiceTemplate.java:79)
+	at com.tydic.uda.service.support.BaseDataService.queryFirst(BaseDataService.java:20)
+	at com.tydic.beijing.billing.outerf.busi.DataCenter.getInfoUserByDeviceNumber(DataCenter.java:24)
+	at com.tydic.beijing.billing.outerf.busi.QuerySubsAcctBalanceBusi.getUserId(QuerySubsAcctBalanceBusi.java:54)
+	at com.tydic.beijing.billing.outerf.busi.QuerySubsAcctBalanceBusi.dispose(QuerySubsAcctBalanceBusi.java:135)
+	at com.tydic.beijing.billing.outerf.provider.QuerySubsAcctBalanceProvider.querySubsAcctBalance(QuerySubsAcctBalanceProvider.java:34)
+	at com.alibaba.dubbo.common.bytecode.Wrapper3.invokeMethod(Wrapper3.java)
+	at com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory$1.doInvoke(JavassistProxyFactory.java:46)
+	at com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker.invoke(AbstractProxyInvoker.java:72)
+	at com.alibaba.dubbo.rpc.protocol.InvokerWrapper.invoke(InvokerWrapper.java:53)
+	at com.alibaba.dubbo.rpc.filter.ExceptionFilter.invoke(ExceptionFilter.java:64)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.filter.TimeoutFilter.invoke(TimeoutFilter.java:42)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.monitor.support.MonitorFilter.invoke(MonitorFilter.java:65)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.protocol.dubbo.filter.TraceFilter.invoke(TraceFilter.java:78)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.filter.ContextFilter.invoke(ContextFilter.java:60)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.filter.GenericFilter.invoke(GenericFilter.java:112)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.filter.ClassLoaderFilter.invoke(ClassLoaderFilter.java:38)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.filter.EchoFilter.invoke(EchoFilter.java:38)
+	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper$1.invoke(ProtocolFilterWrapper.java:91)
+	at com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol$1.reply(DubboProtocol.java:108)
+	at com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.handleRequest(HeaderExchangeHandler.java:84)
+	at com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.received(HeaderExchangeHandler.java:170)
+	at com.alibaba.dubbo.remoting.transport.DecodeHandler.received(DecodeHandler.java:52)
+	at com.alibaba.dubbo.remoting.transport.dispather.ChannelEventRunnable.run(ChannelEventRunnable.java:82)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+	at java.lang.Thread.run(Thread.java:722)
+Caused by: java.sql.SQLException: 通过匿名服务接口无法找到可用的服务，可以考滤设置处理类 clazz
+	at com.tydic.vds.jdbc.impl.VdsStatement.getServiceStyleFunction(VdsStatement.java:455)
+	at com.tydic.vds.jdbc.impl.VdsStatement.callVdsService(VdsStatement.java:322)
+	at com.tydic.vds.jdbc.impl.VdsPreparedStatement.execute(VdsPreparedStatement.java:65)
+	at org.apache.commons.dbcp.DelegatingPreparedStatement.execute(DelegatingPreparedStatement.java:172)
+	at org.apache.commons.dbcp.DelegatingPreparedStatement.execute(DelegatingPreparedStatement.java:172)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:59)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:73)
+	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:60)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:267)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:137)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:96)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:77)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:108)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:102)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
+	at com.tydic.uda.resolver.jdbc.JdbcDataOperate$SqlSessionInterceptor.invoke(JdbcDataOperate.java:183)
+	... 36 more

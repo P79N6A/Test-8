@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="crm_user"
+			password="crm_user">
+			<active>
+				<tables schema="CRM_USER"
+					filter="table_name in ('INFO_USER','LIFE_USER_STATUS','LIFE_USER_PRODUCT')" />
+			</active>
+		</driver>
+		<driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing"
+			password="billing">
+			<active>
+				<tables schema="BILLING"
+					filter="table_name in ('RULE_PRODUCT_RESOURCE')" />
+			</active>
+		</driver>
+	</drivers>
+	
+	<services>
+	<!-- info_user -->
+		<service code="res2acct.getInfoUser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[--@DataSource(1)
+				SELECT T1.USER_ID, T1.DEVICE_NUMBER, T2.USER_STATUS AS USER_STATUS
+				  FROM INFO_USER T1, LIFE_USER_STATUS T2
+				 WHERE T1.USER_ID = T2.USER_ID
+				   AND T2.EFF_FLAG = '0'
+				   AND T2.USER_STATUS_ID NOT IN ('401', '402')
+				   AND MOD(T1.USER_ID, 1000) = ?
+				   AND SYSDATE BETWEEN T2.EFF_DATE AND T2.EXP_DATE
+				]]>
+			</script>
+		</service>		
+		
+		
+		
+		<!-- LifeUserProduct -->
+		<service code="res2acct.lifeUserProduct"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[--@DataSource(2)
+		       SELECT DISTINCT T1.USER_PRODUCT_ID, T1.PRODUCT_ID
+		         FROM CRM_USER.LIFE_USER_PRODUCT T1, RULE_PRODUCT_RESOURCE T2
+		        WHERE T1.PRODUCT_ID = T2.PRODUCT_ID
+		          AND T1.EFF_FLAG = '0'
+		          AND T1.USER_ID = ?
+		          AND SYSDATE BETWEEN T1.EFF_DATE AND T1.EXP_DATE
+			]]>
+			</script>
+		</service>
+		
+		
+	
+	</services>
+</vds>

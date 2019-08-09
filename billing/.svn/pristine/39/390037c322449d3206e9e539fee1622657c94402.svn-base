@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<dubbo:application name="Retry-CycleRent-Service" />
+	<dubbo:registry address="zookeeper://172.168.1.211:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<!-- <dubbo:reference id="ResourceAccount" interface="com.tydic.beijing.billing.interfacex.service.Resource2Account" 
+		/> -->
+	<dubbo:service
+		interface="com.tydic.beijing.billing.interfacex.service.RetryCycleRentService"
+		ref="retryCycleRent"   retries="0" timeout="30000"/>
+
+	<bean id="dsAcctMonth"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSAcctMonth" />
+	<bean id="dsConfigFile"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSConfigFile" />
+	<bean id="dsRuleGroupStateRelateion"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSRuleGroupStateRelateion" />
+	<bean id="dsRuleOfrSplit"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSRuleOfrSplit" />
+	<bean id="dsRuleOfrTariffRelation"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSRuleOfrTariffRelation" />
+	<bean id="dsRuleTariffConfInfo"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSRuleTariffConfInfo" />
+	<bean id="dsRuleItemCodeRelation"
+		class="com.tydic.beijing.billing.cyclerent.datastore.DSRuleItemCodeRelation" />
+
+
+	<bean id="retryCycleRentOps"
+		class="com.tydic.beijing.billing.interfacex.biz.RetryCycleRentOps">
+		<property name="acctMonth" ref="dsAcctMonth"></property>
+		<property name="configFile" ref="dsConfigFile"></property>
+		<property name="groupState" ref="dsRuleGroupStateRelateion"></property>
+		<property name="ruleOfrSplit" ref="dsRuleOfrSplit"></property>
+		<property name="ofrTariff" ref="dsRuleOfrTariffRelation"></property>
+		<property name="tariffInfo" ref="dsRuleTariffConfInfo"></property>
+		<property name="itemCode" ref="dsRuleItemCodeRelation"></property>
+	</bean>
+
+	<bean id="retryCycleRent"
+		class="com.tydic.beijing.billing.interfacex.service.impl.RetryCycleRentServiceImpl">
+		<property name="ops" ref="retryCycleRentOps"></property>
+	</bean>
+</beans>

@@ -1,0 +1,19 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub   4677733
+		double x=0;
+		double z=0;//307500
+		for (x = 0; x <99999999; x++) {
+			x=4677733-(299*z/254;
+			System.out.println("x="+x+"z="+z);
+		}
+		
+}
+
+}

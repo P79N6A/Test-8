@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jsf="http://jsf.jd.com/schema/jsf"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	http://jsf.jd.com/schema/jsf  http://jsf.jd.com/schema/jsf/jsf.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="Refund-Service" />
+	<dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+
+	<dubbo:service interface="com.tydic.beijing.billing.account.service.Refund"
+		ref="refund" retries="0" timeout="30000"/>
+
+
+	<jsf:registry id="jsfRegistry" protocol="jsfRegistry" index="i.jsf.jd.com" >
+        <jsf:parameter key="refund" value="refund" />
+    </jsf:registry>
+    
+    <!-- 测试环境 alias='cornucopia_test' 生产环境alias='CORNUCOPIA:SERVER'-->
+    
+    <jsf:consumer id="mobileRefundService" interface="com.jd.project.server.jsf.mobileserver.IMobileRefundService" 
+    protocol="jsf" alias="cornucopia_test" timeout="20000" >
+	<!-- 测试   -->
+ 	<jsf:parameter key="token" value="1d45refund954as" hide="true"/>
+ 	<!-- 生产  
+ 	<jsf:parameter key="token" value="8508254541EFF7A4" hide="true"/> -->
+	</jsf:consumer>
+    
+
+
+	<bean id="balanceTypes"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType" />
+		
+	<bean id="refundQueryOps"
+		class="com.tydic.beijing.billing.account.biz.RefundQueryOps">
+		<property name="balanceTypes" ref="balanceTypes"></property>
+	</bean>
+
+	<bean id="refundquery" class="com.tydic.beijing.billing.account.service.impl.RefundQueryImpl">
+		<property name="ops" ref="refundQueryOps"></property>
+	</bean>
+	
+	<bean id="userEventMapping" class="com.tydic.beijing.billing.account.datastore.DSUserEventMapping" />
+	
+	<bean id="refundOps"
+		class="com.tydic.beijing.billing.account.biz.RefundOps">
+	</bean>
+	
+	<bean id="refund" class="com.tydic.beijing.billing.account.service.impl.RefundImpl">
+		<property name="ops" ref="refundOps"></property>
+		<property name="rQuery" ref="refundquery"></property>
+		<property name="userEventMapping" ref="userEventMapping"></property>
+		<property name="iMobileRefundService" ref="mobileRefundService"/>
+	</bean>
+</beans>

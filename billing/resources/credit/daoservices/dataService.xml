@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.BilActBill4CreditMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.BilActRealTimeBill4CreditMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.CreditActionMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.InfoPayBalance4CreditMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.InfoUser4CreditMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.PayUserRel4CreditMemcache"
+		type="memcached" />
+	<service
+		data="com.tydic.beijing.billing.credit.memcache.dao.InfoUserCreditMemcache"
+		type="memcached" />
+
+	<!-- credit_para -->
+	<service data="com.tydic.beijing.billing.credit.dao.CreditPara"
+		type="jdbc">
+		<query>
+			credit.para()
+		</query>
+	</service>
+
+	<!-- credit_proc_para -->
+	<service data="com.tydic.beijing.billing.credit.dao.CreditProcPara"
+		type="jdbc">
+		<query>
+			credit.proc.para(#{filter.proc_id})
+		</query>
+	</service>
+
+	<!-- code_acct_month -->
+	<service data="com.tydic.beijing.billing.dao.CodeAcctMonth"
+		type="jdbc">
+		<query>
+			code.acct.month()
+		</query>
+	</service>
+	
+	
+
+	<!-- q_block -->
+	<service data="com.tydic.beijing.billing.credit.dao.QBlockCredit"
+		type="jdbc">
+		<query>
+			credit.q.block(#{filter.mod}, #{filter.remainder})
+		</query>
+
+		<create>
+			insert into log_q_block(pay_id, user_id, block_flag,
+			enqueue_date, serial_num, action_time, source) values
+			('${pay_id}',
+			'${user_id}', ${block_flag}, to_date('${enqueue_date}',
+			'yyyymmddhh24miss'), ${serial_num},
+			to_date('${action_time}',
+			'yyyymmddhh24miss'), '${source}')
+		</create>
+
+		<batch>
+			<choose>
+				<when test="name=='delete4qblock'">
+					credit.q.block.delete(){
+					vds.sql.append(" and rowid
+					in (${filter.row_id})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<!-- q_credit_info_user_credit -->
+	<service data="com.tydic.beijing.billing.credit.dao.QCreditInfoUserCredit"
+		type="jdbc">
+		<create>
+			insert into q_credit_info_user_credit_log(serial_num, action, enqueue_date, local_net, user_id, 
+			credit_type, credit_number, eff_date, exp_date, eff_flag,process_time,row_id
+         ) values
+			('${serial_num}',
+			'${action}',  to_date('${enqueue_date}',
+			'yyyymmddhh24miss'), ${local_net},${user_id},
+			${credit_type},${credit_number},to_date('${eff_date}',
+			'yyyymmddhh24miss'), to_date('${exp_date}',
+			'yyyymmddhh24miss'),'${eff_flag}',sysdate,'${row_id}')
+		</create>
+		<query>
+			credit.q.credit.info.user.credit(#{filter.mod},
+			#{filter.remainder})
+		</query>
+		<batch>
+			<choose>
+				<when test="name=='delete4qcreditinfousercredit'">
+					credit.q.credit.info.user.credit.delete(){
+					vds.sql.append(" and rowid in (${filter.row_id})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<!-- q_credit_info_user -->
+	<service data="com.tydic.beijing.billing.credit.dao.QCreditInfoUser"
+		type="jdbc">
+		<query>
+			credit.q.credit.info.user(#{filter.mod}, #{filter.remainder})
+		</query>
+		<create>
+			insert into q_credit_info_user_log(serial_num, action, enqueue_date, user_id, device_number, 
+			process_time,row_id) values
+			('${serial_num}',
+			'${action}',  sysdate,'${user_id}','${device_number}',
+			sysdate,'${row_id}')
+		</create>
+		<batch>
+			<choose>
+				<when test="name=='delete4qcreditinfouser'">
+					credit.q.credit.info.user.delete(){
+					vds.sql.append("
+					and rowid in (${filter.row_id})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<!-- bil_act_bill -->
+	<service data="com.tydic.beijing.billing.credit.dao.BilActBill4Credit"
+		type="jdbc">
+		<query>
+			credit.bil.act.bill(#{filter.user_id})
+		</query>
+	</service>
+
+	<!-- bil_act_real_time_bill -->
+	<service
+		data="com.tydic.beijing.billing.credit.dao.BilActRealTimeBill4Credit"
+		type="jdbc">
+		<query>
+			select user_id, pay_id ,acct_month, sum(non_deduct_fee) as
+			non_deduct_fee from
+			bil_act_real_time_bill_${filter.charge_date} where
+			user_id = ${filter.user_id} and unit_type_id = 0 group by
+			user_id,
+			pay_id,
+			acct_month having sum(non_deduct_fee) > 0
+		</query>
+	</service>
+
+	<!-- q_user_reason_send -->
+	<service data="com.tydic.beijing.billing.credit.dao.QUserReasonSend"
+		type="jdbc">
+		<create name="insert">
+			insert into q_user_reason_send (serial_num,
+			user_no, tele_type, reason_code, enqueue_date, local_net,
+			active_type, charge_id,para_value)
+			values(${serial_num}, '${user_no}',
+			'${tele_type}', '${reason_code}',
+			to_date('${enqueue_date}',
+			'yyyymmddhh24miss'), '${local_net}',
+			'${active_type}', '${charge_id}','${para_value}')
+		</create>
+	</service>
+
+	<!-- credit_sequence_utils -->
+	<service data="com.tydic.beijing.billing.credit.dao.CreditSequenceUtils"
+		type="jdbc">
+		<query>
+			select ${filter.sequence_name}.nextval as duckduckgo from
+			credit_sequence_utils
+		</query>
+	</service>
+
+	<!-- credit_action -->
+	<service data="com.tydic.beijing.billing.credit.dao.CreditAction"
+		type="jdbc">
+		<query>
+			select * from credit_action where user_id = ${filter.user_id}
+			and reason = ${filter.reason}
+		</query>
+		<create>
+			insert into credit_action
+			(id,user_id,pay_id,reason,action_time,local_net)
+			values(${id},'${user_id}','${pay_id}','${reason}',to_date('${action_time}',
+			'yyyymmddhh24miss'),'${local_net}')
+		</create>
+		<update>
+			update credit_action set pay_id = '${pay_id}',
+			action_time=to_date('${action_time}', 'yyyymmddhh24miss'),
+			local_net =
+			'${local_net}' where user_id = '${user_id}' and reason = '${reason}'
+		</update>
+
+		<batch>
+			<choose>
+				<when test="name=='delete4creditaction'">
+					credit.credit.action.delete(){
+					vds.sql.append("
+					reason = ${filter.reason} and user_id in (${filter.user_id})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<!-- log_credit_action -->
+	<service data="com.tydic.beijing.billing.credit.dao.LogCreditAction"
+		type="jdbc">
+		<create>
+			insert into log_credit_action
+			(serial_no,user_id,pay_id,credit_number, history,
+			realtime,reason,action_time, source)
+			values(${serial_no},'${user_id}','${pay_id}',${credit_number},${history},
+			${realtime}, '${reason}', to_date('${action_time}',
+			'yyyymmddhh24miss'), '${source}')
+		</create>
+	</service>
+
+	<!-- hlp_sms_send -->
+	<service data="com.tydic.beijing.billing.credit.dao.HlpSmsSend"
+		type="jdbc">
+		<create name="insert">
+			insert into hlp_sms_send
+			(msg_id,msisdn_send,msisdn_receive,priority,
+			message_text,send_time,create_time,retry_times)
+			values('${msg_id}',
+			'${msisdn_send}', '${msisdn_receive}', ${priority},
+			'${message_text}',
+			to_date('${send_time}', 'yyyymmddhh24miss'),
+			to_date('${create_time}', 'yyyymmddhh24miss'),
+			${retry_times})
+		</create>
+	</service>
+
+	<!-- info_user -->
+	<service data="com.tydic.beijing.billing.credit.dao.InfoUser4Credit"
+		type="jdbc">
+		<query>
+			select * from info_user where user_id = ${filter.user_id}
+		</query>
+	</service>
+
+	<!-- q_user_reason_send_pre -->
+	<service data="com.tydic.beijing.billing.credit.dao.QUserReasonSendPre"
+		type="jdbc">
+		<create>
+			insert into q_user_reason_send_pre (serial_num,
+			user_no,
+			tele_type, reason_code, enqueue_date, local_net,
+			active_type,
+			charge_id)
+			values(${serial_num}, '${user_no}',
+			'${tele_type}',
+			'${reason_code}',
+			to_date('${enqueue_date}',
+			'yyyymmddhh24miss'),
+			'${local_net}',
+			'${active_type}', '${charge_id}')
+		</create>
+	</service>
+
+	<!-- log_credit_file -->
+	<service data="com.tydic.beijing.billing.credit.dao.LogCreditFile"
+		type="jdbc">
+		<create>
+			insert into log_credit_file (file_name, record_count,
+			record_normal, open_record, stop_record, none_record, user_notfound, finish_time)
+			values('${file_name}',
+			${record_count}, ${record_normal}, ${open_record}, ${stop_record}, ${none_record},${user_notfound},
+			to_date('${finish_time}',
+			'yyyymmddhh24miss'))
+		</create>
+	</service>
+	
+	<service
+		data="com.tydic.beijing.billing.credit.dao.BilActResourceAddUp"
+		type="jdbc">
+		<query>
+			select * from
+			bil_act_resource_add_up_${filter.partitionNo} where
+			user_id = '${filter.userId}' and acct_month = ${filter.acctMonth} and resource_id=3001
+		</query>
+		<query name="queryForTrafficLimit">
+			select  nvl(sum(a.resource_value),0) resource_value from
+			bil_act_resource_add_up_${filter.partitionNo}  a where
+			a.user_id = '${filter.userId}' and a.acct_month = ${filter.acctMonth} and a.resource_id in(3000,3001)
+		</query>
+	</service>
+	
+	<service
+		data="com.tydic.beijing.billing.dao.RuleParameters"
+		type="jdbc">
+		<query name="queryRuleParameters">
+			select * from rule_parameters where domain_code =5600 order by to_number(para_char2)
+		</query>
+	</service>
+		
+	
+	<service
+		data="com.tydic.beijing.billing.credit.dao.LogCreditFlowOvertop"
+		type="jdbc">
+		<query>
+			select * from log_credit_flow_overtop where
+			user_id = ${filter.userId} and acct_month = ${filter.acctMonth} 
+		</query>
+		
+		<query name="getLogCreditFlowOvertopforspeed">
+			select * from log_credit_flow_overtop where
+			user_id = '${filter.userId}' and acct_month = ${filter.acctMonth} and limit_speed = '${filter.speed}'
+		</query>
+		
+		<create>
+			insert into log_credit_flow_overtop (user_id, acct_month, process_time,limit_speed)
+			values('${user_id}', ${acct_month}, to_date('${process_time}', 'yyyymmddhh24miss'),'${limit_speed}')
+		</create>
+	</service>
+	
+	<!-- crm_cust.info_auth_mobile -->
+	<service
+		data="com.tydic.beijing.billing.credit.dao.InfoAuthMobile"
+		type="jdbc">
+		<query>
+			select customer_id from INFO_AUTH_MOBILE where
+			user_id = ${filter.userId}
+		</query>
+	</service>
+	
+	<!-- crm_cust.info_alllist -->
+	<service
+		data="com.tydic.beijing.billing.credit.dao.InfoAllList"
+		type="jdbc">
+		<query>
+			select alllist_type,to_char(eff_date,'yyyymmddhh24miss'),to_char(eff_date,'yyyymmddhh24miss') 
+			from info_alllist
+			where
+			customer_id = ${filter.customerId}
+			and sysdate between eff_date and exp_date
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+	   <query>
+	       select user_id,main_ofr_id,tele_type,local_net from crm_user.info_user where user_id = ${filter.userId}
+	   </query>
+	</service>
+	
+	
+		<!-- q_credit_info_user_credit_log -->
+	<service data="com.tydic.beijing.billing.credit.dao.QCreditInfoUserCreditlog"
+		type="jdbc">
+		<create>
+			insert into q_credit_info_user_credit_log(serial_num, action, enqueue_date, local_net, user_id, 
+			credit_type, credit_number, eff_date, exp_date,eff_flag,process_time) values
+			('${serial_num}',
+			${action},  to_date('${enqueue_date}',
+			'yyyymmddhh24miss'),'${local_net}','${user_id}',
+			${credit_type},${credit_number},to_date('${eff_date}',
+			'yyyymmddhh24miss'), to_date('${exp_date}',
+			'yyyymmddhh24miss'),'${eff_flag}',to_date('${process_time}','yyyymmddhh24miss'))
+		</create>	
+	</service>
+
+	<service data="com.tydic.beijing.billing.credit.dao.QCreditInfoUserlog"
+		type="jdbc">	
+		<create>
+			insert into q_credit_info_user_log(serial_num,action,enqueue_date,user_id,device_number, 
+			process_time) values
+			('${serial_num}',
+			${action},sysdate,'${user_id}',${device_number},to_date('${process_time}','yyyymmddhh24miss'))
+		</create>
+	</service>
+	
+</services>

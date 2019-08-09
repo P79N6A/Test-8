@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>		
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.211:1621:newbss" user="billing"
+			password="billing">
+			<active>
+				<tables schema="BILLING" filter="table_name in ('RULE_REFRESH_TRIGGER', 'LOG_REFRESH_TRIGGER')" />
+			</active>
+		</driver>
+	</drivers>
+	<services>
+		<service code="tools.rulerefreshtrigger.getAllActive" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_refresh_trigger a where a.refresh_now = 1]]>
+			</script>
+		</service>
+		<service code="tools.rulerefreshtrigger.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="tools.logrefreshtrigger.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+	</services>
+</vds>

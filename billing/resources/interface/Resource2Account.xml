@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<dubbo:application name="Resource-to-Account" />
+    <dubbo:registry address="zookeeper://172.168.1.211:2181" />
+    <dubbo:protocol name="dubbo" port="-1" dispather="message"
+                threadpool="fixed" threads="24" />
+    <dubbo:monitor protocol="registry" />
+
+    <dubbo:service interface="com.tydic.beijing.billing.interfacex.service.Resource2Account"
+                        ref="resource2Account"  retries="0" timeout="30000"/>
+	<bean id="Resource2AccountOps"
+		class="com.tydic.beijing.billing.interfacex.biz.Resource2AccountOps">
+		<property name="resourceCharge" ref="resourceCharge"></property>
+	</bean>
+	
+	<bean id="ResourceChargeDb"
+		class="com.tydic.beijing.billing.interfacex.biz.ResourceChargeDbImpl" />
+
+	<bean id="resourceCharge"
+		class="com.tydic.beijing.billing.interfacex.service.impl.ResourceChargeServiceImpl">
+		<property name="chargeDb" ref="ResourceChargeDb" />
+	</bean>
+
+	<bean id="resource2Account"
+		class="com.tydic.beijing.billing.interfacex.service.impl.Resource2AccountImpl">
+		<property name="ops" ref="Resource2AccountOps"></property>
+	</bean>
+</beans>

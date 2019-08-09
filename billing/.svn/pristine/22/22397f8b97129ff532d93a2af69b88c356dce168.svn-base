@@ -1,0 +1,18 @@
+TableName = JIDO_VAC
+Spilt = ,
+TableColumn = CDR_TYPE String,FILE_ID String,ORG_NUMBER String,TRIM_NUMBER String,START_TIME String,END_TIME String,UP_FLOW String,DOWN_FLAG String,SMS_FEE String,ORDER_SEQUENCE String,RECORD_FLAG String,SPID String,SERVICE_ID String,CP_ID String,CONTENT_ID String,THIRD_NUMBER String,SERVICE_TYPE String,DEVICE_FLAG String,RECORD_TYPE String,PRODUCT_ID String,PRODUCT_ID2 String,SP_ID String,PAY_TYPE String,CHARGE_POINT String,CHARGE_TYPE String,IMSI String,RESERVE_1 String,RESERVE_2 String,RESERVE_3 String,RESERVE_4 String,RESERVE_5 String
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 1
+MonthColumn = 
+InsertLogFlag = 1
+LogTable = log_file2db_JIDO_VAC
+
+commit_num = 50
+file_dir = /Users/persen/tmp/JIDO_VAC
+bak_dir = /Users/persen/tmp/JIDO_VAC_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

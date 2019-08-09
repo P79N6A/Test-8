@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="3" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_param" password="b_param">
+			<active>
+				<tables schema="jd_param" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="1" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="2" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.218:3306" user="b_data" password="b_data" >
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+	</drivers>
+	<sharding>
+		<table schema="JD_DATA" name="balance_access_log">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		<table schema="JD_DATA" name="info_pay_balance">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="info_user">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_attr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_external_account">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_external_account_attr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="life_resource_list">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="life_user_auto_exchange">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="life_user_ofr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_auto_exchange_log">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_ratable_history">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_adjust_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_auto_exchange_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_auto_exchange_set_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_create_user">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_create_user_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_exchange_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_external_account_attr_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_external_account_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_shopping">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_shopping_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_sku">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_sku_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="original_shopping_file">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 0 and 500]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1000) between 501 and 999]]>
+				</accept>
+			</partition>
+		</table>
+	</sharding>
+	
+</vds>

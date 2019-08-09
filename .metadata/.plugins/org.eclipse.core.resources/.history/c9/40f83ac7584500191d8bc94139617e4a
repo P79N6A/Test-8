@@ -1,0 +1,11 @@
+package test;
+import java.util.*;
+
+public class Demo {
+	public static void main(String[] args) {
+		 Calendar c1 = Calendar.getInstance();
+	     Calendar c2 = Calendar.getInstance();
+	     int result = c2.get(Calendar.MONTH) - c1.get(Calendar.MONTH);
+	     System.out.println(result);
+	}
+}

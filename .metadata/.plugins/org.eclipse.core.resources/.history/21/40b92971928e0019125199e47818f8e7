@@ -1,0 +1,75 @@
+package com.tydic.beijing.billing.account.service.impl;
+
+import com.tydic.beijing.billing.account.biz.RechargeOps;
+import com.tydic.beijing.billing.account.service.BatchRecharge;
+import com.tydic.beijing.billing.common.BasicType;
+import com.tydic.beijing.billing.common.ErrorCode;
+import com.tydic.beijing.billing.common.JDNToNewMsisdn;
+import com.tydic.beijing.billing.dto.RechargeInfo;
+import com.tydic.beijing.billing.dto.RechargeResult;
+import org.apache.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
+/**
+ * Created by Administrator on 2019/6/11.
+ */
+public class BatchRechargeImpl implements BatchRecharge{
+    private final static Logger LOGGER = Logger.getLogger(RechargeImpl.class);
+    private final static String RESULT_STATUS_FAIL = "0"; // 返回失败
+    private final static Map<String,String> rechargeP = new HashMap<String,String>();
+
+    RechargeOps ops;
+
+    static{
+        Properties p = new Properties();
+        try {
+            p.load(RechargeImpl.class.getClassLoader()
+                    .getSystemResourceAsStream("recharge.properties"));
+        } catch (Exception ex) {
+            LOGGER.error("load recharge.properties error!!!");
+            LOGGER.error(ex.getMessage());
+            System.exit(1);
+        }
+        Iterator<Map.Entry<Object, Object>> it = p.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Object, Object> entry = it.next();
+            rechargeP.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+    }
+
+    @Override
+    public RechargeResult recharge(RechargeInfo info) {
+        LOGGER.debug("Recharge Input:[" + info + "]");
+        // add by wangtao begin
+        String nbr = info.getMSISDN();
+        nbr = JDNToNewMsisdn.jdnToNewMsisdn(nbr, BasicType.STARTSTR);
+        info.setMSISDN(nbr);
+        // add by wangtao end
+        RechargeResult result = new RechargeResult();
+        try {
+            ops.recharge(info, result);
+        } catch (Exception ex) {
+            LOGGER.error("Recharge DeviceNumber[" + info.getMSISDN()
+                    + "] Failed!");
+            LOGGER.error(ex.toString());
+            if (!result.getStatus().trim().equalsIgnoreCase(RESULT_STATUS_FAIL)) {
+                result.setStatus(RESULT_STATUS_FAIL);
+                result.setErrorCode(ErrorCode.ERR_UNCLASSIFIED);
+                result.setErrorMessage("数据库异常");
+            }
+        }
+        LOGGER.debug("Recharge output:[" + result + "]");
+        return result;
+    }
+    public RechargeOps getOps() {
+        return ops;
+    }
+
+    public void setOps(RechargeOps ops) {
+        this.ops = ops;
+    }
+}

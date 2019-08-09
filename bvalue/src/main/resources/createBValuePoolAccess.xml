@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:saf="http://code.360buy.com/schema/saf" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://code.360buy.com/schema/saf
+    http://code.360buy.com/schema/saf/saf.xsd">
+
+
+	<dubbo:application name="createBValuePoolAccess" />
+
+	 <dubbo:registry address="multicast://224.5.6.7:1234" />
+	
+<!--	<dubbo:registry address="zookeeper://127.0.0.1:2181" />-->
+	
+	<dubbo:protocol name="dubbo" port="-1" dispather="message" threadpool="fixed" threads="24"/>
+
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.tydic.vds.jdbc.VdsDriver" />
+		<property name="url"
+			value="jdbc:vds:local://classpath?directsql=true&amp;loadxml=true&amp;loaddb=false" />
+	</bean>
+	<bean class="com.tydic.uda.service.factory.XmlDataServiceFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="serviceLocations">
+			<list>
+				<value>classpath:daoservices/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+
+
+	<context:annotation-config />
+	
+ 
+	<bean id="createBValuePoolAccessImpl" class="com.tydic.beijing.bvalue.service.impl.CreateBValuePoolAccessImpl" />
+
+	<dubbo:service interface="com.tydic.beijing.bvalue.service.ICreateBValuePoolAccess" ref="createBValuePoolAccessImpl" retries="0"
+		timeout="30000" />
+
+
+</beans>

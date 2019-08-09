@@ -1,0 +1,23 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+        int max=100;
+        int min=-100;
+        for (int x =min; x <max; x++) {
+            for (int y =min; y <max; y++) {
+                for (int z = min; z <max; z++) {
+                    if(y==2*x-7&&5*x+3*y+2*z==3&&3*x+z==7){
+                        System.out.println("x="+x+"\ty="+y+"\tz="+z);
+                    }
+                }
+            }
+        }
+ 
+    }
+
+}

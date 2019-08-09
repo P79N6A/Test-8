@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<service data="com.tydic.beijing.billing.dao.InfoUser"
+		type="jdbc">
+		<query>
+			res2acct.getInfoUser(#{filter.mod_id})
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.LifeUserProduct"
+		type="jdbc">
+		<query>
+			res2acct.lifeUserProduct(#{filter.user_id})
+		</query>
+	</service>
+	
+</services>

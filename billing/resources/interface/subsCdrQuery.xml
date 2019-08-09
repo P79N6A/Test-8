@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	
+	<dubbo:application name="QuerySubsCDR" />
+	<!--  <dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />  -->
+	<dubbo:registry address="zookeeper://172.168.1.211:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+			
+	<dubbo:service interface="com.tydic.beijing.billing.interfacex.service.QuerySubsCDR"
+		ref="subsCdrQuery" retries="0" timeout="30000"/>
+
+	<bean id="subsCdrQuery"
+		class="com.tydic.beijing.billing.interfacex.service.impl.QuerySubsCDRImpl" >
+
+		<property name="lists">
+			<list>
+				<value>JDLTPN001</value>
+			</list>
+		</property>
+		<!-- 此处配置的是开发环境存放mp3文件的地址-->
+		<property name="ftpUrl" value="ftp://git:git12#$@172.168.1.217/"/>
+	</bean>
+
+</beans>
+

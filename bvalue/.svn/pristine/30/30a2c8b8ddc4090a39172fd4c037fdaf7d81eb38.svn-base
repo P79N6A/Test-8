@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	
+	<tx:advice id="advice" transaction-manager="transactionManager">
+		<tx:attributes>
+			
+			<tx:method name="regist*" propagation="REQUIRED" timeout="180" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 配置参与事务的类 -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="method" expression="execution(* com.tydic.beijing.bvalue.biz..*.*(..))" />
+		<aop:advisor pointcut-ref="method" advice-ref="advice" />
+	</aop:config>
+	
+	
+	<dubbo:application name="QueryBAcctRemainBalance" />
+	<!--  <dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />  -->
+	<dubbo:registry address="zookeeper://127.0.0.1:2181" />
+	
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+		
+<!--  	<dubbo:monitor protocol="registry" />-->
+			
+	<bean id="dbtool"  class="com.tydic.beijing.bvalue.biz.DbTool" />
+	<bean id="regist"  class="com.tydic.beijing.bvalue.core.InfoUserDto"/>	
+	<dubbo:service interface="com.tydic.beijing.bvalue.service.QueryBAcctRemainBalance"
+		ref="syncImpl"  retries="0" timeout="30000"/>
+	
+	<bean id="loadVds"  class="com.tydic.beijing.bvalue.biz.LoadVds" init-method="init">
+	<property name="db"  ref="dbtool"/>
+	</bean>
+	
+	
+	<bean id="syncImpl" class="com.tydic.beijing.bvalue.service.impl.QueryBAcctRemainBalanceSyncImpl" >
+		<property name="queryB"  ref="queryimpl"/>
+		<property name="db"  ref="dbtool"/>
+	</bean>
+	
+	
+	<bean id="queryimpl"	class="com.tydic.beijing.bvalue.service.impl.QueryBAcctRemainBalanceImpl" >
+		<property name="db"  ref="dbtool"/>
+		<property name="regist"  ref="regist" />
+		<property name="dateFormat" value="yyyy-MM-dd HH-mm-ss" />
+		<property name="syncRedis"  value="Y" />
+	</bean>
+	
+	
+	
+	
+		
+			
+			
+	
+	
+	
+</beans>

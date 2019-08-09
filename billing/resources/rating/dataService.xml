@@ -1,0 +1,1044 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<services>
+
+<!-- 
+	<service data="com.tydic.demo.domain.UserInfo" type="memcached">
+	</service> 
+
+          
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+		<query>
+			rate.infouser.getUserbyDeviceNumber(#{filter.device_number})
+		</query>
+	</service>  -->
+	
+	<service data="com.tydic.beijing.billing.dao.UserInfoForMemCached"
+		type="memcached">
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleParameters" type="jdbc">
+		<query>
+			rate.RuleParameters.getparainfo(#{filter.domain_code},#{filter.para_name},#{filter.para_char1})
+		</query>
+		
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleEventTypeTree" type="jdbc">
+	 	<query name="getRootEventTree">
+			rate.RuleEventTypeTree.getRootEventTree(#{filter.oper_list_id},#{filter.up_event_type_rule_tree_id})
+		</query> 
+		<query name="getRootEventTreebyFather">
+			rate.RuleEventTypeTree.getRootEventTreebyFather(#{filter.up_event_type_rule_tree_id})
+		</query>
+		<query name="getAllRuleEventTypeTree">
+			rate.RuleEventTypeTree.getAllRuleEventTypeTree()
+		</query>
+	</service>	
+ 
+   <service data="com.tydic.beijing.billing.rating.domain.RuleOfrSplit" type="jdbc">
+	 	<query name="getRuleOfrSplit">
+			rating.RuleOfrSplit.getRuleOfrSplit(#{filter.ofr_id})
+		</query> 
+		
+	</service>	
+	
+
+	<service data="com.tydic.beijing.billing.rating.domain.CodeRatableResource" type="jdbc">
+		<query>
+			rating.codeRatableResource.getSumInfo()
+		</query>
+		<get  >
+			rating.codeRatableResource.getRatableResourceAttr(#{filter.ratableResourceCode})
+		</get>
+	</service>
+	<service data="com.tydic.beijing.billing.rating.domain.RuleDinnerSelect" type="jdbc">
+		<query name="getAllAtomDinners">
+			rating.ruleDinnerSelect.getAllAtomDinners(#{filter.dinnerId},#{filter.msgType})
+		</query>
+		<query name="getAllRuleDinnerSelect">
+			rating.ruleDinnerSelect.getAllRuleDinnerSelect()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LifeUserProduct" type="jdbc">
+		<query name="getUserProduct">
+			rating.lifeUserProduct.getUserProduct(#{filter.userId})
+		</query>
+		<query name="queryByUserId">
+			account.cyclerent.lifeUserProduct(#{filter.user_id},#{filter.act_exp_date})
+		</query>
+		<query name="queryByUserIdAndRA">
+			account.restoacct.lifeUserProduct(#{filter.user_id})
+		</query>
+		
+	</service>
+
+	<service data="com.tydic.beijing.billing.rating.domain.CodeOfr" type="jdbc">
+	<!-- 	<get>
+			rating.codeOfr.getDinnerInfoByDinnerId(#{ofr_b_id})
+		</get> -->
+		<query>
+	 		select * from billing.code_ofr;
+	 	</query>
+	</service>
+	
+ 
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleEvtPricingStrategy" type="jdbc">
+		<query>
+			rating.RuleEvtPricingStrategy.getAllStrategy()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.CodeSpecialNbr" type="jdbc">
+		<query>
+			rating.CodeSpecialNbr.getAllCodeSpecialNbr()
+		</query>
+	</service>
+
+    <service data="com.tydic.beijing.billing.rating.domain.CodeCountry" type="jdbc">
+		<query>
+			rating.CodeSpecialNbr.getAllCodeCountry()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.rating.domain.RuleOfrGroup" type="jdbc">
+		<query>
+			rating.RuleOfrGroup.getAllGroupInfo()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleOfrSplit" type="jdbc">
+		<query>
+			rating.RuleOfrSplit.getAllRuleOfrSplit()
+		</query>
+	</service>	
+	
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleGroupFavMode" type="jdbc">
+		<query>
+			rating.RuleGroupFavMode.getAllGroupFav()
+		</query>
+	</service>
+	
+	<!-- 
+	<service data="com.tydic.beijing.billing.dao.CodeAcctMonth" type="jdbc">
+		<query>
+			rating.CodeAcctMonth.getAllCodeAcctMonth()
+		</query>
+	</service> -->
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleFormula" type="jdbc">
+		<get>
+			rating.RuleFormula.getFormulaByMsgType(#{msg_type})
+		</get>
+		<query>
+			rating.RuleFormula.getAllRuleFormula()
+		</query>
+		
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.InfoRatableHistory" type="jdbc">
+		<query>
+			rating.InfoRatableHistory.getAllRatableValue()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleStrategySectRel" type="jdbc">
+		<query>
+			rating.RuleStrategySectRel.getAllStrategySecRels()
+		</query>
+
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RulePricingSection" type="jdbc">
+		<query>
+			rating.RulePricingSection.getAllPricingSections()
+		</query>
+
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleSectionRule" type="jdbc">
+		<query name="getAllSectionRules">
+			rating.RuleSectionRule.getAllSectionRules()
+		</query>
+	 	<query name="getRuleSectionRule">
+			rating.RuleSectionRule.getRuleSectionRule(#{filter.pricing_section})
+		</query>  
+		<query name="getSonRuleSectionRule">
+			rating.RuleSectionRule.getSonRuleSectionRule(#{filter.upper_pricing_section})
+		</query> 
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleTariff" type="jdbc">
+		<query>
+			rating.RuleTariff.getAllTariff()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleHoliday" type="jdbc">
+		<query>
+			rating.RuleHoliday.getAllHolidays()
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleOfrResourceRel" type="jdbc">
+		<query>
+			rating.RuleOfrResourceRel.getAllResourceRels()
+		</query>
+	</service>
+	<!-- 
+	<service data="com.tydic.beijing.billing.dao.LifeUserPay" type="jdbc">
+		<get>
+			acct.lifeuserpay.getByPId(#{user_pay_id})
+		</get>
+		<query name="queryByUserId">
+			acct.lifeuserpay.getByUserId(#{filter.user_id})
+		</query>
+	</service> -->
+
+	<service data="com.tydic.beijing.billing.rating.domain.RatingDeductLog"
+		type="jdbc">
+		<create name="insertRatingDeductLog">
+			insert into rating_deduct_log_${partitionId} (userid,
+			reqmsg, balanceid, deductvalue, newbalance, deducttime) values
+			(${userid},'${reqmsg}','${balanceid}',${deductvalue},${newbalance} ,sysdate )
+		</create>
+	</service>
+	
+    <service data="com.tydic.beijing.billing.rating.domain.RuleRateCondition" type="jdbc">
+		<get>
+			rating.RuleRateCondition.getRuleRateCondition(#{cond_id})
+		</get>
+		<query name="getAllRuleRateCondition">
+			rating.RuleRateCondition.getAllRuleRateCondition()
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RulePricingSectionDisct" type="jdbc">
+		<query>
+			rating.RulePricingSectionDisct.getAllSectionDiscount()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.SessionInformationExt" type="jdbc">
+		<get>
+			rating.SessionInformationExt.getSessionInformationBySessionId(#{sessionId})
+		</get>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.TbDeductRecordHistory" type="jdbc">
+		<query>
+			rating.TbDeductRecordHistory.getDeductHistoryBySmid(#{smId})
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.RuleRatableCond" type="jdbc">
+		<query>
+			rating.RuleRatableCond.getRatableConds()
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.CodeRecordType" type="jdbc">
+		<query>
+			rating.CodeRecordType.getAllCodeRecordType()
+		</query>
+	</service>
+
+<!-- 账务的dataservice已经包含了这个表的update，这里先注释掉
+	 <service data="com.tydic.beijing.billing.dao.InfoPayBalance" type="jdbc">
+		<update>
+		rating.infopaybalance.updateRealBalance(){
+		vds.sql.append("update info_pay_balance set real_balance = real_balance- ${real_balance},
+		    used_balance = used_balance + ${used_balance}
+			where balance_id = ${balance_id}   ");
+		}
+		</update>
+	</service>
+	 -->
+	
+	 
+	<service data="com.tydic.beijing.billing.rating.domain.SessionInformationExt" type="jdbc">
+		<query>
+			rating.SessionInformationExt.getSessionInfoById(#{sessionId})
+		</query>
+	</service>  
+	 
+
+	
+	<service data="com.tydic.beijing.billing.dao.InfoPay" type="jdbc">
+		<get>
+			rating.InfoPay.getAcctInfoById(#{payId})
+		</get>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.CodeCountry" type="jdbc">
+		<get>
+			rating.CodeCountry.getCodeCountryInfo(#{areaCode})
+		</get>
+	</service>
+	
+	
+	
+	<!-- account start -->
+		<service data="com.tydic.beijing.billing.dao.PayUserRel" type="jdbc">
+		<get>
+			acct.payuserrel.getByPId(#{pay_user_id})
+		</get>
+		<query name="queryByUserId">
+			acct.payuserrel.getByUserId(#{filter.user_id})
+		</query>
+		<query name="queryByUserIdForResTrade">
+			acct.payuserrel.getByUserIdForResTrade(#{filter.user_id})
+		</query>
+		<query name="queryPayUserRelByUserId">
+		     acct.payuserrel.queryPayUserRelByUserId(#{filter.userid})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.QAcctProcess"
+		type="jdbc">
+		<query name="queryByChannelNo">
+			acct.qacctprocess.getByChannelNo(#{filter.channel_no})
+		</query>
+
+		<update name="updateProcessTag">
+			update q_acct_process set process_tag =
+			${process_tag}, update_time =
+			to_date('${update_time}',
+			'yyyy-mm-dd
+			hh24:mi:ss')
+			where
+			session_id = '${session_id}'
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.SystemTime" type="jdbc">
+		<query name="getTimestamp">
+			acct.systemtime.getTimestamp()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CodeAcctMonth"
+		type="jdbc">
+		<query name="queryBySysdate">
+			acct.codeacctmonth.queryBySysdate()
+		</query>
+		<query name="queryByAcctMonth">
+			acct.codeacctmonth.queryByAcctMonth(#{filter.acct_month})
+		</query>
+		<query name="getAll">
+			acct.codeacctmonth.getAll()
+		</query >
+		 <query name="getAllCodeAcctMonth">
+            rating.CodeAcctMonth.getAllCodeAcctMonth()
+        </query>
+		<query name= "queryByUseAndActTag" >
+                     SELECT * FROM code_acct_month t WHERE t.use_tag = 1 AND t.act_tag = 0
+        </query>
+		
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CodeActAcctItem"
+		type="jdbc">
+		<query name="queryUnitTypeId">
+			acct.codeactacctitem.getUnitTypeId(#{filter.acct_item_code})
+		</query>
+		<query>
+			acct.codeactacctitem.getAll()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.LogUsedBalanceLog"
+		type="jdbc">
+		<create name="insertLogUsedBalanceLog">
+			insert into log_used_balance_log (USER_ID,
+			ACCT_MONTH, INSERT_TIMESTAMP, BALANCE_ID, BALANCE_TYPE_ID, USED_FEE,
+			PROCESS_TAG, INSERT_DATE) values
+			(${user_id},${acct_month},'${insert_timestamp}',${balance_id},${balance_type_id},${used_fee},${process_tag},to_date('${insert_date}',
+			'yyyy-mm-dd hh24:mi:ss'))
+		</create>
+		<query name="queryByInsertTimestamp">
+			acct.logusedbalancelog.queryLogUsedBalanceLog(#{filter.insert_timestamp})
+		</query>
+		<batch>
+			<choose>
+				<when test="name == 'updateByInsertTimestamp'">
+					acct.logusedbalancelog.updateLogUsedBalanceLog(#{targets.process_tag}){
+					vds.sql.append(" insert_timestamp in (${filter.timestamps})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.BilActAddUp" type="jdbc">
+		<query name="queryBilActAddUp">
+			select * from bil_act_add_up_${filter.partition_no}
+			where
+			user_id = ${filter.user_id} and acct_month =
+			${filter.acct_month} and
+			acct_item_code = ${filter.acct_item_code}
+		</query>
+		<create name="insertBilActAddUp">
+			insert into bil_act_add_up_${partition_no}
+			(USER_ID,
+			ACCT_MONTH, ACCT_ITEM_CODE, UNIT_TYPE_ID, FEE, UPDATE_TIME,
+			INSERT_TIMESTAMP, PARTITION_NO) values ('${user_id}', ${acct_month},
+			${acct_item_code}, ${unit_type_id}, ${fee}, to_date('${update_time}',
+			'yyyy-mm-dd hh24:mi:ss'), '${insert_timestamp}',
+			'${partition_no}')
+		</create>
+		<update name="updatetBilActAddUp">
+			update bil_act_add_up_${partition_no} set
+			fee=fee+${fee}, update_time=to_date('${update_time}', 'yyyy-mm-dd
+			hh24:mi:ss'),
+			insert_timestamp='${insert_timestamp}' where user_id =
+			'${user_id}' and acct_month = ${acct_month} and
+			acct_item_code =
+			${acct_item_code}
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.LogActPreWriteoff"
+		type="jdbc">
+		<create name="insertLogActPreWriteoff">
+			insert into log_act_pre_writeoff_${partition_num}
+			(USER_ID, PAY_ID,
+			ACCT_MONTH, PARTITION_NUM,
+			ACCT_ITEM_CODE,
+			UNIT_TYPE_ID, FEE, BALANCE_ID,
+			BALANCE_TYPE_ID, WRITEOFF_FEE, OLD_FEE,
+			NEW_FEE,
+			OLD_REAL_BALANCE,
+			NEW_REAL_BALANCE, UPDATE_TIME)
+			values
+			('${user_id}', '${pay_id}', ${acct_month}, '${partition_num}',
+			${acct_item_code}, ${unit_type_id},
+			${fee}, ${balance_id},
+			${balance_type_id}, ${writeoff_fee}, ${old_fee},
+			${new_fee},
+			${old_real_balance},
+			${new_real_balance}, to_date('${update_time}',
+			'yyyy-mm-dd hh24:mi:ss'))
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.BilActRealTimeBill"
+		type="jdbc">
+		<query name="queryBilActRealTimeBill">
+			select * from
+			bil_act_real_time_bill_${filter.partition_num}
+			where
+			user_id =
+			${filter.user_id} and pay_id = ${filter.pay_id} and acct_month =
+			${filter.acct_month} and
+			acct_item_code = ${filter.acct_item_code}
+		</query>
+		<create name="insertBilActRealTimeBill">
+			insert into
+			bil_act_real_time_bill_${partition_num}
+			(USER_ID, PAY_ID,
+			ACCT_MONTH,
+			PARTITION_NUM,
+			ACCT_ITEM_CODE,
+			UNIT_TYPE_ID, FEE, NON_DEDUCT_FEE,
+			INSERT_DATE)
+			values ('${user_id}',
+			'${pay_id}', ${acct_month},
+			'${partition_num}', ${acct_item_code},
+			${unit_type_id}, ${fee},
+			${non_deduct_fee}, to_date('${insert_date}',
+			'yyyy-mm-dd
+			hh24:mi:ss'))
+		</create>
+		<update name="updateBilActRealTimeBill">
+			update bil_act_real_time_bill_${partition_num}
+			set
+			fee
+			= ${fee}, non_deduct_fee=${non_deduct_fee},
+			insert_date=to_date('${insert_date}', 'yyyy-mm-dd
+			hh24:mi:ss')
+			where
+			user_id =
+			${user_id} and pay_id = ${pay_id} and acct_month =
+			${acct_month} and
+			acct_item_code = ${acct_item_code}
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CodeBilPayBalanceCode"
+		type="jdbc">
+		<query>
+			acct.codebilpaybalancecode.getAll()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CodeBilPayItemCode"
+		type="jdbc">
+		<query>
+			acct.codebilpayitemecode.getAll()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.RuleBilSpePayment"
+		type="jdbc">
+		<query>
+			acct.rulebilspepayment.getAll()
+		</query>
+	</service>
+
+	<!-- bilactuserrealtimebill jdbc begin -->
+	<service data="com.tydic.beijing.billing.dao.BilActUserRealTimeBill"
+		type="jdbc">
+		<query name="queryByUserId">
+			select * from
+			bil_act_user_real_time_bill_${filter.partition_num} where user_id =
+			'${filter.user_id}' and acct_month = ${filter.acct_month}
+		</query>
+		<query name="queryByAcctItemCode">
+			select * from
+			bil_act_user_real_time_bill_${filter.partition_num} where user_id =
+			'${filter.user_id}' and acct_month = ${filter.acct_month} and
+			acct_item_code = ${filter.acct_item_code} and partition_num =
+			${filter.partition_num}
+		</query>
+		<create>
+			insert
+			into bil_act_user_real_time_bill_${partition_num}
+			(user_id,
+			acct_month, acct_item_code, unit_type_id, fee, discount_fee,
+			adjust_before, insert_date, partition_num) values('${user_id}',
+			${acct_month},
+			${acct_item_code},
+			${unit_type_id},
+			${fee},
+			${discount_fee},
+			${adjust_before}, to_date('${insert_date}',
+			'yyyy-mm-dd
+			hh24:mi:ss'), ${partition_num})
+		</create>
+		<update>
+			update
+			bil_act_user_real_time_bill_${partition_num}
+			set fee =
+			${fee},
+			discount_fee= discount_fee + ${discount_fee},
+			adjust_before =
+			adjust_before + ${adjust_before} where
+			user_id =
+			'${user_id}' and
+			acct_month = ${acct_month} and
+			acct_item_code =
+			${acct_item_code}
+		</update>
+	</service>
+	<!-- bilactuserrealtimebill jdbc end -->
+
+	<service data="com.tydic.beijing.billing.dao.CodeBilBalanceType"
+		type="jdbc">
+		<query>
+			acct.codebilbalancetype.getAll()
+		</query>
+		<query name="getByBalanceTypeId">
+			acct.codebilbalancetype.getByBalanceTypeId(#{filter.balance_type_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.InfoPayBalance"
+		type="jdbc">
+		<get>
+			acct.infopaybalance.getByBalanceId(#{filter.balance_id})
+		</get>
+		<query name="queryByPayId">
+			acct.infopaybalance.getByPayId(#{filter.pay_id})
+		</query>
+		
+		<query name="queryBalanceByType">
+			rating.infopaybalance.queryBalanceByType(#{filter.balanceTypeId},#{filter.payId})
+		</query>
+		
+		<query name="getSumResourceBalance">
+			rating.infopaybalance.getSumResourceBalance(#{filter.pay_id},#{filter.balanceTypeId},#{filter.start_Time})
+		</query>
+		
+		
+		<query>
+		   rating.infopaybalance.getInfoPayBalanceAfterUpdate(#{filter.balance_id})
+		</query>
+		
+		<!-- 计费的update -->
+		<update>
+            update info_pay_balance set real_balance = real_balance- ${real_balance},
+		    used_balance = used_balance + ${used_balance}
+			where balance_id = ${balance_id}
+		</update>
+		
+		<batch>
+			<choose>
+				<when test="name=='update4Recharge'">
+					update info_pay_balance
+					set balance = balance +
+					${targets.balance}, real_balance = real_balance +
+					${targets.real_balance}
+					where balance_id = ${filter.balance_id}
+				</when>
+				<when test="name=='updateByBalanceId'">
+					update
+					info_pay_balance set real_balance =
+					balance -
+					${filter.writeoff_fee} where balance - ${filter.writeoff_fee} >= 0
+					and balance_id = ${filter.balance_id}
+				</when>
+				<when test="name=='update4MonthEnd'">
+					update
+					info_pay_balance set real_balance =
+					balance -
+					${filter.wf_balance},
+					balance =
+					balance - ${filter.wf_balance}
+					where
+					balance - ${filter.wf_balance} =
+					${filter.after_balance} and
+					balance_id = ${filter.balance_id}
+				</when>
+				<when test="name=='updateBalance2Zero'">
+					update
+					info_pay_balance set balance = 0,
+					real_balance
+					= 0, used_balance =
+					0 where balance_id =
+					${filter.balance_id}
+				</when>
+			</choose>
+		</batch>
+		<create>
+			insert into
+			info_pay_balance(balance_id, pay_id,
+			balance_type_id, balance,
+			real_balance, used_balance, latn_id,
+			eff_date, exp_date, local_net)
+			values
+			(${balance_id}, '${pay_id}',
+			${balance_type_id}, ${balance},
+			${real_balance}, ${used_balance},
+			${latn_id}, to_date('${eff_date}',
+			'YYYY/MM/DD'),
+			to_date('${exp_date}'||' 23:59:59', 'YYYY/MM/DD HH24:MI:SS'),
+			'${local_net}')
+		</create>
+		<query name="queryLiangHaoBalance">
+		rating.infopaybalance.queryLiangHaoBalance(#{filter.payid})
+		</query>
+		<query name="getInfoPayBalancebyTime">
+		select * from info_pay_balance 
+		where pay_id = ${filter.payId}
+		and balance_type_id = ${filter.balanceTypeId}
+		and trunc(eff_date) =trunc(exp_date)
+		and to_char(exp_date,'YYYYMMDD') = ${filter.effDay}
+		</query>
+		
+		
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.LifeUserPayAddup"
+		type="jdbc">
+		<query name="queryWriteOffFee">
+			acct.lifeuserpayaddup.getWriteOffFee(${filter.user_id},
+			${filter.pay_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActBill" type="jdbc">
+		<query name="queryByUserId">
+			acct.bilactbill.getByUserId(#{filter.user_id})
+		</query>
+		<batch>
+			<choose>
+				<when test="name=='update4Recharge'">
+					update bil_act_bill
+					set write_off_fee =
+					write_off_fee
+					+ ${targets.write_off_fee},
+					owe_fee = owe_fee +
+					${targets.owe_fee},
+					update_time = to_date('${targets.update_time}',
+					'yyyy-mm-dd
+					hh24:mi:ss')
+					where user_id = '${filter.user_id}'
+					and
+					pay_id =
+					'${filter.pay_id}'
+					and acct_item_code =
+					'${filter.acct_item_code}'
+					and acct_month =
+					'${filter.acct_month}'
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+		<query name="queryByDeviceNo">
+			acct.infouser.getByDeviceNo(#{filter.device_number})
+		</query>
+		<query>
+			acct.infouser.getAll()
+		</query>
+		<query name="getInfoUserbyImsi">
+			rating.infouser.getInfoUserbyImsi(#{filter.device_number},#{filter.device_number},#{filter.device_number})
+		</query>
+		<query name="queryByUserId">
+			acct.infouser.getByUserId(#{filter.user_id})
+		</query>
+		
+		<query name="queryOpenByUserId">
+			acct.infouser.queryOpenByUserId(#{filter.user_id})
+		</query>			
+
+		<query name="queryNeedStopUser">
+		rating.infouser.queryNeedStopUser(#{filter.lastTime}){
+		vds.sql.replace("CD","${filter.currentMonth}");
+		vds.sql.replace("AB","${filter.lastMonth}");
+		}
+		</query>
+		
+		<query name="queryInfoAllList">
+			rating.queryInfoAllList()
+		</query>
+		<query name="queryLiangHaoInfoUser">
+		    rating.queryLiangHaoInfoUser()
+		</query>
+	</service>
+	
+	<!-- yanhx  -->
+	<service data="com.tydic.beijing.billing.rating.domain.InfoUserReason" type="jdbc">
+	<query name="queryStopCaller">
+			rating.infouserreason.queryStopCaller(#{filter.beginNum},#{filter.endNum})
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.dao.CDRCalling" type="jdbc">
+	<query name="queryCdrCallingByUserId">
+			rating.cdrcalling.queryCdrCallingByUserId(#{filter.userId},#{filter.sessionBeginTime}){
+			vds.sql.replace("AB","${filter.currentMonth}");
+			
+			}
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.LogActPay" type="jdbc">
+		<create>
+			insert into
+			log_act_pay(pay_charge_id, service_nbr, user_id,
+			pay_id, pay_time,
+			pay_type,
+			pay_channel, cancel_tag, balance_id,
+			unit_type_id, rece_fee,
+			old_all_balance,
+			new_all_balance,
+			old_own_fee,
+			new_own_fee,
+			cancel_charge_id, local_net, reserve_1, reserve_2,
+			reserve_3) values
+			('${pay_charge_id}',
+			'${service_nbr}', '${user_id}',
+			'${pay_id}',
+			to_date('${pay_time}',
+			'yyyy-mm-dd hh24:mi:ss'),
+			'${pay_type}',
+			'${pay_channel}',
+			'${cancel_tag}', ${balance_id},
+			${unit_type_id},
+			${rece_fee},
+			${old_all_balance},
+			${new_all_balance},
+			${old_own_fee},
+			${new_own_fee},
+			'${cancel_charge_id}',
+			'${local_net}',
+			'${reserve_1}',
+			'${reserve_2}',
+			'${reserve_3}')
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LogActWriteOffLog"
+		type="jdbc">
+		<create>
+			insert into
+			log_act_writeoff_log(writeoff_log_id,
+			pay_charge_id, user_id, pay_id,
+			acct_month,
+			billing_id, acct_item_code,
+			fee, balance_id,
+			balance_type_id, writeoff_fee,
+			old_fee, new_fee,
+			old_ownfee,
+			new_ownfee, old_balance, new_balance, writeoff_time)
+			values
+			('${writeoff_log_id}', '${pay_charge_id}', '${user_id}',
+			'${pay_id}',
+			${acct_month},
+			${billing_id}, ${acct_item_code}, ${fee},
+			${balance_id}, ${balance_type_id},
+			${writeoff_fee}, ${old_fee},
+			${new_fee},
+			${old_ownfee}, ${new_ownfee}, ${old_balance},
+			${new_balance}, to_date('${writeoff_time}', 'yyyy-mm-dd
+			hh24:mi:ss'))
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.Sequences" type="jdbc">
+		<query name="queryBalanceId">
+			acct.Sequences.getBalanceId()
+		</query>
+		<query name="queryMsgId">
+			acct.Sequences.getMsgId()
+		</query>
+		<query name="queryQReasonSn">
+			acct.Sequences.getQReasonSn()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.InfoPay" type="jdbc">
+		<query name="queryPayid">
+			acct.infopay.getByPayid(#{filter.pay_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.QRechargeCallback"
+		type="jdbc">
+		<create>
+			insert into
+			q_recharge_callback(serial_no, device_number,
+			user_id, pay_id,
+			recharge_detail,
+			callbackurl,
+			pay_time,
+			state)values('${serial_no}','${device_number}','${user_id}','${pay_id}','${recharge_detail}','${callbackurl}',
+			'${pay_time}', ${state})
+		</create>
+		<update>
+			update
+			q_recharge_callback set state = ${state} where serial_no
+			=
+			'${serial_no}' and
+			recharge_detail = '${recharge_detail}'
+		</update>
+		<query>
+			acct.qrechargecallback.query()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleRechargeTypeMapping"
+		type="jdbc">
+		<query>
+			acct.rulerechargetypemapping.getAll()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.HlpSmsSend" type="jdbc">
+		<create>
+			insert into
+			hlp_sms_send(msg_id, msisdn_send, msisdn_receive,
+			priority,
+			message_text, create_time)values(seq_hlp_sms_send.nextval,'${msisdn_send}',
+			'${msisdn_receive}', ${priority}, '${message_text}',
+			to_date('${create_time}', 'YYYY-MM-DD HH24:MI:SS'))
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.QRefund" type="jdbc">
+		<query>
+			acct.qrefund.query()
+		</query>
+		<update>
+			update
+			q_refund set
+			state
+			= ${state} where serial_no =
+			'${serial_no}'
+		</update>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActAccesslog"
+		type="jdbc">
+		<create>
+			insert into
+			bil_act_accesslog(operate_id,
+			operate_type,partition_id,pay_id,balance_id,balance_type_id,access_tag,money,old_balance,new_balance,local_net)values('${operate_id}',
+			'${operate_type}', ${partition_id}, '${pay_id}', ${balance_id},
+			${balance_type_id}, '${access_tag}', ${money}, ${old_balance},
+			${new_balance}, '${local_net}')
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.QUserReasonSend"
+		type="jdbc">
+		<create>
+			insert into
+			q_user_reason_send(serial_num, user_no, tele_type,
+			reason_code,
+			enqueue_date, local_net, active_type, charge_id)
+			values(${serial_num}, '${user_no}', '${tele_type}', '${reason_code}',
+			to_date('${enqueue_date}', 'YYYY-MM-DD HH24:MI:SS'), '${local_net}',
+			'${active_type}',
+			'${charge_id}')
+		</create>
+	</service>
+
+	<!-- account end -->
+	
+	
+	
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.InfoRatableHistory" type="jdbc">
+		<create>
+		
+		rating.InfoRatableHistory.addRatableHistory(){
+		vds.sql.append("insert into info_ratable_history 
+		   (res_his_id,
+		    resource_code,
+		    owner_type,
+		    owner_id,
+		    latn_id,
+		    acct_month,
+		     value
+		     )values('${res_his_id}','${resource_code}',
+		     '${owner_type}','${owner_id}','${latn_id}','${acct_month}','${value}') "
+		     );
+		}
+		</create>
+	</service>
+	
+	
+	
+	<service data="com.tydic.beijing.billing.rating.domain.InfoRatableHistory" type="jdbc">
+		<update>
+		
+		rating.InfoRatableHistory.updateRatableHistory(){
+		vds.sql.append("update info_ratable_history set value=value+${value} where 
+		 resource_code='${resource_code}' and owner_type='${owner_type}'
+		and owner_id='${owner_id}' and latn_id='${latn_id}' and acct_month='${acct_month}'
+		   "
+		     );
+		}
+		</update>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.rating.domain.InfoRatableHistory" type="jdbc">
+		<query name="queryRatableHistory">
+		
+		rating.InfoRatableHistory.queryRatableHistory(#{filter.resource_code},#{filter.owner_type},#{filter.owner_id},#{filter.latn_id},#{filter.acct_month})
+		</query>
+	</service>
+	
+	<!-- interface -->
+<!-- end interface -->
+
+
+
+	<service data="com.tydic.beijing.billing.dao.LifeUserStatus"
+		type="jdbc">
+		<query name="queryByUserId">
+			account.cyclerent.lifeUserStatus(#{filter.user_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleParameters"
+		type="jdbc">
+		<query name="queryAll">
+			account.ruleParameters.select()
+		</query>
+		<query name="addResOrNot">
+			rate.ruleParameters.addResOrNot()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleOfrSplit"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleofrsplit()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleOfrTariffRelation"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleOfrTariffRelation()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleTariffConfInfo"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleTariffConfInfo()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleGroupStateRelation"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleGroupStateRelation()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleItemCodeRelation"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleItemCodeRelation()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RuleProductResource"
+		type="jdbc">
+		<query name="getAll">
+			account.cyclerent.ruleProductResource()
+		</query>
+		<query name="selectRuleProductResource">
+			interface.RuleProductResource.Resource2Account(#{filter.product_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CodeList" type="jdbc">
+		<query>
+			cyclerent.query.codelist()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LifeProductResourceRel"
+		type="jdbc">
+		<query name="query">
+			account.cyclerent.LifeProductResourceRel(#{filter.user_id},#{filter.user_product_id},#{filter.acct_month},#{filter.ofr_c_id})
+		</query>
+		<create>
+			INSERT INTO life_product_resource_rel
+			(user_id,user_product_id, product_id, ofr_c_id, acct_month,
+			balance_id, balance_type_id, product_flag, eff_date, exp_date,
+			create_date, serial_num)
+			VALUES
+			('${user_id}','${user_product_id}','${product_id}','${ofr_c_id}',${acct_month},${balance_id},${balance_type_id},'${product_flag}',to_date('${eff_date}','YYYYMMDDHH24MISS'),to_date('${exp_date}','YYYYMMDDHH24MISS'),sysdate,'${serial_num}')
+		</create>
+	</service>
+	
+	<!-- 
+	<service data="com.tydic.beijing.billing.rating.domain.BalanceInfoDto" type="jdbc">
+		<update>
+			update info_pay_balance set real_balance=real_balance+#{real_balance},balance = balance+#{balance}
+			where balance_type_id=#{balance_type_id} and pay_id=#{pay_id} and exp_date>sysdate
+		</update>
+	</service>
+	 -->
+	 
+	<service
+		data="com.tydic.beijing.billing.dao.BilActUserRealTimeBillForMemcached"
+		type="memcached">
+	</service>
+	
+	
+	 <service data="com.tydic.beijing.billing.dao.RuleSystemSwitch"  type="jdbc">
+	 	<query name="getRuleSystemSwitch">
+	 		rating.RuleSystemSwitch.getRuleSystemSwitch()
+	 	</query>
+	 </service>
+	 
+	 <service data="com.tydic.beijing.billing.rating.domain.RuleAutoRenew"  type="jdbc">
+	 	<query name="getAllRenews">
+	 		select * from rule_auto_renew order by seq_no;
+	 	</query>
+	 </service>
+	 
+	 <service data="com.tydic.beijing.billing.rating.domain.CrmCodeOfr"  type="jdbc">
+	 	<query name="getAllCrmOfr">
+	 		select ofr_id,ofr_mode_type from crm_OFR.code_ofr;
+	 	</query>
+	 </service>
+	 
+</services>

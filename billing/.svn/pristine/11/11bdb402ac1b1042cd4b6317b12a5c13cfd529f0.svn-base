@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="Enterprise-res-present" />
+	<dubbo:registry address="zookeeper://192.168.177.18:2181" />
+	<dubbo:reference id="SMIQuerySubsBaseInfoServ"
+		interface="com.tydic.unicom.crm.busi.service.interfaces.SMIQuerySubsBaseInfoServ" group="CRM1" />
+
+	<bean id="ResourceGiveMain"
+		class="com.tydic.beijing.billing.account.ResourceGiveMain" />
+		
+
+	<bean id="dsCodeAcctMonth"
+		class="com.tydic.beijing.billing.account.datastore.DSAcctMonth" />
+		
+	<bean id="EnterpriseOps"
+		class="com.tydic.beijing.billing.account.biz.ResGiveByEnterOps" />
+
+
+
+	<bean id="ResPresent"
+		class="com.tydic.beijing.billing.account.service.impl.EnterPriseResPresentImpl">
+		<property name="ops" ref="ResPresentOps"></property>
+		<property name="ctatOps" ref="controlTradeActTagOps"></property>
+		<property name="cab" ref="createAccountBook"></property>
+	</bean>
+
+	<bean id="ResPresentOps" class="com.tydic.beijing.billing.account.biz.EnterpriseResPresentOps">
+		<property name="balanceType" ref="dSBalanceType"></property>
+		<property name="ruleParameters" ref="dSRuleParameters"></property>
+		<property name="bcOps" ref="balanceChangeOps"></property>
+	</bean>
+	<bean id="dSBalanceType"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType" />
+	<bean id="dSTbBilTransRule"
+		class="com.tydic.beijing.billing.account.datastore.DSTbBilTransRule" />
+	<bean id="dSRuleParameters"
+		class="com.tydic.beijing.billing.account.datastore.DSRuleParameters" />
+
+	<bean id="controlTradeActTagOps"
+		class="com.tydic.beijing.billing.account.biz.ControlTradeActTagOps">
+	</bean>
+	<bean id="DSAcctMonth" class="com.tydic.beijing.billing.account.datastore.DSAcctMonth" />
+	<bean id="DSCodeTradeTypeCode"
+		class="com.tydic.beijing.billing.account.datastore.DSCodeTradeTypeCode" />
+
+	<bean id="createAccountBook"
+		class="com.tydic.beijing.billing.account.service.impl.CreateAccountBookImpl">
+		<property name="ops" ref="createAccountBookOps"></property>
+	</bean>
+	<bean id="balanceChangeOps" class="com.tydic.beijing.billing.account.biz.BalanceChangeOps" />
+	<bean id="createAccountBookOps"
+		class="com.tydic.beijing.billing.account.biz.CreateAccountBookOps">
+		<property name="balanceTypes" ref="dSBalanceType"></property>
+	</bean>
+
+</beans>

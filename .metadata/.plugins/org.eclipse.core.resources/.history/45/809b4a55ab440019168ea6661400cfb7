@@ -1,0 +1,9 @@
+package test;
+import java.util.*;
+
+public class Demo {
+	public static void main(String[] args) {
+		Calendar instance = Calendar.getInstance();
+		System.out.println(instance);
+	}
+}

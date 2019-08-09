@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!--<import resource="uda.xml" /> -->
+	
+	<dubbo:application name="SendEdm" />
+	<!--  <dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" /> -->
+	<dubbo:registry address="zookeeper://172.168.1.211:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+		
+  <!-- <dubbo:service interface="com.tydic.beijing.billing.interfacex.sendEdm.SendEdm" ref="SendEdm" retries="0" timeout="30000"/> 
+ -->
+	
+	<!-- 1测试 -->
+	
+	<bean id="SendEdm" class="com.tydic.beijing.billing.interfacex.sendEdm.impl.SendEdmImpl"> 
+	    <property name="strCons" value="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" />
+        <property name="drivers" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="userName" value="newbilling" />
+        <property name="password" value="newbilling" />
+        <property name="addmail" value="http://192.168.194.62/services/services/customMailInterface?wsdl" />
+        <property name="mailtype" value="2079" />
+        <property name="tokens" value="123456" />
+      </bean>
+
+    <!-- 2测试 -->
+ <!--
+	<bean id="SendEdm" class="com.tydic.beijing.billing.interfacex.sendEdm.impl.SendEdmImpl"> 
+	    <property name="strCons" value="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=172.17.27.141)(PORT=1523))(ADDRESS=(PROTOCOL=TCP)(HOST=172.17.27.142)(PORT=1523))(LOAD_BALANCE=no)(FAILOVER=on)(CONNECT_DATA=(SERVICE_NAME=rbsrv1)))" />
+        <property name="drivers" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="userName" value="billing" />
+        <property name="password" value="tVxjLxAYDw" />
+        <property name="addmail" value="http://192.168.194.62/services/services/customMailInterface?wsdl" />
+        <property name="mailtype" value="2079" />
+        <property name="tokens" value="123456" />
+      </bean>  
+-->
+      
+     <!-- 生产 --> 
+<!--     
+ 	<bean id="SendEdm" class="com.tydic.beijing.billing.interfacex.sendEdm.impl.SendEdmImpl"> 
+	    <property name="strCons" value="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=172.17.27.141)(PORT=1523))(ADDRESS=(PROTOCOL=TCP)(HOST=172.17.27.142)(PORT=1523))(LOAD_BALANCE=no)(FAILOVER=on)(CONNECT_DATA=(SERVICE_NAME=rbsrv1)))" />
+        <property name="drivers" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="userName" value="billing" />
+        <property name="password" value="tVxjLxAYDw" />
+        <property name="addmail" value="http://mail.edm.jd.local/services/services/customMailInterface?wsdl" />
+        <property name="mailtype" value="2079" />
+        <property name="tokens" value="D45A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0D;E40D832CAFF2C90C95685C28630EFEAC3DC8EC05B4A83EE26F5B18252B6CEE09A0CAD88C91A774E1D3197F7C5D91BDBF343FAD801CF08E4B5C651264A01520DD" />
+      </bean>
+ --> 
+      
+      
+		
+</beans>

@@ -1,0 +1,81 @@
+package test;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
+
+import com.tydic.beijing.billing.common.BasicException;
+import com.tydic.beijing.billing.file2db.type.ObjFunction;
+
+public class Test {
+	
+	@SuppressWarnings("null")
+	public static void main(String[] args) throws SQLException, ParseException, BasicException {
+		Connection conn = null;
+		String column[];
+		String tableColum = "SERIALNO String|VERSION long|TICKETTYPE long|TIMESTAMP String|HOSTID String|SERVICESCENARIOUS long|CHARGEDPARTY String|CALLINGPARTY String|CALLEDPARTY String|ORIGNIALCALLINGPARTY String|ORIGNIALCALLEDPARTY String|PAYFLAG long|SERVID String|CUSTID String|BRAND String|SESSIONID String|SESSIONTERMINATEDTIME String|TERMINATEDCAUSE long|ORIGNIALHOST String|BALANCEINFO String|ACCUMLATORINFO String|TARIFFINFO String|MASTERPRODUCTID String|BEARERCAPABILITY String|SESSIONBEGINTIME String|GGSNIPADDRESS String|SGSNIPADDRESS String|CALLING_NUMBER_HOME_AREA String|APNNI String|PDPTYPE String|SERVEDPDPADDRESS String|RATINGGROUP String|ROAMINGTYPE String|CHARGINGID String|QOS String|CHARGINGTYPE String|IMSI String|LAC String|RATTYPE String|IMEI String|MCC_MNC String|SERVICE_ID String|UP_FLOW String|DOWN_FLOW String|TOTAL_FLOW String|STRING1 String|STRING2 String|STRING3 String|INT1 long|INT2 long|INSERT_DATE Date|PARTITION_NO String|RESOURCE_INFO String";
+		String spilt="|";
+		String tmp;
+		column = tableColum.split("\\" + spilt);
+		String main_insert;
+		String tableName="cdr_cdr200_";
+		main_insert = "insert into " + tableName + " (";
+		String MonthColumn="PARTITION_NO";
+		int monthIndex = 0;
+		for (int i = 0; i < column.length; i++) {
+			tmp = column[i];
+			String field[] = tmp.split(" ");
+			main_insert = main_insert + field[0];
+			//System.out.println(main_insert);
+            if (field[0].equals(MonthColumn)) {
+                monthIndex = i;
+                System.out.println(monthIndex+"monthIndex");
+            }
+            if (i < column.length -1) {
+                main_insert = main_insert + ", ";
+            }
+		}
+		main_insert = main_insert + ") values (";
+        for (int i = 0; i < column.length; i++) {
+            main_insert = main_insert + "?";
+            if (i < column.length - 1) {
+                main_insert = main_insert + ", ";
+            }
+        }
+		Boolean monthFlag[];
+		int MonthBranch=12;
+		System.out.println(monthFlag[11]+"11");
+		monthFlag = new Boolean[MonthBranch];
+        for (int i = 0; i < monthFlag.length; i++) {
+            monthFlag[i] = false;
+        }
+        System.out.println(monthFlag[11]+"11");
+        PreparedStatement pstmt_ins[];
+        pstmt_ins = new PreparedStatement[MonthBranch];
+        //System.out.println(pstmt_ins[0]+"`````````");
+        String sql;
+        String sql_insert="";
+        main_insert = main_insert + ")";
+        sql_insert = main_insert;
+        for (int j = 0; j < MonthBranch; j++) {
+        	sql = sql_insert.replace(tableName, tableName + String.format("%02d", j + 1));
+        	System.out.println(sql+"111111111111111111");
+        	//pstmt_ins[j]=conn.prepareStatement(sql);
+		}
+        String column_field[];
+        String line = new String();
+        line ="1144880386|1|0|20180701050224||200|17092775611|17092775611||17092775611|||41000000086091|||2531097008|20180701000427|||||103:0;|||20180701000424|||027|uninet||||1|||3|460012779808333|||8654310203817301||437321727|420|952|1372|||||||07|3000:0;3001:2;";
+        column_field = line.split("\\" + spilt);
+        System.out.println(column_field[51]);
+        System.out.println("tableName="+tableName);
+        if (tableName=="cdr_cdr200_") {
+        	column_field[51]=column_field[12].substring(column_field[12].length()-1);
+        	System.out.println(column_field[51]+"½ØÈ¡ºó");
+		}
+        //int monthTag = 0;
+        //monthTag = Integer.parseInt(column_field[monthIndex]) - 1;
+        //System.out.println(monthTag+"-------------------");
+	}
+}

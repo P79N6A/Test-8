@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="javax.swing.text.StyledEditorKit.ForegroundAction"/>
+<fullyQualifiedTypeName name="java.util.Random"/>
+<fullyQualifiedTypeName name="java.lang.Integer"/>
+<fullyQualifiedTypeName name="com.tydic.uda.core.Condition"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="org.apache.pdfbox.PDFReader"/>
+<fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="org.apache.pdfbox.pdfparser.PDFParser"/>
+<fullyQualifiedTypeName name="org.apache.pdfbox.pdmodel.PDDocument"/>
+<fullyQualifiedTypeName name="org.apache.pdfbox.util.PDFTextStripper"/>
+<fullyQualifiedTypeName name="org.dom4j.io.SAXReader"/>
+<fullyQualifiedTypeName name="org.dom4j.Element"/>
+<fullyQualifiedTypeName name="java.text.SimpleDateFormat"/>
+<fullyQualifiedTypeName name="java.util.Calendar"/>
+<fullyQualifiedTypeName name="com.ibm.icu.util.CalendarAstronomer"/>
+<fullyQualifiedTypeName name="java.net.ServerSocket"/>
+<fullyQualifiedTypeName name="io.netty.bootstrap.ServerBootstrap"/>
+<fullyQualifiedTypeName name="io.netty.channel.socket.nio.NioServerSocketChannel"/>
+<fullyQualifiedTypeName name="io.netty.channel.SimpleChannelInboundHandler"/>
+<fullyQualifiedTypeName name="io.netty.channel.ChannelHandlerContext"/>
+<fullyQualifiedTypeName name="io.netty.handler.codec.string.StringDecoder"/>
+<fullyQualifiedTypeName name="io.netty.bootstrap.Bootstrap"/>
+<fullyQualifiedTypeName name="io.netty.channel.nio.NioEventLoopGroup"/>
+<fullyQualifiedTypeName name="io.netty.channel.socket.nio.NioSocketChannel"/>
+<fullyQualifiedTypeName name="io.netty.channel.Channel"/>
+<fullyQualifiedTypeName name="io.netty.channel.ChannelInitializer"/>
+<fullyQualifiedTypeName name="io.netty.handler.codec.string.StringEncoder"/>
+<fullyQualifiedTypeName name="java.util.Date"/>
+<fullyQualifiedTypeName name="java.io.File"/>
+<fullyQualifiedTypeName name="java.util.concurrent.Executors"/>
+<fullyQualifiedTypeName name="java.util.concurrent.ExecutorService"/>
+<fullyQualifiedTypeName name="java.util.concurrent.TimeUnit"/>
+<fullyQualifiedTypeName name="java.awt.List"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="com.tydic.beijing.billing.dao.LogCycleHistory"/>
+<fullyQualifiedTypeName name="java.net.Inet6Address"/>
+<fullyQualifiedTypeName name="java.net.Inet4Address"/>
+<fullyQualifiedTypeName name="java.net.InetAddress"/>
+</qualifiedTypeNameHistroy>

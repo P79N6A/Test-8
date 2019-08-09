@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop 
+	 http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.tydic.vds.jdbc.VdsDriver" />
+		<property name="url"
+			value="jdbc:vds:local://classpath?directsql=true&amp;loadxml=true&amp;loaddb=false" />
+		<property name="username" value="newbilling" />
+		<property name="password" value="newbilling" />
+	</bean>
+	
+	<bean class="com.tydic.uda.service.factory.XmlDataServiceFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="serviceLocations">
+			<list>
+				<value>classpath:daoservices/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置事务传播特性timeout="180" rollback-for="java.lang.Exception" -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="update*" propagation="REQUIRED" timeout="180"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="delete*" propagation="REQUIRED" timeout="180"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 配置参与事务的类 -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="businessMethod"
+			expression="execution(* com.tydic.beijing.billing.sms.biz.*.*(..))" />
+		<aop:advisor pointcut-ref="businessMethod" advice-ref="txAdvice" />
+	</aop:config>
+
+</beans>

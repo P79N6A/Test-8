@@ -1,0 +1,1023 @@
+/**
+ * Copyright (c) 2014, xingzm@tydic.com All Rights Reserved.
+ */
+package com.tydic.beijing.billing.credit;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+//import com.tydic.beijing.billing.credit.common.DbReconnect;
+import com.tydic.beijing.billing.dao.UserInfoForMemCached;
+import org.apache.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.tydic.beijing.billing.credit.common.BasicException;
+import com.tydic.beijing.billing.credit.dao.BilActRealTimeBill4Credit;
+import com.tydic.beijing.billing.credit.dao.BilActResourceAddUp;
+import com.tydic.beijing.billing.credit.dao.CreditAction;
+import com.tydic.beijing.billing.credit.dao.HlpSmsSend;
+import com.tydic.beijing.billing.credit.dao.InfoAllList;
+import com.tydic.beijing.billing.credit.dao.InfoAuthMobile;
+import com.tydic.beijing.billing.credit.dao.InfoUserCredit;
+import com.tydic.beijing.billing.credit.dao.LogCreditAction;
+import com.tydic.beijing.billing.credit.dao.LogCreditFile;
+import com.tydic.beijing.billing.credit.dao.LogCreditFlowOvertop;
+import com.tydic.beijing.billing.credit.dao.QUserReasonSend;
+import com.tydic.beijing.billing.credit.memcache.dao.BilActBill4CreditMemcache;
+import com.tydic.beijing.billing.credit.memcache.dao.BilActRealTimeBill4CreditMemcache;
+import com.tydic.beijing.billing.credit.memcache.dao.CreditActionMemcache;
+import com.tydic.beijing.billing.credit.memcache.dao.InfoUser4CreditMemcache;
+import com.tydic.beijing.billing.credit.memcache.dao.InfoUserCreditMemcache;
+import com.tydic.beijing.billing.dao.CodeAcctMonth;
+import com.tydic.beijing.billing.dao.InfoUser;
+import com.tydic.beijing.billing.dao.RuleParameters;
+import com.tydic.uda.service.S;
+
+/**
+ * file module<br/>
+ *
+ * @author Bradish7Y
+ * @since JDK 1.7
+ *
+ */
+public class FileProcess extends Utils implements Runnable {
+	private static final Logger Log = Logger.getLogger(FileProcess.class);
+	public static volatile boolean stop = false;
+	private static final String OPEN = "71";// 欠费开机
+	private static final String STOP = "50";// 欠费单停
+	private static final String VOERTOP = "100";// 流量封顶
+	
+	private static final String LIMITSPEED ="1000";
+
+	private Map<String, String> para = null;
+	private Map<String, String> proc = null;
+	// 账期标识，就是206这些数字
+	private int acctMonth;
+	private String partitionNo;
+	// 封顶值
+	private long topValue;
+	//根据销售品的封顶值
+	private Map<String,Long> stopLimit = new HashMap<>();
+	
+	private List<RuleParameters> ruleParameters = new ArrayList<RuleParameters>();
+	
+
+	public FileProcess(Map<String, String> para, Map<String, String> proc,
+					   final CodeAcctMonth codeAcctMonth) {
+		this.para = para;
+		this.proc = proc;
+		acctMonth = codeAcctMonth.getAcct_month();
+		partitionNo = codeAcctMonth.getPartition_no();
+		
+		//补充限速配置
+		if(ruleParameters ==null || ruleParameters.size()==0) {
+			DBKit dbkit = (DBKit) SpringContextUtil.getContext().getBean("dbKit");
+			try {
+				ruleParameters = dbkit.queryRuleParameters();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		//补充产品级封顶
+		if(stopLimit == null || stopLimit.size()==0){
+			DBKit dbkit = (DBKit) SpringContextUtil.getContext().getBean("dbKit");
+			try {
+				ruleParameters = dbkit.query4GlimitConfig();
+				for(RuleParameters tmp:ruleParameters){
+					stopLimit.put(tmp.getPara_char1(),Long.parseLong(tmp.getPara_char2()));
+
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+
+	}
+
+	@Override
+	public void run() {
+		Log.debug("step in run()");
+
+		DirectoryStream<Path> ds = null;
+		try {
+
+			ClassPathXmlApplicationContext ctx = SpringContextUtil.getContext();
+			DBKit dbkit = (DBKit) SpringContextUtil.getContext().getBean("dbKit");
+			QUserReasonSend send = new QUserReasonSend();
+			// mod
+			long mod = Long.parseLong(para.get("mod"));
+			// remainder
+			long remainder = Long.parseLong(proc.get("remainder"));
+
+			int timeInterval = 0;
+			try {
+				timeInterval = Integer.parseInt(para.get("sleep"));
+			} catch (NumberFormatException e) {
+				timeInterval = 3;
+			}
+
+			String tmp = para.get("top_value");
+			if (tmp == null) {
+				throw new RuntimeException("parameter[top_value] not exits!!!");
+			}
+			topValue = Long.valueOf(tmp);
+
+			String srcDirstr = proc.get("src_dir");
+			String bakDirstr = proc.get("bak_dir");
+			String pattern = proc.get("pattern");
+
+			Path srcDir = Paths.get(srcDirstr);
+			Path bakDir = Paths.get(bakDirstr);
+
+			long threshold = 0;
+			try {
+				threshold = Long.parseLong(para.get("credit_threshold"));
+			} catch (NumberFormatException e) {
+				Log.error("###>credit calculate threshold no set.......");
+				exitApp();
+			}
+			String smsParameter = para.get("sms_parameter");
+			String serviceNumber = para.get("service_number");
+			String insertPreFlag = para.get("insert_pre_flag");
+			//
+			if (insertPreFlag == null) {
+				Log.debug("###>insertPreFlag is null, set insertPreFlag to 0");
+				insertPreFlag = "0";
+			}
+			Log.info("###>parameters:");
+			Log.info("###>mod=" + mod);
+			Log.info("###>remainder=" + remainder);
+			Log.info("###>sleep=" + timeInterval);
+			Log.info("###>srcDirstr=" + srcDirstr);
+			Log.info("###>bakDirstr=" + bakDirstr);
+			Log.info("###>pattern=" + pattern);
+			Log.info("###>threshold=" + threshold);
+			Log.info("###>smsParameter=" + smsParameter);
+			Log.info("###>serviceNumber=" + serviceNumber);
+			Log.info("###>insertPreFlag=" + insertPreFlag);
+			Log.info("###>acctMonth=" + acctMonth);
+			Log.info("###>topValue=" + topValue);
+
+			final Pattern srcPattern = Pattern.compile(pattern);
+			DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+				public boolean accept(Path file) throws IOException {
+					// if (!Files.isRegularFile(file) && Files.size(file) > 0) {
+					// return false;
+					// }
+					// high efficient
+					if (srcPattern.matcher(file.getFileName().toString()).matches()) {
+						return true;
+					}
+					return false;
+				}
+			};
+
+			List<Path> files = new ArrayList<Path>(1024);
+			while (!stop) {
+				files.clear();// must
+				ds = Files.newDirectoryStream(srcDir, filter);
+				// add file to fileList
+				for (Path file : ds) {
+					Log.debug("###>unsort file_name=" + file.getFileName().toString());
+					files.add(file);
+				}
+
+				Collections.sort(files, new Comparator<Path>() {
+					public int compare(Path o1, Path o2) {
+						try {
+							int ret = Files.getLastModifiedTime(o1).compareTo(
+									Files.getLastModifiedTime(o2));
+							if (ret == 0) {
+								if (o1.getFileName().toString()
+										.compareTo(o2.getFileName().toString()) > 0) {
+									return 1;
+								} else if (o1.getFileName().toString()
+										.compareTo(o2.getFileName().toString()) < 0) {
+									return -1;
+								} else {
+									return 0;
+								}
+							} else if (ret > 0) {
+								return 1;
+							} else {
+								return -1;
+							}
+						} catch (IOException e) {
+							Log.error(e.getMessage());
+							exitApp();
+						}
+						return -1;
+					}
+				});
+
+				LogCreditFile logCreditFile = new LogCreditFile();
+				
+				
+				//tmp start
+//				 Path path = Paths.get("e:/tmp/", "BilActRealTimeBill_20141119165701_853.r");
+//				 files.add(path);
+				//tmp end
+				
+				
+				for (Path file : files) {
+					Log.debug("###>file_name:" + file.toString());
+					long recordCount = 0;
+					long recordNormal = 0;
+					long open = 0;
+					long stop = 0;
+					long none = 0;
+					long userNotFound = 0;
+					String fileName = file.getFileName().toString();
+
+					BufferedReader br = new BufferedReader(new FileReader(file.toString()));
+					// group by user_id + pay_id + item_code
+					Map<String, BilActRealTimeBill4Credit> codeGroup = new HashMap<String, BilActRealTimeBill4Credit>();
+					// group by user_id + pay_id
+					Map<String, BilActRealTimeBill4Credit> idGroup = new HashMap<String, BilActRealTimeBill4Credit>();
+					while (true) {
+						String line = br.readLine();
+						if (line == null) {
+							break;
+						}
+
+						if (line.trim().isEmpty()) {
+							continue;
+						}
+
+						// total record
+						recordCount++;
+						Log.debug("###>line:" + line);
+						BilActRealTimeBill4Credit bill = splitRecord(line);
+
+						// skip, only unit_type_id=0
+//						if (bill.getUnit_type_id() != 0) {
+//							continue;
+//						}
+
+						String key = bill.getUser_id() + bill.getPay_id()
+								+ bill.getAcct_item_code();
+
+						codeGroup.put(key, bill);
+					}
+					// close file
+					br.close();
+
+					Log.debug("###>codeGroup.size=" + codeGroup.size());
+
+					// group by user_id + pay_id
+					for (Entry<String, BilActRealTimeBill4Credit> e : codeGroup.entrySet()) {
+						BilActRealTimeBill4Credit bill = e.getValue();
+
+						String key = bill.getUser_id() + bill.getPay_id();
+						
+						
+						
+						BilActRealTimeBill4Credit tmpReal = idGroup.get(key);
+						if (tmpReal != null) {
+							long fee = tmpReal.getNon_deduct_fee() + bill.non_deduct_fee;
+							tmpReal.setNon_deduct_fee(fee);
+							if(bill.getUnit_type_id() ==0 ) {
+								tmpReal.setFeeChange(true);
+							}
+							
+						} else {
+
+							if(bill.getUnit_type_id() ==0 ) {
+								bill.setFeeChange(true);
+							}
+							idGroup.put(key, bill);
+						}
+					}
+
+					for (Entry<String, BilActRealTimeBill4Credit> e : idGroup.entrySet()) {
+						// vaild reocrd
+						recordNormal++;
+						BilActRealTimeBill4Credit bill = e.getValue();
+						bill.setMem_key(BilActRealTimeBill4Credit.KEY_PREFIX);// must
+
+//						//capValues 返回值定义
+//						boolean returnFlag = false;
+//						QUserReasonSend qUserReasonSend = new QUserReasonSend();
+//						LogCreditFlowOvertop logCreditFlowOvertop = new LogCreditFlowOvertop();
+//						HlpSmsSend hlpSmsSend = new HlpSmsSend();
+
+						Log.debug("###>BilActRealTimeBill:" + bill.toString());
+						String userId = bill.getUser_id();
+						long realtime = bill.getNon_deduct_fee();
+
+						// first get memcache data
+						Log.debug("###>mem_key=" + bill.getMem_key());
+						BilActRealTimeBill4CreditMemcache realMem = S.get(
+								BilActRealTimeBill4CreditMemcache.class).get(bill.getMem_key());
+
+						long realtimeMem = 0;
+
+						if (realMem != null) {
+							realtimeMem = realMem.getNon_deduct_fee();
+							Log.debug("###>user_id[" + userId + "], non_deduct_fee = "
+									+ realtimeMem + ", in memcache");
+						} else {
+							Log.debug("###>user_id[" + userId + "], non_deduct_fee = "
+									+ realtimeMem + ", not found, default value");
+						}
+
+						// update memcache
+						Log.debug("###>update to bil_act_real_time_bill memcache, mem_key="
+								+ bill.getMem_key());
+						S.get(BilActRealTimeBill4CreditMemcache.class).create(bill);
+
+						// get history bil
+						Log.debug("###>get bil_act_bill from memcache...");
+						BilActBill4CreditMemcache hisBill = new BilActBill4CreditMemcache();
+						hisBill.setUser_id(userId);
+						hisBill.setPay_id(bill.getPay_id());
+						hisBill.setMem_key(BilActBill4CreditMemcache.KEY_PREFIX);
+						Log.debug("###>mem_key=" + hisBill.getMem_key());
+						BilActBill4CreditMemcache hisBil = S.get(BilActBill4CreditMemcache.class)
+								.get(hisBill.getMem_key());
+
+						long history = 0;
+						if (hisBil != null) {
+							history = hisBil.getOwe_fee();
+						}
+
+						// get user credit
+						Log.debug("###>get info_user_credit from memcache,mem_key="
+								+ InfoUserCreditMemcache.KEY_PREFIX + userId);
+						InfoUserCreditMemcache infoUserCreditHelp = S.get(
+								InfoUserCreditMemcache.class).get(
+								InfoUserCreditMemcache.KEY_PREFIX + userId);
+						//红名单处理
+						String alllisttype = queryInfoAllList(userId);
+						if("2".equals(alllisttype) ){//红名单
+							continue;
+						}
+
+						String currentDate = getSystemTime();
+						long credit = 0;
+						if (infoUserCreditHelp != null) {
+							for (InfoUserCredit iuc : infoUserCreditHelp.getInfoUserCreditList()) {
+								if (currentDate.compareTo(iuc.getEff_date()) >= 0
+										&& currentDate.compareTo(iuc.getExp_date()) < 0) {
+									credit += iuc.getCredit_number();
+								}
+							}
+						}
+
+						{// 处理流量封顶
+							Log.info("###>calculte top value....");
+							TableOpers oper = (TableOpers) ctx.getBean("TableOpers");
+							capValues(oper, partitionNo, userId, serviceNumber);//为实现事务的一致性，将数据库intert,update语句提取出来，放在后面一起执行
+						}
+						
+						
+						//如果不是费用变化，continue
+						if (!bill.isFeeChange()) {
+						continue;
+					}
+
+						
+
+						// compare
+						if (realtime >= realtimeMem) {
+							// calculate
+							long calculRet = calculate(credit, history, realtime);
+
+							if (calculRet < threshold) {
+								Log.info("###>calculate(credit=" + credit + ", history=" + history
+										+ ", realtime=" + realtime + ") < threshold=" + threshold
+										+ ", ret=true, user_id[" + userId
+										+ "], ***Stop action***, file_name[" + fileName + "]");
+								TableOpers to = (TableOpers) ctx.getBean("TableOpers");
+								long sequence = dbkit.getFileSn("seq_q_reason_sn");
+
+								InfoUser4CreditMemcache infoUser = new InfoUser4CreditMemcache();
+								infoUser.setUser_id(userId);
+								infoUser.setMem_key(InfoUser4CreditMemcache.KEY_PREFIX);
+								InfoUser4CreditMemcache infoUserMem = S.get(
+										InfoUser4CreditMemcache.class).get(infoUser.getMem_key());
+
+								String teleType = null;
+								String localNet = null;
+								if (infoUserMem == null) {
+									Log.error("###>user_id["
+											+ userId
+											+ "] not in memcache, skip, ***Stop action***, bill_real_time:"
+											+ bill.toString());
+									userNotFound++;
+									continue;
+								} else {
+									teleType = infoUserMem.getTele_type();
+									localNet = infoUserMem.getLocal_net();
+								}
+
+								send.setSerial_num(sequence);
+								send.setUser_no(userId);
+								send.setTele_type(teleType);
+								send.setReason_code(STOP);
+								String actionTime = this.getSystemTime();
+								send.setEnqueue_date(actionTime);
+								send.setLocal_net(localNet);
+
+								CreditAction action = new CreditAction();
+
+								long id = dbkit.getFileSn("CREDIT_ACTION_SEQUENCE");
+								action.setId(id);
+								action.setUser_id(userId);
+								action.setPay_id(bill.getPay_id());
+								action.setReason(send.getReason_code());
+								action.setAction_time(actionTime);
+								action.setLocal_net(localNet);
+								action.setMem_key(CreditAction.KEY_PREFIX);
+								// insert log first
+								Log.debug("###>ready to insert credit_action");
+								// to.insertCreditAction(action);
+
+								// insert log first
+								LogCreditAction logAction = new LogCreditAction();
+								logAction.setSerial_no(dbkit.getFileSn("credit_log_sequence"));
+								logAction.setUser_id(userId);
+								logAction.setPay_id(bill.getPay_id());
+								logAction.setCredit_number(credit);
+								logAction.setHistory(history);
+								logAction.setRealtime(realtime);
+								logAction.setReason(send.getReason_code());
+								logAction.setAction_time(actionTime);
+								logAction.setSource("1");// source from file
+
+								// insert hlp_sms_send
+								HlpSmsSend sms = new HlpSmsSend();
+								sms.setMsg_id(dbkit.getFileSn("seq_hlp_sms_send") + "");
+								sms.setMsisdn_send(serviceNumber);
+								sms.setMsisdn_receive(infoUserMem.getDevice_number());
+								sms.setPriority(123);
+								sms.setMessage_text("|" + smsParameter + "|"
+										+ String.format("%.2f", (history + realtime) / 100.0));
+								sms.setSend_time(actionTime);
+								sms.setCreate_time(actionTime);
+								sms.setRetry_times(0);
+
+								Log.debug("###>ready to put it to memcache");
+								S.get(CreditActionMemcache.class).create(action);
+
+								// to.insertLogCreditAction(logAction);
+								Log.debug("###>ready to insert log_credit_action and credit action");
+
+								//TODO  由于出账结束后追单可能存在短信积压，造成重复提醒用户欠费，改为多原因平台发短信，这里不再发短信
+//								mingleInsertActionAndInsertQUserReasonSendAndDoRoofOfFlow(to,action,logAction,sms,insertPreFlag,returnFlag, qUserReasonSend,logCreditFlowOvertop,hlpSmsSend,send);
+								to.insertAction(action, logAction, sms, insertPreFlag);
+//
+								// insert reason second
+								Log.debug("###>ready to insert q_user_reason_send");
+								Log.info("###>q_reason_send:" + send.toString());
+
+								if (insertPreFlag.compareTo("0") == 0) {
+									to.insertQUserReasonSend(send);
+								} else {
+									// for temp
+									to.insertQUserReasonSendPre(send);
+								}
+
+
+
+								// stop records
+								stop++;
+							} else {
+
+								// none records
+								none++;
+								Log.info("###>calculate(credit=" + credit + ", history=" + history
+										+ ", realtime=" + realtime + ") < threshold=" + threshold
+										+ ", ret=false, user_id[" + userId
+										+ "], ***None action***, file_name[" + fileName + "]");
+								
+								//流量限速还是要做的
+//								TableOpers to = (TableOpers) ctx.getBean("TableOpers");
+//								to.insertlimitTraffic(logAction, qUserReasonSend, logCreditFlowOvertop);
+							}
+						} else {// realtime < realtimeMem
+
+							// calculate
+							long calculRet = calculate(credit, history, realtime);
+
+							if (calculRet >= threshold && history == 0 && realtime == 0) {
+								Log.info("###>calculate(credit=" + credit + ", history=" + history
+										+ ", realtime=" + realtime + ") >= threshold=" + threshold
+										+ ", ret=true, user_id[" + userId
+										+ "], ***Open action***, file_name[" + fileName + "]");
+								CreditActionMemcache tmpAction = new CreditActionMemcache();
+								tmpAction.setUser_id(userId);
+								tmpAction.setReason(STOP);
+								tmpAction.setMem_key(CreditActionMemcache.KEY_PREFIX);
+								// CreditActionMemcache cAction =
+								// S.get(CreditActionMemcache.class)
+								// .get(tmpAction.getMem_key());
+
+								// if (cAction != null) {
+								TableOpers to = (TableOpers) ctx.getBean("TableOpers");
+								long sequence = dbkit.getFileSn("seq_q_reason_sn");
+
+								InfoUser4CreditMemcache infoUser = new InfoUser4CreditMemcache();
+								infoUser.setUser_id(userId);
+								infoUser.setMem_key(InfoUser4CreditMemcache.KEY_PREFIX);
+								Log.info("###>mem_key=" + infoUser.getMem_key());
+								InfoUser4CreditMemcache infoUserMem = S.get(
+										InfoUser4CreditMemcache.class).get(infoUser.getMem_key());
+
+								String teleType = null;
+								String localNet = null;
+								if (infoUserMem == null) {
+									Log.error("###>user_id["
+											+ userId
+											+ "] not in memcache, skip, ***Open action***, bill_real_time:"
+											+ bill.toString());
+									userNotFound++;
+									continue;
+								} else {
+									teleType = infoUserMem.getTele_type();
+									localNet = infoUserMem.getLocal_net();
+								}
+
+								send.setSerial_num(sequence);
+								send.setUser_no(userId);
+								send.setTele_type(teleType);
+								send.setReason_code(OPEN);
+								String actionTime = this.getSystemTime();
+								send.setEnqueue_date(actionTime);
+								send.setLocal_net(localNet);
+
+								Log.debug("###>ready to delete credit_action memcache");
+								S.get(CreditActionMemcache.class).remove(tmpAction.getMem_key());
+								// delete
+								// to.deleteCreditAction(userId,
+								// send.getReason_code());
+
+								// insert log first
+								LogCreditAction logAction = new LogCreditAction();
+								logAction.setSerial_no(dbkit.getFileSn("credit_log_sequence"));
+								logAction.setUser_id(userId);
+								logAction.setPay_id(bill.getPay_id());
+								logAction.setCredit_number(credit);
+								logAction.setHistory(history);
+								logAction.setRealtime(realtime);
+								logAction.setReason(send.getReason_code());
+								logAction.setAction_time(actionTime);
+								logAction.setSource("1");// source from file
+								Log.debug("###>ready to delete and insert log_credit_action");
+								// to.insertLogCreditAction(logAction);
+//								to.deleteAndInsertAction(userId, STOP, logAction);
+//
+								Log.debug("###>ready to insert q_user_reason_send");
+								to.insertQUserReasonSend(send);
+
+//								mingleDeleteAndInsertActionAndInsertQUserReasonSendAndDoRoofOfFlow(to,userId, STOP, logAction,returnFlag, qUserReasonSend,logCreditFlowOvertop, hlpSmsSend,send);
+								// open records
+								open++;
+
+							} else {
+								// none records
+								none++;
+								Log.info("###>calculate(credit=" + credit + ", history=" + history
+										+ ", realtime=" + realtime + ") >= threshold=" + threshold
+										+ ", ret=false, user_id[" + userId
+										+ "], ***None action***, file_name[" + fileName + "]");
+							}
+						}
+					}// end for map
+
+					// insert log file
+					{
+						TableOpers to = (TableOpers) ctx.getBean("TableOpers");//add by cws
+						logCreditFile.setFile_name(fileName);
+						logCreditFile.setRecord_count(recordCount);
+						logCreditFile.setRecord_normal(recordNormal);
+						logCreditFile.setOpen_record(open);
+						logCreditFile.setStop_record(stop);
+						logCreditFile.setNone_record(none);
+						logCreditFile.setUser_notfound(userNotFound);
+						logCreditFile.setFinish_time(getSystemTime());
+
+						Log.debug("###>insert log_credit_file:" + logCreditFile.toString());
+//						mingleInsertLogCreditFile(to,logCreditFile);
+						to.insertLogCreditFile(logCreditFile);
+						logCreditFile.clear();
+					}
+					// bak file
+					Path bakPath = Paths.get(bakDir + File.separator + fileName);
+					Files.move(file, bakPath, StandardCopyOption.REPLACE_EXISTING);
+
+				}// end for
+
+				if (ds != null) {
+					ds.close();
+					ds = null;
+				}
+
+				try {
+					Log.info("No file found, sleep " + timeInterval + " seconds");
+					TimeUnit.SECONDS.sleep(timeInterval);
+				} catch (InterruptedException n) {
+					// None
+				}
+
+			}// end while
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.error(e.getMessage(),e);
+			exitApp();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.error(e.getMessage(),e);
+			exitApp();
+		} finally {
+			if (ds != null) {
+				try {
+					ds.close();
+					ds = null;
+				} catch (IOException e) {
+					Log.error(e.getMessage());
+					exitApp();
+				}
+
+			}
+		}
+	}
+
+	private BilActRealTimeBill4Credit splitRecord(final String line) {
+		String delimiter = proc.get("delimiter");
+		String[] array = line.split("\\" + delimiter);
+		BilActRealTimeBill4Credit ret = new BilActRealTimeBill4Credit();
+		ret.setUser_id(array[0]);
+		ret.setPay_id(array[1]);
+		ret.setAcct_month(Integer.parseInt(array[2]));
+		ret.setPartition_num(array[3]);
+		ret.setAcct_item_code(Integer.parseInt(array[4]));
+		ret.setUnit_type_id(Integer.parseInt(array[5]));
+		// 6, 7, 8
+		ret.setFee(Long.parseLong(array[9]));
+		ret.setNon_deduct_fee(Long.parseLong(array[10]));
+		ret.setInsert_date(array[11]);
+
+		return ret;
+	}
+
+	public void capValues(final TableOpers oper, final String partitionNo, final String userId,
+						  final String serviceNumber) {
+		try {
+			DBKit dbkit = (DBKit) SpringContextUtil.getContext().getBean("dbKit");			
+			//先判断用户是否流量封顶销售品，如果是限速销售品，则不做后面的封顶
+			InfoUser infoUserfromDB = dbkit.queryInfoUser(userId);
+
+			//如果是限速销售品
+			if(isTrafficLimitOfr(infoUserfromDB.getMain_ofr_id())) {
+				
+				BilActResourceAddUp bilactResourcceAddup =  dbkit.queryForTrafficLimit(partitionNo, userId, acctMonth);
+				//getParasByDomainCode
+				String speed ="";
+				List<RuleParameters> rules= getParasByDomainCode(infoUserfromDB.getMain_ofr_id());
+				for(int i =0;i<rules.size();i++) {
+					//如果用户当前使用量处于两个阈值之间，则触发限速
+					if(bilactResourcceAddup.getResource_value()< Long.parseLong(rules.get(i).getPara_char2()) ) {
+						break;
+					}else {
+						//使用量大于等于当前限速档位
+						speed = rules.get(i).getPara_char3();
+					}
+				}
+				
+				//判断用户是否已经发过限速
+				if(speed!=null && speed.length()>0) {
+					LogCreditFlowOvertop logTop = dbkit.getLogCreditFlowOvertopforspeed(userId, acctMonth,speed);
+					if(logTop ==null) {
+						 
+						
+						InfoUser4CreditMemcache infoUser = new InfoUser4CreditMemcache();
+						infoUser.setUser_id(userId);
+						infoUser.setMem_key(InfoUser4CreditMemcache.KEY_PREFIX);
+						
+//						InfoUser4CreditMemcache infoUserMem = S.get(InfoUser4CreditMemcache.class).get(
+//								infoUser.getMem_key());
+//
+//						String teleType = null;
+//						String localNet = null;
+//						if (infoUserMem == null) {
+//							Log.error("###capValues>user_id[" + userId + "] not in memcache, skip");
+//							returnFlag = true;
+//							return;
+//						} else {
+//							teleType = infoUserMem.getTele_type();
+//							localNet = infoUserMem.getLocal_net();
+//						}
+						
+						QUserReasonSend qUserReasonSend = new QUserReasonSend();
+						LogCreditFlowOvertop logCreditFlowOvertop = new LogCreditFlowOvertop();
+						
+						
+						long sequence = dbkit.getFileSn("seq_q_reason_sn");
+						qUserReasonSend.setSerial_num(sequence);
+						qUserReasonSend.setUser_no(userId);
+						qUserReasonSend.setTele_type(infoUserfromDB.getTele_type());
+						qUserReasonSend.setReason_code(LIMITSPEED);
+						qUserReasonSend.setEnqueue_date(getSystemTime());
+						qUserReasonSend.setLocal_net(infoUserfromDB.getLocal_net());
+						qUserReasonSend.setPara_value(speed);
+
+						String actionTime = getSystemTime();
+						logCreditFlowOvertop.setUser_id(userId);
+						logCreditFlowOvertop.setAcct_month(acctMonth);
+						logCreditFlowOvertop.setProcess_time(getSystemTime());
+						logCreditFlowOvertop.setLimit_speed(speed);
+						
+						LogCreditAction logCreditAction = new LogCreditAction();
+						logCreditAction.setUser_id(userId);
+						logCreditAction.setSerial_no(sequence);
+						logCreditAction.setPay_id("");
+						logCreditAction.setCredit_number(0);
+						logCreditAction.setHistory(0);
+						logCreditAction.setRealtime(0);
+						logCreditAction.setReason(LIMITSPEED);
+						logCreditAction.setAction_time(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+						
+						//TableOpers oper = (TableOpers) ctx.getBean("TableOpers");
+						oper.insertlimitTraffic(logCreditAction, qUserReasonSend,logCreditFlowOvertop);
+						logCreditAction = null;
+						qUserReasonSend = null;
+						logCreditFlowOvertop = null;
+						
+					}
+					
+				}
+				
+				return ;
+			} else {
+			
+			//不是限速销售品，做流量封顶
+			
+			BilActResourceAddUp up = dbkit.getBilActResourceAddUp(partitionNo, userId, acctMonth);
+			if (up == null) {
+				// 找不到累积量信息跳过
+				Log.info("###capValues>user_id[" + userId + "], addup not exits");
+//				returnFlag = true;
+				return;
+			}
+
+			long userTopValue = up.getResource_value();
+
+			Log.info("###capValues>user_id[" + userId + "], userTopValue=[" + userTopValue + "]");
+//获取用户销售品对应的封顶值 开始
+			   long ofrTopValue = stopLimit.get(infoUserfromDB.getMain_ofr_id());
+			   Log.debug("lxyofrTopValue="+ofrTopValue);
+				//获取用户封顶值结束
+
+
+			if (userTopValue > (ofrTopValue>0?ofrTopValue:topValue)) {
+				// 大于封顶值
+				// 检查是否已经发过了
+				LogCreditFlowOvertop logTop = dbkit.getLogCreditFlowOvertop(userId, acctMonth);
+				if (logTop == null) {
+
+					String alllisttype = queryInfoAllList(userId);
+					if("2".equals(alllisttype)){//红名单
+//						returnFlag = true;
+						return;
+					}
+
+					Log.info("###capValues>user_id[" + userId + "], 达到封顶值，停流量");
+					InfoUser4CreditMemcache infoUser = new InfoUser4CreditMemcache();
+					infoUser.setUser_id(userId);
+					infoUser.setMem_key(InfoUser4CreditMemcache.KEY_PREFIX);
+					Log.info("###capValues>mem_key=" + infoUser.getMem_key());
+					InfoUser4CreditMemcache infoUserMem = S.get(InfoUser4CreditMemcache.class).get(
+							infoUser.getMem_key());
+
+					String teleType = null;
+					String localNet = null;
+					if (infoUserMem == null) {
+						Log.error("###capValues>user_id[" + userId + "] not in memcache, skip");
+//						returnFlag = true;
+						return;
+					} else {
+						teleType = infoUserMem.getTele_type();
+						localNet = infoUserMem.getLocal_net();
+					}
+
+					QUserReasonSend send = new QUserReasonSend();
+					long sequence = dbkit.getFileSn("seq_q_reason_sn");
+					send.setSerial_num(sequence);
+					send.setUser_no(userId);
+					send.setTele_type(teleType);
+					send.setReason_code(VOERTOP);
+					send.setEnqueue_date(getSystemTime());
+					send.setLocal_net(localNet);
+
+					// 插入多原因表
+//					qUserReasonSend = send;
+					oper.insertQUserReasonSend(send);   
+
+					String actionTime = getSystemTime();
+					LogCreditFlowOvertop log = new LogCreditFlowOvertop();
+					log.setUser_id(userId);
+					log.setAcct_month(acctMonth);
+					log.setProcess_time(getSystemTime());
+
+					// insert hlp_sms_send
+					HlpSmsSend sms = new HlpSmsSend();
+					sms.setMsg_id(dbkit.getFileSn("seq_hlp_sms_send") + "");
+					sms.setMsisdn_send(serviceNumber);
+					sms.setMsisdn_receive(infoUserMem.getDevice_number());
+					sms.setPriority(123);
+					sms.setMessage_text("|aoc.dic.flowclose|");
+					sms.setSend_time(actionTime);
+					sms.setCreate_time(actionTime);
+					sms.setRetry_times(0);
+
+					// 插入日志表
+//					logCreditFlowOvertop = log;
+//					hlpSmsSend = sms;
+					oper.insertLogCreditFlowOvertop(log, sms); 
+					Log.info("###capValues>user_id[" + userId + "], userTopValue=[" + userTopValue
+							+ "]");
+				} else {
+					Log.info("###capValues>user_id[" + userId + "], 达到封顶值，但已发过停流量");
+				}
+			} else {
+				Log.info("###capValues>user_id[" + userId + "], 未达到封顶值");
+			}
+			
+			}
+			
+			
+		} catch (BasicException e) {
+			Log.error(e);
+			e.printStackTrace();
+		} catch (Exception e) {
+			Log.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	private boolean isTrafficLimitOfr(String mainOfrId) {
+		
+		for(RuleParameters tmprule:ruleParameters) {
+		    if(tmprule.getDomain_code() ==5600 && tmprule.getPara_char1().equals(mainOfrId)) {
+		    	return true;
+		    }
+		}
+		return false;
+	}
+
+	/**
+	 * queryInfoAllList：查询InfoAuthMobile和InfoAllList返回alllist_type即红黑名单属性
+	 *
+	 *
+	 * */
+	public String queryInfoAllList(String userId) {
+		TableOpers tableOper = (TableOpers) SpringContextUtil.getContext().getBean("TableOpers");
+		String alllisttype = "";
+		SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMddHHmmss");//设置日期格式
+		String currenttime = dateformat.format(new Date());// 获取当前系统时间
+
+		Log.debug("get userid =>"+userId);
+
+		List<InfoAuthMobile> queryInfo = tableOper.getQueryInfoAuthMobile(userId);//通过userId查询customerId
+		if(queryInfo.size()>0){
+			Log.debug("InfoAuthMobile,size="+queryInfo.size());
+		}
+
+		if(queryInfo.size() ==0){
+			return "";
+		}
+
+		InfoAuthMobile queryInfoAll=queryInfo.get(0);
+
+		String customerId = queryInfoAll.getCustomer_id();//获取customerId
+		Log.debug("get userid =>"+customerId);
+
+		List<InfoAllList> queryInfoType = tableOper.queryAllListType(customerId);//通过customerId查询all_list_type
+		if(queryInfoType.size()>0){
+			Log.debug("InfoAllList,size="+queryInfoType.size());
+			InfoAllList querytype = queryInfoType.get(0);
+
+			alllisttype = querytype.getAlllist_type();
+		}
+
+		return alllisttype;
+	}
+
+
+//	public  void mingleInsertLogCreditFile(TableOpers to,LogCreditFile logCreditFile){
+//
+//		int reconnectTimes = 0;
+//		while (reconnectTimes < DbReconnect.DB_RECONNECT_LIMIT_TIMES) {
+//			try {
+//				reconnectTimes++;
+//				to.insertLogCreditFile(logCreditFile);
+//			} catch (Exception ex) {
+//				try {
+//					TimeUnit.SECONDS.sleep(DbReconnect.DB_RECONNECT_SLEEP);
+//				} catch (InterruptedException e) {
+//				}
+//				Log.error("数据库重连");
+//				if (reconnectTimes == DbReconnect.DB_RECONNECT_LIMIT_TIMES - 1) {
+//					Log.error("数据库重连" + DbReconnect.DB_RECONNECT_LIMIT_TIMES + "次失败，程序退出");
+//					exitApp();
+//				}
+//			}
+//			break;
+//		}
+//	}
+//
+//	public void mingleInsertActionAndInsertQUserReasonSendAndDoRoofOfFlow(TableOpers to,CreditAction action, LogCreditAction logAction,           HlpSmsSend sms,String insertPreFlag,boolean returnFlag,QUserReasonSend qUserReasonSend,LogCreditFlowOvertop logCreditFlowOvertop,            HlpSmsSend hlpSmsSend,QUserReasonSend send){
+//
+//		int reconnectTimes = 0;
+//		while (reconnectTimes < DbReconnect.DB_RECONNECT_LIMIT_TIMES) {
+//			try {
+//				reconnectTimes++;
+//				to.insertActionAndInsertQUserReasonSendAndDoRoofOfFlow(action,logAction,sms,insertPreFlag,returnFlag, qUserReasonSend,logCreditFlowOvertop,hlpSmsSend,send);
+//			} catch (Exception ex) {
+//				try {
+//					TimeUnit.SECONDS.sleep(DbReconnect.DB_RECONNECT_SLEEP);
+//				} catch (InterruptedException e) {
+//				}
+//				Log.error("数据库重连");
+//				if (reconnectTimes == DbReconnect.DB_RECONNECT_LIMIT_TIMES - 1) {
+//					Log.error("数据库重连" + DbReconnect.DB_RECONNECT_LIMIT_TIMES + "次失败，程序退出");
+//					exitApp();
+//				}
+//			}
+//			break;
+//		}
+//	}
+//
+//
+//
+//	public void mingleDeleteAndInsertActionAndInsertQUserReasonSendAndDoRoofOfFlow(TableOpers to,String userId,String reason,                       LogCreditAction logAction,boolean returnFlag,QUserReasonSend qUserReasonSend,LogCreditFlowOvertop logCreditFlowOvertop,                       HlpSmsSend  hlpSmsSend,QUserReasonSend send){
+//		int reconnectTimes = 0;
+//		while (reconnectTimes < DbReconnect.DB_RECONNECT_LIMIT_TIMES) {
+//			try {
+//				reconnectTimes++;
+//				to.deleteAndInsertActionAndInsertQUserReasonSendAndDoRoofOfFlow(userId,reason,logAction,returnFlag, qUserReasonSend,logCreditFlowOvertop, hlpSmsSend,send);
+//			} catch (Exception ex) {
+//				try {
+//					TimeUnit.SECONDS.sleep(DbReconnect.DB_RECONNECT_SLEEP);
+//				} catch (InterruptedException e) {
+//				}
+//				Log.error("数据库重连");
+//				if (reconnectTimes == DbReconnect.DB_RECONNECT_LIMIT_TIMES - 1) {
+//					Log.error("数据库重连" + DbReconnect.DB_RECONNECT_LIMIT_TIMES + "次失败，程序退出");
+//					exitApp();
+//				}
+//			}
+//			break;
+//		}
+//
+//	}
+	
+	public List<RuleParameters> getParasByDomainCode(String  char1){
+		List<RuleParameters> listparas = new ArrayList<RuleParameters>();
+		for(RuleParameters tmp : ruleParameters) {
+			if(tmp.getPara_char1().equals(char1)) {
+				listparas.add(tmp);
+			}
+		}
+		return listparas;
+	}
+
+//	public Map<String ,Long> getStopLimit(){
+//		if(this.stopLimit ==null || this.stopLimit.size()==0){
+//			Map<String,Long> stringLongMap = new HashMap<>();
+//			for(RuleParameters tmp : ruleParameters){
+//				if(tmp.getDomain_code()){
+//
+//				}
+//			}
+//		}
+//	}
+
+
+}

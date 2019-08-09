@@ -1,0 +1,23 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+        int max=16000;
+        int min=0;
+        for (int x =min; x <1000; x++) {
+            for (int y =min; y <1000; y++) {
+                for (int z = max; z >=max+100; z++) {
+                    if(254*x+205*y+299*z==4985233){
+                        System.out.println("x="+x+"\ty="+y+"\tz="+z);
+                    }
+                }
+            }
+        }
+ 
+    }
+
+}

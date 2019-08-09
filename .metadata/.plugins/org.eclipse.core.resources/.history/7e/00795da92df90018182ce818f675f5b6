@@ -1,0 +1,18 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
+public class Test {
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String userId="4102815316511";
+		String partitionNo=userId.substring(userId.length()-1);
+		System.out.println(partitionNo);
+}
+
+
+
+}

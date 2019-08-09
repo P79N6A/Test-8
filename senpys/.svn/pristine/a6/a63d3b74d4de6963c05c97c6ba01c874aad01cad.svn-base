@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="WebTestConsumer"
+  id="myeclipse.1400729258989"
+  context-root="/WebTestConsumer"
+  j2ee-spec="5.0"
+  archive="WebTestConsumer.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

@@ -1,0 +1,447 @@
+/**
+ * Copyright (c) 2014, xingzm@tydic.com All Rights Reserved.
+ */
+package com.tydic.beijing.billing.ua;
+
+import com.tydic.beijing.billing.ua.dao.*;
+import com.tydic.uda.core.Condition;
+import com.tydic.uda.service.S;
+import org.apache.log4j.Logger;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+/**
+ * 信息增强，主要是查表函数<br/>
+ *
+ * @author Bradish7Y
+ * @since JDK 1.7
+ */
+public class Search {
+    private volatile static Search instance = null;
+
+    private static final Logger L = Logger.getLogger(Search.class);
+    private static final String SEQUENCE_NAME = "sequence_name";
+
+    private HashMap<String, String> codeMap;
+    private HashMap<String, SmSprAccessNumber> access;
+    private HashMap<String, SmRuleStandardNumber> standard;
+    private HashMap<String, SmCodeNumberClass> numberClass;
+
+    private HashMap<Long, SmCodeMobilePrefix> mobilePrefix;
+    private HashMap<Long, SmCodeOtherMobilePrefix> mobileOtherPrefix;
+    private HashMap<String, SmCodeTelePrefix> tele;
+
+    private int accessMaxLength = 0;
+    private int accessMinLength = 0;
+
+    private int standardMaxLength = 0;
+    private int standardMinLength = 0;
+
+    private int numberClassMaxLength = 0;
+    private int numberClassMinLength = 0;
+
+    private int teleMaxLength = 0;
+    private int teleMinLength = 0;
+
+    public static Search getInstance() throws Exception {
+        if (instance == null) {
+            synchronized (Search.class) {
+                if (instance == null) {
+                    instance = new Search();
+                    instance.load();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private void getMaxAndMinLength() {
+        boolean first = true;
+        for (Entry<String, SmSprAccessNumber> e : access.entrySet()) {
+            int len = e.getValue().getAccess_number().length();
+            if (first) {
+                accessMaxLength = len;
+                accessMinLength = len;
+                first = false;
+            }
+            if (accessMaxLength < len) {
+                accessMaxLength = len;
+            }
+
+            if (accessMinLength > len) {
+                accessMinLength = len;
+            }
+        }
+        first = true;
+
+        for (Entry<String, SmRuleStandardNumber> e : standard.entrySet()) {
+            int len = e.getValue().getOld_number_prefix().length();
+            if (first) {
+                standardMaxLength = len;
+                standardMinLength = len;
+                first = false;
+            }
+            if (standardMaxLength < len) {
+                standardMaxLength = len;
+            }
+
+            if (standardMinLength > len) {
+                standardMinLength = len;
+            }
+        }
+        first = true;
+
+        for (Entry<String, SmCodeNumberClass> e : numberClass.entrySet()) {
+            int len = e.getValue().getNumber_prefix().length();
+            if (first) {
+                numberClassMaxLength = len;
+                numberClassMinLength = len;
+                first = false;
+            }
+            if (numberClassMaxLength < len) {
+                numberClassMaxLength = len;
+            }
+
+            if (numberClassMinLength > len) {
+                numberClassMinLength = len;
+            }
+        }
+        first = true;
+        for (Entry<String, SmCodeTelePrefix> e : tele.entrySet()) {
+            int len = e.getValue().getLower_tele_prefix().length();
+            if (first) {
+                teleMaxLength = len;
+                teleMinLength = len;
+                first = false;
+            }
+            if (teleMaxLength < len) {
+                teleMaxLength = len;
+            }
+
+            if (teleMinLength > len) {
+                teleMinLength = len;
+            }
+        }
+        first = true;
+
+    }
+
+    // 加载
+    private void load() throws Exception {
+
+        codeMap = loadSMCodeMap();
+        access = loadSmSprAccessNumber();
+        standard = loadSmRuleStandardNumber();
+        numberClass = loadSmCodeNumberClass();
+        mobilePrefix = loadSmCodeMobilePrefix();
+        mobileOtherPrefix = loadSmCodeOtherMobilePrefix();
+        tele = loadSmCodeTelePrefix();
+
+        L.info("load table[code_map], counts=" + codeMap.size());
+        L.info("load table[sm_sm_spr_access_number], counts=" + access.size());
+        L.info("load table[sm_rule_standard_number], counts=" + standard.size());
+        L.info("load table[sm_code_number_class], counts=" + numberClass.size());
+        L.info("load table[sm_code_mobile_prefix], counts=" + mobilePrefix.size());
+        L.info("load table[sm_code_tele_prefix], counts=" + tele.size());
+        L.info("load table[sm_code_other_mobile_prefix], counts=" + mobileOtherPrefix.size());
+
+        getMaxAndMinLength();
+    }
+
+    // 重新加载
+    public void relaod() {
+
+    }
+
+    /**
+     * * load *************
+     */
+    // 加载code_map
+    private HashMap<String, String> loadSMCodeMap() {
+        L.info("load data table : loadSMCodeMap");
+        HashMap<String, String> ret = new HashMap<String, String>(120);
+        List<SmCodeMap> l = S.get(SmCodeMap.class).query(Condition.empty());
+
+        for (SmCodeMap s : l) {
+            String key = s.getFile_type() + s.getPara_name() + s.getSrc_value();
+            ret.put(key, s.getDst_value());
+        }
+        return ret;
+    }
+
+    // 加载sm_spz_city
+    public HashMap<String, SmSpzCity> loadSmSpzCity() {
+        HashMap<String, SmSpzCity> ret = new HashMap<String, SmSpzCity>();
+        List<SmSpzCity> l = S.get(SmSpzCity.class).query(Condition.empty());
+        for (SmSpzCity s : l) {
+            ret.put(s.getArea_code(), s);
+        }
+        return ret;
+    }
+
+    // 加载sm_spr_access_number
+    public HashMap<String, SmSprAccessNumber> loadSmSprAccessNumber() {
+        HashMap<String, SmSprAccessNumber> ret = new HashMap<String, SmSprAccessNumber>();
+        List<SmSprAccessNumber> l = S.get(SmSprAccessNumber.class).query(Condition.empty());
+        for (SmSprAccessNumber s : l) {
+            ret.put(s.getAccess_number(), s);
+        }
+        return ret;
+    }
+
+    // 加载sm_rule_standard_number
+    public HashMap<String, SmRuleStandardNumber> loadSmRuleStandardNumber() {
+        HashMap<String, SmRuleStandardNumber> ret = new HashMap<String, SmRuleStandardNumber>();
+        List<SmRuleStandardNumber> l = S.get(SmRuleStandardNumber.class).query(Condition.empty());
+        for (SmRuleStandardNumber s : l) {
+            ret.put(s.getOld_number_prefix(), s);
+        }
+        return ret;
+    }
+
+    // 加载sm_code_number_class
+    public HashMap<String, SmCodeNumberClass> loadSmCodeNumberClass() {
+        HashMap<String, SmCodeNumberClass> ret = new HashMap<String, SmCodeNumberClass>();
+        List<SmCodeNumberClass> l = S.get(SmCodeNumberClass.class).query(Condition.empty());
+        for (SmCodeNumberClass s : l) {
+            ret.put(s.getNumber_prefix(), s);
+        }
+        return ret;
+    }
+
+    /**
+     * loadSmCodeMobilePrefix:国内号段表.<br/>
+     *
+     * @return
+     */
+    public HashMap<Long, SmCodeMobilePrefix> loadSmCodeMobilePrefix() {
+        HashMap<Long, SmCodeMobilePrefix> ret = new HashMap<Long, SmCodeMobilePrefix>();
+        List<SmCodeMobilePrefix> l = S.get(SmCodeMobilePrefix.class).query(
+                Condition.build("queryAll"));
+        for (SmCodeMobilePrefix s : l) {
+            ret.put(Long.parseLong(s.getLower_mobile_prefix()), s);
+        }
+        return ret;
+    }
+
+    /**
+     * loadSmCodeOtherMobilePrefix:虚商号段表.<br/>
+     *
+     * @return
+     */
+    public HashMap<Long, SmCodeOtherMobilePrefix> loadSmCodeOtherMobilePrefix() {
+        HashMap<Long, SmCodeOtherMobilePrefix> ret = new HashMap<Long, SmCodeOtherMobilePrefix>();
+        List<SmCodeOtherMobilePrefix> l = S.get(SmCodeOtherMobilePrefix.class).query(
+                Condition.build("queryAll"));
+        for (SmCodeOtherMobilePrefix s : l) {
+            ret.put(Long.parseLong(s.getLower_mobile_prefix()), s);
+        }
+        return ret;
+    }
+
+    /**
+     * loadSmSpzCity:区号.<br/>
+     *
+     * @return
+     * @throws Exception
+     */
+    public HashMap<String, SmCodeTelePrefix> loadSmCodeTelePrefix() {
+        HashMap<String, SmCodeTelePrefix> ret = new HashMap<String, SmCodeTelePrefix>();
+        List<SmCodeTelePrefix> l = S.get(SmCodeTelePrefix.class).query(Condition.build("queryAll"));
+        for (SmCodeTelePrefix s : l) {
+            ret.put(s.getLower_tele_prefix(), s);
+        }
+        return ret;
+    }
+
+    /**
+     * * get *************
+     */
+
+    public String getMapCode(final String fileType, final String paraName, final String src) {
+        L.debug("Step in getMapCode(fileType=" + fileType + ",paraName=" + paraName + ",src=" + src
+                + ")");
+        return codeMap.get(fileType + paraName + src);
+    }
+
+    public String getAccessInfo(final String value) {
+        L.debug("Step in getAccessInfo(value=" + value + ")");
+        if (value == null || value == "") {
+            return null;
+        }
+        if (value.length() < accessMinLength) {
+            return null;
+        }
+
+        int begin = accessMaxLength;
+        if (value.length() < accessMaxLength) {
+            begin = value.length();
+        }
+        for (int i = begin; i >= accessMinLength; i--) {
+            String tmp = value.substring(0, i);
+            SmSprAccessNumber s = access.get(tmp);
+            if (s != null) {
+                return tmp;
+            }
+        }
+        return null;
+    }
+
+    public String ruleStandardNumber(final String value) {
+        L.debug("Step in ruleStandardNumber(value=" + value + ")");
+        if (value == null || value == "") {
+            return null;
+        }
+
+        int begin = standardMaxLength;
+        if (value.length() < standardMaxLength) {
+            begin = value.length();
+        }
+
+        for (int i = begin; i >= standardMinLength; i--) {
+            String tmp = value.substring(0, i);
+            SmRuleStandardNumber s = standard.get(tmp);
+            if (s != null) {
+                if (value.length() > s.getLower_length() && value.length() < s.getUpper_length()) {
+                    return s.new_number_prefix != null ? s.new_number_prefix + value.substring(tmp.length()) : value.substring(tmp.length());
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getNumberClass(final String value) {
+        L.debug("Step in getNumberClass(value=" + value + ")");
+        if (value == null || value == "") {
+            return null;
+        }
+        for (int i = numberClassMaxLength; i >= numberClassMinLength; i--) {
+        	L.error("error numberClassMaxLength is +++"+numberClassMaxLength);
+        	L.error("error numberClassMinLength is +++"+numberClassMinLength);
+        	L.error("error i is +++"+i);
+            String tmp = value.substring(0, i);
+            SmCodeNumberClass s = numberClass.get(tmp);
+            if (s != null) {
+                return s.getNumber_class();
+            }
+        }
+        return null;
+    }
+
+    public String getFileSn(final String sequenceName) throws Exception {
+        L.debug("Step in getFileSn(sequenceName=" + sequenceName + ")");
+        UaSequenceUtils s = S.get(UaSequenceUtils.class).queryFirst(
+                Condition.empty().filter(SEQUENCE_NAME, sequenceName));
+
+        return s.getDuckduckgo();
+    }
+
+    public SmCodeMobilePrefix getMobileInfo(final long number) {
+        L.debug("Step in getMobilePrefix(number=" + number + ")");
+        SmCodeMobilePrefix ret = null;
+        long number3zero = number - number % 1000;
+        long number4zero = number - number % 10000;
+
+        // 先找3个0的18600123000
+        ret = mobilePrefix.get(number3zero);
+        if (ret == null) {
+            // 再找4个0的18600120000
+            ret = mobilePrefix.get(number4zero);
+            if (ret == null) {
+                return null;
+            }
+        }
+        return ret;
+    }
+
+    public SmCodeTelePrefix getTeleInfo(final String value) {
+        L.debug("Step in getTelePrefix(value=" + value + ")");
+
+        if (value.length() < teleMinLength) {
+            return null;
+        }
+
+        int begin = teleMaxLength;
+        if (value.length() < teleMaxLength) {
+            begin = value.length();
+        }
+        for (int i = begin; i >= teleMinLength; i--) {
+            String tmp = value.substring(0, i);
+            SmCodeTelePrefix s = tele.get(tmp);
+            if (s != null) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    public SmCodeOtherMobilePrefix getOtherMobileInfo(final long number) {
+        L.debug("Step in getOtherMobilePrefix(number=" + number + ")");
+        SmCodeOtherMobilePrefix ret = null;
+        long number3zero = number - number % 1000;
+        long number4zero = number - number % 10000;
+
+        // 先找3个0的18600123000
+        ret = mobileOtherPrefix.get(number3zero);
+        if (ret == null) {
+            // 再找4个0的18600120000
+            ret = mobileOtherPrefix.get(number4zero);
+            if (ret == null) {
+                return null;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * * utils *************
+     */
+    public String getEndTime(String time, int seconds) throws ParseException {
+        L.debug("step in getEndTime(time=" + time + ", seconds=" + seconds + ")");
+        DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Calendar cal = sdf.getCalendar();
+        cal.setTime(sdf.parse(time));
+        cal.add(Calendar.SECOND, seconds);
+
+        return sdf.format(cal.getTime());
+    }
+
+    // util
+    public String getSystemTime() {
+        DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        return sdf.format(new Date());
+    }
+
+    /**
+     * 检查记录是否为重复的记录
+     *
+     * @param content
+     * @return true 重单
+     * fase 不是
+     */
+    public boolean checkDuplicatedRecord(final String content) {
+
+        return S.get(DuplicatedRecord.class).get(content) != null ? true : false;
+    }
+
+    /**
+     * 向memcached插入一条记录
+     * @param content
+     */
+    public void pushRecord(final String content){
+        DuplicatedRecord dup = new DuplicatedRecord();
+        dup.setKey(content);
+
+        S.get(DuplicatedRecord.class).create(dup) ;
+    }
+
+}

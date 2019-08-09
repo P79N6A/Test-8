@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing"
+			password="billing">
+			<active>
+				<tables schema="BILLING"
+					filter="table_name in( 
+					'CREDIT_PARA' ,
+					'CREDIT_PROC_PARA',
+					'CREDIT_ACTION',
+					'CODE_ACCT_MONTH',
+					'Q_BLOCK',
+					'BIL_ACT_BILL' ,
+					'CREDIT_SEQUENCE_UTILS' ,
+					'LOG_CREDIT_ACTION',
+					'HLP_SMS_SEND',
+					'LOG_Q_BLOCK',
+					'Q_USER_REASON_SEND_PRE',
+					'LOG_CREDIT_FILE' ,'RULE_PARAMETERS'
+					) or 
+					table_name like 'BIL_ACT_REAL_TIME_BILL%' or
+					table_name like 'BIL_ACT_RESOURCE_ADD_UP%' or
+                    table_name like 'LOG_CREDIT_FLOW_OVERTOP'
+					  " />
+			</active>
+		</driver>
+
+  	<driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="crm_user"
+			password="crm_user">
+			<active>
+				<tables schema="crm_user"
+					filter="table_name in(
+					'INFO_USER_CREDIT',
+					'Q_CREDIT_INFO_USER_CREDIT', 
+					'Q_CREDIT_INFO_USER',
+					'Q_USER_REASON_SEND',
+					'INFO_USER' )
+				 " />
+			</active>
+		</driver>
+		  	
+		
+		<driver id="3" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="crm_cust"
+			password="crm_cust">
+			<active>
+				<tables schema="crm_cust"
+					filter="table_name in(
+					'INFO_AUTH_MOBILE',
+					'INFO_ALLLIST'  )
+				 " />
+			</active>
+		</driver>
+	</drivers>
+
+
+	<services>
+		<!-- credit_para -->
+		<service code="credit.para" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from credit_para]]>
+			</script>
+		</service>
+
+		<!-- credit_proc_para -->
+		<service code="credit.proc.para" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from credit_proc_para where proc_id = ?]]>
+			</script>
+		</service>
+
+		<!-- code_acct_month -->
+		<service code="code.acct.month" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month where use_tag = 1]]>
+			</script>
+		</service>
+
+		<!-- q_block -->
+		<service code="credit.q.block" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select pay_id, user_id, block_flag, to_char(enqueue_date, 'yyyymmddhh24miss') as enqueue_date, serial_num, rowidtochar(rowid) as row_id from q_block where mod(user_id, ?) = ?]]>
+			</script>
+		</service>
+		<!-- q_block -->
+		<service code="credit.q.block.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete q_block where 1=1 ]]>
+			</script>
+		</service>
+		<!-- log_q_block 缴费q表备份 -->
+		<service code="credit.q.block.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- bil_act_bill -->
+		<service code="credit.bil.act.bill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select user_id, pay_id, sum(owe_fee) as owe_fee from bil_act_bill where user_id = ? 
+      			group by user_id, pay_id having sum(owe_fee) > 0]]>
+			</script>
+		</service>
+
+		<!-- bil_act_real_time_bill -->
+		<service code="credit.bil.act.real.time.bill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+
+		<!-- credit_sequence_utils -->
+		<service name="queryAll" code="credit.sequence.utils"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+
+		<!-- credit_action -->
+		<service code="credit.credit.action.select" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- credit_action -->
+		<service code="credit.credit.action.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete credit_action where ]]>
+			</script>
+		</service>
+		<!-- credit_action -->
+		<service code="credit.credit.action.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- credit_action -->
+		<service code="credit.credit.action.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- log_credit_action -->
+		<service code="credit.log.credit.action.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- hlp_sms_send 接口表，停机时使用 -->
+		<service code="credit.hlp.sms.send" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- inf_user -->
+		<service code="credit.info.user.select" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+
+		<!-- q_user_reason_send_pre 上线临时用 -->
+		<service code="credit.q.user.reason.send.pre.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<!-- log_credit_file 文件处理日志表 -->
+		<service code="credit.log.credit.file.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- q_credit_info_user_credit -->
+		<service code="credit.q.credit.info.user.credit" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+      			--@DataSource(2)
+      			select serial_num, action, to_char(enqueue_date, 'yyyymmddhh24miss') as enqueue_date, local_net, user_id, credit_type, credit_number, to_char(eff_date,'yyyymmddhh24miss') as eff_date, to_char(exp_date, 'yyyymmddhh24miss') as exp_date, eff_flag,
+      			rowidtochar(rowid) as row_id  from q_credit_info_user_credit where mod(user_id, ?) = ?]]>
+			</script>
+		</service>
+
+		<!-- q_credit_info_user_credit -->
+		<service code="credit.q.credit.info.user.credit.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[
+				--@DataSource(2)
+				delete q_credit_info_user_credit where 1=1 ]]>
+			</script>
+		</service>
+
+		<!-- q_credit_info_user -->
+		<service code="credit.q.credit.info.user" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+      			--@DataSource(2)
+      			select serial_num, action, enqueue_date, user_id, device_number, rowidtochar(rowid) as row_id  from q_credit_info_user where mod(user_id, ?) = ?]]>
+			</script>
+		</service>
+		<!-- q_credit_info_user -->
+		<service code="credit.q.credit.info.user.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[
+				--@DataSource(2)
+				delete q_credit_info_user where 1=1 ]]>
+			</script>
+		</service>
+		<!-- q_user_reason_send -->
+		<service code="credit.q.user.reason.send.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				--@DataSource(2)
+			</script>
+		</service>
+
+
+
+	</services>
+
+</vds>

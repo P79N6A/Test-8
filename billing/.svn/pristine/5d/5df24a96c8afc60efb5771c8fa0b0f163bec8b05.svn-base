@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="uda.xml" />
+	<context:annotation-config />
+
+	<dubbo:application name="RefreshTrigger" />
+	<dubbo:registry address="zookeeper://172.168.1.217:2181" />
+	<dubbo:monitor protocol="registry" />
+
+	<bean id="ops" class="com.tydic.beijing.billing.tools.biz.RefreshTriggerOps" />
+
+	<dubbo:reference id="Demo" interface="com.tydic.beijing.billing.tools.service.Demo4Refresh"  cluster="broadcast" retries="0" timeout="300000" check="false"/>
+	<dubbo:reference id="Recharge" interface="com.tydic.beijing.billing.account.service.Recharge"  cluster="broadcast" retries="0" timeout="300000" check="false"/>
+	<dubbo:reference id="QuerySubsAcctBalance" interface="com.tydic.beijing.billing.outerf.api.QuerySubsAcctBalance"  cluster="broadcast" retries="0" timeout="300000" check="false"/>
+	<dubbo:reference id="SumChargeMultiMain" interface="com.tydic.beijing.billing.account.RefreshMainInterface"  cluster="broadcast" retries="0" timeout="300000" check="false"/>
+</beans>

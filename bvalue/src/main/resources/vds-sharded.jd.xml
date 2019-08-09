@@ -1,0 +1,1358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+
+	<drivers>
+		<!-- 参数数据库 -->
+		<driver id="100" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.231:3306" user="b_param" password="b_param">
+			<active>
+				<tables schema="bvalueparam" filter="1=1" />
+			</active>
+		</driver>
+
+		<!-- 资料库 -->
+		<driver id="1" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.231:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="2" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.232:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="3" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.233:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="4" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.234:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="5" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.235:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="6" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.236:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="7" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.237:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="8" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.22.185.238:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="bvaluedata" filter="1=1" />
+			</active>
+		</driver>
+	</drivers>
+
+	<sharding>
+		<table schema="bvaluedata" name="balance_access_log">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="info_pay_balance">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="info_user">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="info_user_attr">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="info_user_external_account">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="info_user_external_account_attr">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="life_resource_list">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="life_user_auto_exchange">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="life_user_ofr">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_auto_exchange_log">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_ratable_history">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_adjust_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_auto_exchange_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_auto_exchange_set_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_create_user">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_create_user_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_exchange_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_external_account_attr_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_external_account_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_shopping">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_shopping_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_sku">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="log_trade_sku_his">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<!-- *********************************************************** -->
+		<table schema="bvaluedata" name="original_shopping_file">
+			<partition id="1">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 199]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 200 and 399]]>
+				</accept>
+			</partition>
+
+			<partition id="3">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 400 and 599]]>
+				</accept>
+			</partition>
+
+			<partition id="4">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 600 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="5">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 999]]>
+				</accept>
+			</partition>
+
+			<partition id="6">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1000 and 1199]]>
+				</accept>
+			</partition>
+
+			<partition id="7">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1200 and 1399]]>
+				</accept>
+			</partition>
+
+			<partition id="8">
+				<accept>
+		<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 1400 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+	</sharding>
+
+</vds>

@@ -1,0 +1,20 @@
+package test;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+public class Demo {
+	public static void main(String[] args) throws ParseException {
+		 BaseDate baseDate = null;
+		 final String DATEFORMAT_DATETIME = "yyyyMMddHHmmss";
+		 Calendar c1 = Calendar.getInstance();
+	     Calendar c2 = Calendar.getInstance();
+	     SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(DATEFORMAT_DATETIME);
+	     c1.setTime(simpleDateFormat2.parse("20190313185215"));
+	     c2.setTime(simpleDateFormat2.parse("20190401000000"));
+	     //System.out.println(c1.getTime());
+	     System.out.println(c1.get(Calendar.MONTH));
+	     int result = c2.get(Calendar.MONTH) - c1.get(Calendar.MONTH);
+	     
+	}
+}

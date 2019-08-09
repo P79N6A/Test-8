@@ -1,0 +1,22 @@
+package test;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class Demo5 {
+
+	public static void main(String[] args) throws Exception {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		String product_eff="2019/06/11 15:00:45";
+		String product_exp="2019/07/01 00:00:00";
+		Date exp = dateFormat.parse(product_eff);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(exp);
+		cal.add(Calendar.DATE,1);
+		int i = cal.get(Calendar.DATE);
+		System.out.println(i);
+	}
+
+}

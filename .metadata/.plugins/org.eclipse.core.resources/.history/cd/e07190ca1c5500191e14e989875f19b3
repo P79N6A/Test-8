@@ -1,0 +1,16 @@
+package test;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+public class Demo {
+	public static void main(String[] args){
+		   	String str1 = "17180319999";
+		    String str2 = "17180310000";
+		    String str3 = "Integers are not immutable";
+
+		      int result = str1.compareToIgnoreCase( str2 );
+		      System.out.println(result);
+			  
+	}
+}

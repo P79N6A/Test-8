@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<dubbo:application name="demo-price-app" />
+	<!-- <dubbo:registry address="zookeeper://172.168.1.215:2181" />-->
+<!-- 	<dubbo:protocol name="dubbo" port="20880" /> -->
+	<dubbo:protocol id="dubbo1" name="dubbo" port="20880" />
+	
+ <!--  
+	<dubbo:service interface="com.tydic.demo.business.DemoPutMemBusiness"
+		ref="demoPutMemBusiness" protocol="dubbo1" />-->
+	
+	    
+		<bean id="dSPayBalanceCode"
+		class="com.tydic.beijing.billing.account.datastore.DSPayBalanceCode"
+		init-method="load"></bean>
+	<bean id="dSPayItemCode"
+		class="com.tydic.beijing.billing.account.datastore.DSPayItemCode"
+		init-method="load"></bean>
+	<bean id="dSAcctItemCode"
+		class="com.tydic.beijing.billing.account.datastore.DSAcctItemCode"
+		init-method="load"></bean>
+	<bean id="dSSpePayment"
+		class="com.tydic.beijing.billing.account.datastore.DSSpePayment"
+		init-method="load"></bean>
+	<bean id="dSBalanceType"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType"
+		init-method="load"></bean>
+	<bean id="writeOff" class="com.tydic.beijing.billing.account.core.WriteOff">
+		<property name="payBalanceCodes" ref="dSPayBalanceCode" />
+		<property name="payItemCodes" ref="dSPayItemCode" />
+		<property name="acctItemCodes" ref="dSAcctItemCode" />
+		<property name="spePayments" ref="dSSpePayment" />
+		<property name="balanceTypes" ref="dSBalanceType" />
+	</bean>
+	<bean id="accountProcess"
+		class="com.tydic.beijing.billing.account.service.impl.AccountProcessImpl">
+	</bean>
+	
+	<bean id="QueryInfoImpl" class="com.tydic.beijing.billing.rating.dto.impl.QueryInfoImpl" />
+    <bean id="InfoUser" class="com.tydic.beijing.billing.dao.InfoUser"/>
+     
+	<!-- uda -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.tydic.vds.jdbc.VdsDriver" />
+		<property name="url"
+			value="jdbc:vds:local@jdbc:oracle:thin:@172.168.1.246:1521:bssgx" />
+		<property name="username" value="newbilling" />
+		<property name="password" value="newbilling" />
+	</bean>
+	<bean class="com.tydic.uda.service.factory.XmlDataServiceFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="serviceLocations">
+			<list>
+				<value>dataService.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- memcached 
+	<bean class="com.tydic.uda.resolver.MemcachedOperateResolver">
+		<property name="memcachedAddress" value="localhost:11211" />
+		<property name="connectionPoolSize" value="1" />
+	</bean>
+-->
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="businessMethod"
+			expression="execution(* com.tydic..*Business.*(..))" />
+		<aop:advisor pointcut-ref="businessMethod" advice-ref="txAdvice" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" timeout="180"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+</beans>

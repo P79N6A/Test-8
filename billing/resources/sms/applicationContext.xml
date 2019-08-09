@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<import resource="./uda.xml" />
+	<!--<dubbo:application name="HlpSms" />
+	 
+	<dubbo:registry address="zookeeper://192.168.18.3:2181" /> -->
+
+	<bean  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+       <property name= "location" value="config.properties" ></property>
+	</bean>
+	
+	
+	<bean id="db" class="com.tydic.beijing.billing.sms.biz.SmsDbImpl">
+	</bean>
+
+	<bean id="sms" class="com.tydic.beijing.billing.sms.service.impl.SmsServiceImpl">
+		<property name="db" ref="db"/>
+		<property name="poolSize" value="${poolSize}"/>
+		<property name="amount" value="${amount}"/>
+	</bean>
+	
+	<bean id="smshis" class="com.tydic.beijing.billing.sms.service.impl.SmsHisServiceImpl">
+		<property name="db" ref="db"/>
+	</bean>
+	<!-- 
+	<bean id="smsrecv" class="com.tydic.beijing.billing.sms.service.impl.DealSmsRecv">
+		<property name="db" ref="db"/>
+	</bean>
+	 -->
+</beans>

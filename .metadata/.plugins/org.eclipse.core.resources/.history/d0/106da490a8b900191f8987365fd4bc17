@@ -1,0 +1,608 @@
+package com.tydic.beijing.billing.account.service.impl;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tydic.beijing.billing.account.biz.ContractDb;
+import com.tydic.beijing.billing.dao.InfoUser;
+import com.tydic.beijing.billing.dao.LifeUserContract;
+import com.tydic.beijing.billing.dao.LifeUserContractFrozen;
+import com.tydic.beijing.billing.dao.LifeUserReleaseCal;
+import com.tydic.beijing.billing.dao.QPresentUserInfo;
+import com.tydic.beijing.billing.dao.QPresentUserInfoHis;
+import com.tydic.beijing.billing.dao.RuleContract;
+import com.tydic.beijing.billing.dao.RuleResourceRelease;
+import com.tydic.beijing.billing.sms.dao.HlpSmsSend;
+
+public class InstContractServiceImplProcess {
+	private static org.slf4j.Logger log = LoggerFactory.getLogger(InstContractServiceImplProcess.class);
+	
+	private ContractDb db;
+
+	public ContractDb getDb() {
+		return db;
+	}
+
+	public void setDb(ContractDb db) {
+		this.db = db;
+	}
+	
+	/*
+	public static long ChangeResourceType(String resourceType) throws Exception{
+		long balance_type_id = 0;
+		switch(resourceType){
+		case "A":{balance_type_id = 7;break;}
+		case "B":{balance_type_id = 8;break;}
+		case "C":{balance_type_id = 9;break;}
+		case "D":{balance_type_id = 8;break;}
+		case "E":{balance_type_id = 8;break;}
+		case "F":{balance_type_id = 9;break;}
+		default:{balance_type_id = -1000;}
+		}
+		
+		log.debug("resourceType:"+resourceType+" -> balance_type_id:"+balance_type_id);
+		return balance_type_id;
+	}
+	*/
+	public static Date[] GetProcessTime(RuleResourceRelease rule_resource_release) throws Exception{
+		int i = 0;
+		Date[] AryProcessTime = new Date[(int)rule_resource_release.getRelease_cycle()];
+		log.debug("release_cycle:"+rule_resource_release.getRelease_cycle()+", cycle_type:"+rule_resource_release.getRelease_cycle_type());
+		log.debug("offset_mode:"+rule_resource_release.getOffset_mode());
+		Calendar cal=Calendar.getInstance();//获取当前日期
+		
+		switch(rule_resource_release.getRelease_cycle_type()){
+		case "ROM":{
+			 i=0;
+			if(rule_resource_release.getOffset_mode().equals("1")){
+				AryProcessTime[0] = new java.sql.Date(cal.getTime().getTime()); 
+				i++;
+			}
+			for(;i<rule_resource_release.getRelease_cycle(); i++){
+				cal.add(Calendar.MONTH, 1);
+				cal.set(Calendar.DAY_OF_MONTH,1);
+				AryProcessTime[i] = new java.sql.Date(cal.getTime().getTime()); 
+			}
+			break;
+		}case "ROD":{
+			for(i=0; i<rule_resource_release.getRelease_cycle(); i++){
+				cal.add(Calendar.DAY_OF_YEAR, 1);
+				AryProcessTime[i] = new java.sql.Date(cal.getTime().getTime()); 
+			}
+			break;
+		}case "ROW":{
+			for(i=0; i<rule_resource_release.getRelease_cycle(); i++){
+				cal.add(Calendar.WEEK_OF_YEAR, 1);
+				cal.set(Calendar.DAY_OF_WEEK, 1);
+				AryProcessTime[i] = new java.sql.Date(cal.getTime().getTime()); 
+			}
+			break;
+		}case "ROI":{
+			//--立即生效
+			if(rule_resource_release.getOffset_mode().equals("1")){
+				//--立即生效首次为当前时间
+				AryProcessTime[0] = new java.sql.Date(new java.util.Date().getTime()); 
+			}else{
+				log.error("offset_mode:"+rule_resource_release.getOffset_mode()+"release_cycle_type:ROI, error!!");
+			}
+			break;
+		}default:{
+			log.error("only support ROM, ROD, ROW, ROI now!!");
+			return null;
+		}
+		}//-- end of switch
+		
+		for(i=0; i<rule_resource_release.getRelease_cycle(); i++){
+			log.debug("AryProcessTime["+i+"]:"+AryProcessTime[i]);
+		}
+		
+		return AryProcessTime;
+	}
+	
+	public static boolean IsSumBalance(String[] presentRule, long balance) throws Exception{
+		if(presentRule==null || balance==0){
+			log.error("Rule is null or balance is 0");
+			return false;
+		}
+		long BalanceTemp = 0;
+		for(int i=0; i<presentRule.length; i++){
+			log.debug("presentRule["+i+"]:"+presentRule[i]);
+			BalanceTemp = BalanceTemp + Long.parseLong(presentRule[i]);
+		}
+		log.debug("RuleBalance:"+BalanceTemp+", balance:"+balance);
+		if(BalanceTemp == balance){
+			return true;
+		}
+		return false;
+	}
+	
+	public static Date GetExpDate(RuleResourceRelease rule_resource_release, Date eff_date) throws Exception{
+		Date exp_date = null;
+		Calendar cal=Calendar.getInstance();
+		cal.setTime(eff_date);
+		if(rule_resource_release.getResource_eff_mod().equals("1")){
+			cal.set(Calendar.YEAR, 2049);
+			cal.set(Calendar.MONTH, 11);
+			cal.set(Calendar.DAY_OF_MONTH, 31);
+		}else if(rule_resource_release.getResource_eff_mod().equals("3")){
+			switch(rule_resource_release.getRelease_cycle_type()){
+			case "ROM":
+			case "ROI":{
+				cal.add(Calendar.MONTH, rule_resource_release.getEff_cycle_value());
+				cal.set(Calendar.DATE,1);
+				cal.add(Calendar.DATE,-1);
+				break;
+			}case "ROD":{
+				cal.add(Calendar.DATE, rule_resource_release.getEff_cycle_value());
+				break;
+			}case "ROW":{
+				cal.add(Calendar.WEEK_OF_YEAR, rule_resource_release.getEff_cycle_value()+1);
+				cal.set(Calendar.DAY_OF_WEEK,1);
+				cal.add(Calendar.DATE,-1);
+				break;
+			}default:{
+				log.error("only support ROM, ROD, ROW now!!");
+				cal.set(Calendar.YEAR, 2049);
+				cal.set(Calendar.MONTH, 11);
+				cal.set(Calendar.DAY_OF_MONTH, 31);
+			}
+			}
+		}
+		exp_date = new java.sql.Date(cal.getTime().getTime()); 
+		return exp_date;
+	}
+	
+	public static String CompareSmsPara(String contract_id, String flag){
+		if(flag.equals("INST")){
+			switch(contract_id){
+			case "10003":{
+				return "dic.billing.10003inst";
+			}case "20003":{
+				return "dic.billing.20003inst";
+			}case "20002":{
+				return "dic.billing.20002inst";
+			}case "10002":{
+				return "dic.billing.10002inst";
+			}default:{
+				return null;
+			}
+			}
+		}else if(flag.equals("DEAL")){
+			switch(contract_id){
+			case "1001":{
+				return "aoc.dic.contractdeal";
+			}case "1002":{
+				return "aoc.dic.contractdeal";
+			}case "1003":{
+				return "aoc.dic.contractdeal";
+			}case "1004":{
+				return "aoc.dic.contractdeal";
+			}case "1005":{
+				return "aoc.dic.contractdeal";
+			}case "10003":{
+				return "dic.billing.10003deal";
+			}case "20003":{
+				return "dic.billing.20003deal";
+			}case "20002":{
+				return "dic.billing.20002deal";
+			}case "10002":{
+				return "dic.billing.10002deal";
+			}default:{
+				return null;
+			}
+			}
+		}
+		return null;
+	}
+	
+	public static String[] ComputePresentRule(RuleResourceRelease rule_resource_release){
+		int i = 0;
+		String[] presentRule = new String[(int)rule_resource_release.getRelease_cycle()];
+		switch(rule_resource_release.getRelease_mode()){
+		case "1":{//--平均
+			for(i=0; i<rule_resource_release.getRelease_cycle(); i++){
+				presentRule[i] = String.valueOf(rule_resource_release.getBalance() / rule_resource_release.getRelease_cycle());
+			}
+			break;
+		}case "2":{//--首月特例
+			presentRule[0] = String.valueOf(rule_resource_release.getSpecial_balance());
+			for(i=1; i<(rule_resource_release.getRelease_cycle()); i++){
+				presentRule[i] = String.valueOf((rule_resource_release.getBalance()-rule_resource_release.getSpecial_balance()) / (rule_resource_release.getRelease_cycle()-1));
+			}
+			break;
+		}case "3":{//--末月特例
+			for(i=0; i<(rule_resource_release.getRelease_cycle()-1); i++){
+				presentRule[i] = String.valueOf((rule_resource_release.getBalance()-rule_resource_release.getSpecial_balance()) / (rule_resource_release.getRelease_cycle()-1));
+			}
+			presentRule[(int)rule_resource_release.getRelease_cycle()-1] = String.valueOf(rule_resource_release.getSpecial_balance());
+			break;
+		}case "4":{//--自定义
+			presentRule = rule_resource_release.getRelease_calendar().split("\\|");
+			break;
+		}default:{
+			log.error("rule_resource_release.getRelease_mode():"+rule_resource_release.getRelease_mode());
+			break;
+		}
+		}//-- end of switch
+		return presentRule;
+	}
+	
+	private long ChangeBalanceTypeId(QPresentUserInfo q_present_user_info){
+		long balanece_type_id = 0;
+		switch(q_present_user_info.getResource_type()){
+		case "A":{
+			balanece_type_id = 7;
+			break;
+		}case "B":{
+			balanece_type_id = 8;
+			break;
+		}case "C":{
+			balanece_type_id = 8;
+			break;
+		}case "D":{
+			balanece_type_id = 8;
+			break;
+		}case "E":{
+			balanece_type_id = 8;
+			break;
+		}case "F":{
+			balanece_type_id = 9;
+			break;
+		}case "G":{
+			balanece_type_id = 8; //20190724由18改为2
+			break;
+		}default:{
+			balanece_type_id = 7;
+		}
+		}
+		return balanece_type_id;
+	}
+	
+//	public void InstPresentRun() throws Exception{
+//		List<QPresentUserInfo> ListPresentUser = new ArrayList<QPresentUserInfo>();
+//		while(true){
+//			ListPresentUser.clear();
+//			ListPresentUser = db.GetPresentUser();
+//			//this.InstPresentUserInfo(ListPresentUser);
+//			Inst(ListPresentUser);
+//			Thread.sleep(3000);
+//			log.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//		}
+//	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public void Inst(QPresentUserInfo  present_user_id) throws Exception {
+//		List<QPresentUserInfo> ListPresentUserId = new ArrayList<QPresentUserInfo>();
+		boolean IsFrozenIdExist = false;
+		try{
+//			ListPresentUserId.clear();
+//			ListPresentUserId = db.GetPresentUserId();
+			
+//			for(QPresentUserInfo present_user_id:ListPresentUserId){
+				log.debug("-------------present_user_id:"+present_user_id.getPresent_user_id()+", protocol_id:"+present_user_id.getProtocol_id());
+				List<QPresentUserInfo> ListQPresentUserInfo = new ArrayList<QPresentUserInfo>();
+				List<LifeUserContractFrozen> ListLifeUserContractFrozen = new ArrayList<LifeUserContractFrozen>();
+				List<QPresentUserInfoHis> ListQPresentUserInfoHis = new ArrayList<QPresentUserInfoHis>();
+				long BalanceAll = 0;
+				RuleResourceRelease rule_resource_release = db.QueryRuleResourceRelease(String.valueOf(present_user_id.getProtocol_id()));
+				if(rule_resource_release == null){
+					log.error("rule_resource_release  is null, contract_id:"+String.valueOf(present_user_id.getProtocol_id()));
+					present_user_id.setState(101);
+					db.UpdateQPresentInfoState(present_user_id);
+				//	continue;
+					return;
+				}
+				ListQPresentUserInfo = db.GetQPresentUserInfo(present_user_id.getPresent_user_id());
+				for(QPresentUserInfo q_present_user_info : ListQPresentUserInfo){
+					IsFrozenIdExist = false;
+					if(q_present_user_info.getServ_code().equals("027") || q_present_user_info.getServ_code().equals("019") || q_present_user_info.getServ_code().equals("016")||q_present_user_info.getServ_code().equals("B44")||q_present_user_info.getServ_code().equals("G21")){
+						log.debug("user_id:"+q_present_user_info.getUser_id()+", Present_user_id:"+q_present_user_info.getPresent_user_id()+", serv_code:"+q_present_user_info.getServ_code());
+						db.CloseContract(q_present_user_info);
+						continue;
+					}
+					BalanceAll += q_present_user_info.getResource_value();
+					
+					QPresentUserInfoHis q_present_user_info_his = new QPresentUserInfoHis();
+					q_present_user_info_his.setEff_date(q_present_user_info.getEff_date());
+					q_present_user_info_his.setExp_date(q_present_user_info.getExp_date());
+					q_present_user_info_his.setOperate_type(q_present_user_info.getOperate_type());
+					q_present_user_info_his.setPresent_user_id(q_present_user_info.getPresent_user_id());
+					q_present_user_info_his.setProtocol_id(q_present_user_info.getProtocol_id());
+					q_present_user_info_his.setResource_type(q_present_user_info.getResource_type());
+					q_present_user_info_his.setResource_value(q_present_user_info.getResource_value());
+					q_present_user_info_his.setServ_code(q_present_user_info.getServ_code());
+					q_present_user_info_his.setUser_id(q_present_user_info.getUser_id());
+					q_present_user_info_his.setState(q_present_user_info.getState());
+					ListQPresentUserInfoHis.add(q_present_user_info_his);
+					
+					for(LifeUserContractFrozen life_user_contract_forzen_temp : ListLifeUserContractFrozen){
+						if(life_user_contract_forzen_temp.getBalance_type_id() == ChangeBalanceTypeId(q_present_user_info)){
+							life_user_contract_forzen_temp.setBalance(q_present_user_info.getResource_value() + life_user_contract_forzen_temp.getBalance());
+							IsFrozenIdExist = true;
+							break;
+						}
+					}
+					if(IsFrozenIdExist == false){
+						LifeUserContractFrozen life_user_contract_forzen = new LifeUserContractFrozen();
+						life_user_contract_forzen.setContract_inst_id(present_user_id.getPresent_user_id());
+						life_user_contract_forzen.setBalance_type_id(ChangeBalanceTypeId(q_present_user_info));
+						life_user_contract_forzen.setBalance(q_present_user_info.getResource_value());
+						life_user_contract_forzen.setFrozen_id(String.valueOf(db.GetNextForzenId()));
+						life_user_contract_forzen.setUser_id(present_user_id.getUser_id());
+						log.debug("life_user_contract_forzen:"+life_user_contract_forzen.toString());
+						ListLifeUserContractFrozen.add(life_user_contract_forzen);
+					}
+				}
+				rule_resource_release.setBalance(BalanceAll);
+				String[] presentRule = ComputePresentRule(rule_resource_release);
+				Date[] presentTime = GetProcessTime(rule_resource_release);
+				
+				log.debug("rule_resource_release:"+rule_resource_release.toString());
+				RuleContract rule_contract = new RuleContract();
+				rule_contract = db.GetRuleContract(String.valueOf(present_user_id.getProtocol_id()));
+				if(rule_contract==null || rule_contract.getEff_flag().equals("2")){
+					log.error("######contract_id:"+present_user_id.getProtocol_id()+" is not exist in rule_contract.continue");
+					present_user_id.setState(101);
+					db.UpdateQPresentInfoState(present_user_id);
+					//continue;
+					return;
+				}
+				
+				LifeUserContract life_user_contract = new LifeUserContract();
+				life_user_contract.setContract_inst_id(present_user_id.getPresent_user_id());
+				life_user_contract.setContract_id(rule_resource_release.getContract_id());
+				life_user_contract.setEff_date(presentTime[0]);
+				life_user_contract.setExp_date(GetExpDate(rule_resource_release, presentTime[0]));
+				life_user_contract.setUser_id(present_user_id.getUser_id());
+				life_user_contract.setEff_flag("1");
+				log.debug("life_user_contract:"+life_user_contract.toString());
+				
+				log.debug("rule_contract:"+rule_contract.toString());
+				List<LifeUserReleaseCal> ListLifeUserReleaseCal = new ArrayList<LifeUserReleaseCal>();
+				
+				long BalanceNeed = 0;
+				
+				for(int i=0; i<presentRule.length; i++){
+					BalanceNeed = Long.parseLong(presentRule[i]);
+					for(QPresentUserInfo q_present_user_info : ListQPresentUserInfo){
+						LifeUserReleaseCal life_user_release_cal = new LifeUserReleaseCal();
+						log.debug("reource_value:"+q_present_user_info.getResource_value()+", BalanceNeed:"+BalanceNeed+", type:"+q_present_user_info.getResource_type());
+						life_user_release_cal.setContract_inst_id(q_present_user_info.getPresent_user_id());
+						life_user_release_cal.setUser_id(q_present_user_info.getUser_id());
+						life_user_release_cal.setProcess_state("0");
+						life_user_release_cal.setRelease_time(presentTime[i]);
+						life_user_release_cal.setEff_date(presentTime[i]);
+						life_user_release_cal.setExp_date(GetExpDate(rule_resource_release, presentTime[i]));
+						life_user_release_cal.setRemark(rule_resource_release.getContract_id());
+						
+						if(q_present_user_info.getResource_value() >= BalanceNeed){
+							life_user_release_cal.setBalance(BalanceNeed);
+							life_user_release_cal.setBalance_type_id(ChangeBalanceTypeId(q_present_user_info));
+							log.debug("y,life_user_release_cal["+i+"]:"+life_user_release_cal.toString());
+							q_present_user_info.setResource_value(q_present_user_info.getResource_value() - BalanceNeed);
+							for(LifeUserContractFrozen life_user_contract_forzen : ListLifeUserContractFrozen){
+								if(life_user_contract_forzen.getBalance_type_id() == ChangeBalanceTypeId(q_present_user_info)){
+									life_user_release_cal.setFrozen_id(life_user_contract_forzen.getFrozen_id());
+									break;
+								}
+							}
+							ListLifeUserReleaseCal.add(life_user_release_cal);
+							break;
+						}else{
+							if(q_present_user_info.getResource_value() == 0){
+								continue;
+							}
+							life_user_release_cal.setBalance(q_present_user_info.getResource_value());
+							life_user_release_cal.setBalance_type_id(ChangeBalanceTypeId(q_present_user_info));
+							log.debug("n,life_user_release_cal["+i+"]:"+life_user_release_cal.toString());
+							BalanceNeed = Long.parseLong(presentRule[i]) - q_present_user_info.getResource_value();
+							q_present_user_info.setResource_value(0);
+							for(LifeUserContractFrozen life_user_contract_forzen : ListLifeUserContractFrozen){
+								if(life_user_contract_forzen.getBalance_type_id() == ChangeBalanceTypeId(q_present_user_info)){
+									life_user_release_cal.setFrozen_id(life_user_contract_forzen.getFrozen_id());
+									break;
+								}
+							}
+							ListLifeUserReleaseCal.add(life_user_release_cal);
+						}
+					}
+				}
+				for(LifeUserReleaseCal life_user_release_cal : ListLifeUserReleaseCal){
+					log.debug("----------------------------------------------");
+					log.debug("life_user_release_cal:"+life_user_release_cal.toString());
+				}
+				
+				InfoUser info_user  = new InfoUser();
+				info_user = db.QueryInfoUser(present_user_id.getUser_id());
+				if(info_user == null){
+					log.error("send sms, msisdn_receive is null, user_id:"+present_user_id.getUser_id());
+					present_user_id.setState(111);
+					db.UpdateQPresentInfoState(present_user_id);
+					//continue;
+					return;
+				}
+				//JD-1713靓号短信提醒账本有效期问题-非一次返且联通用户且未激活,暂不作处理-add by 20160803
+				if (rule_resource_release.getRelease_cycle()>1) {
+					
+					if (info_user.getUser_status().equals("501")&&info_user.getTele_type().equals("GSM")) {
+						log.debug("联通协议并且当前用户未激活，暂不处理"+present_user_id.getUser_id());
+						return;
+						
+					}
+				}				
+				//
+				HlpSmsSend hlp_sms_send = new HlpSmsSend();
+				String sms_inst = CompareSmsPara(rule_resource_release.getContract_id(), "INST");
+				String sms_text = "|"+sms_inst+"|";
+				hlp_sms_send.setMsisdn_send("10023");
+				hlp_sms_send.setMessage_text(sms_text);
+				hlp_sms_send.setMsg_id(String.valueOf(db.GetNextMsgId()));
+				hlp_sms_send.setMsisdn_receive(db.QueryInfoUser(present_user_id.getUser_id()).getDevice_number());
+				
+				//--插入life_user_contract/life_user_contract_forzen/life_user_release_cal
+				db.DealInst(ListQPresentUserInfo, ListQPresentUserInfoHis, life_user_contract, ListLifeUserContractFrozen, ListLifeUserReleaseCal);
+				log.debug("user_id:"+present_user_id.getUser_id()+" inst done!!");
+//			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		//return ListPresentUser;
+	}
+
+	public List<QPresentUserInfo> InstPresentUserInfo(List<QPresentUserInfo> ListPresentUser) throws Exception {
+		try{
+			log.debug("==in DealUser");
+			//List<QPresentUserInfo> ListPresentUser = new ArrayList<QPresentUserInfo>();
+			//ListPresentUser = db.GetPresentUser();
+			for(QPresentUserInfo q_present_user_info : ListPresentUser){
+				log.debug("q_present_user_info:"+q_present_user_info.toString());
+				
+				if(q_present_user_info.getServ_code().equals("027") || q_present_user_info.getServ_code().equals("019") || q_present_user_info.getServ_code().equals("016")||q_present_user_info.getServ_code().equals("B44")||q_present_user_info.getServ_code().equals("G21")){
+					log.debug("user_id:"+q_present_user_info.getUser_id()+", Present_user_id:"+q_present_user_info.getPresent_user_id()+", serv_code:"+q_present_user_info.getServ_code());
+					db.CloseContract(q_present_user_info);
+					continue;
+				}
+				
+				RuleContract rule_contract = new RuleContract();
+				rule_contract = db.GetRuleContract(String.valueOf(q_present_user_info.getProtocol_id()));
+				if(rule_contract==null || rule_contract.getEff_flag().equals("2")){
+					log.error("######contract_id:"+q_present_user_info.getProtocol_id()+" is not exist in rule_contract.continue");
+					q_present_user_info.setState(101);
+					if(q_present_user_info.getOperate_type().equals("1")){
+						db.UpdateQPresentInfoState(q_present_user_info);
+					}
+					continue;
+				}
+				log.debug("rule_contract:"+rule_contract.toString());
+				
+				List<RuleResourceRelease> ListRuleResourceRelease = new ArrayList<RuleResourceRelease>();
+				ListRuleResourceRelease = db.GetRuleResourceRelease(String.valueOf(q_present_user_info.getProtocol_id()));
+				for(RuleResourceRelease rule_resource_release : ListRuleResourceRelease){
+					log.debug("------------------------------------------------------");
+					if(q_present_user_info.getResource_value() != rule_resource_release.getBalance()){
+						if(rule_resource_release.getRelease_cycle_type().equals("ROI")){
+							rule_resource_release.setBalance(q_present_user_info.getResource_value());
+							rule_resource_release.setBalance_type_id(ChangeBalanceTypeId(q_present_user_info));
+						}else{
+							q_present_user_info.setState(109);
+							db.UpdateQPresentInfoState(q_present_user_info);
+							log.error("######balance is not equal and not ROI!!");
+							break;
+						}
+					}
+					
+					log.debug("rule_resource_release:"+rule_resource_release.toString());
+					if(rule_resource_release.getContract_id().trim().equals(String.valueOf(q_present_user_info.getProtocol_id()).trim())){
+						//String[] presentRule = rule_resource_release.getRelease_calendar().split("\\|");
+						String[] presentRule = ComputePresentRule(rule_resource_release);
+						Date[] presentTime = GetProcessTime(rule_resource_release);
+						if(!IsSumBalance(presentRule, rule_resource_release.getBalance()) || presentTime==null){
+							q_present_user_info.setState(102);
+							if(q_present_user_info.getOperate_type().equals("1")){
+								db.UpdateQPresentInfoState(q_present_user_info);
+							}
+							log.error("######presentRule or presentTime error!!");
+							break;
+						}
+						if(presentTime.length!=presentRule.length || presentRule.length!=rule_resource_release.getRelease_cycle()){
+							//--更新Q表
+							q_present_user_info.setState(103);
+							if(q_present_user_info.getOperate_type().equals("1")){
+								db.UpdateQPresentInfoState(q_present_user_info);
+							}
+							log.error("######present cycle error!!");
+							break;
+						}
+						
+						LifeUserContract life_user_contract = new LifeUserContract();
+						life_user_contract.setContract_inst_id(q_present_user_info.getPresent_user_id());
+						life_user_contract.setContract_id(rule_resource_release.getContract_id());
+						life_user_contract.setEff_date(presentTime[0]);
+						life_user_contract.setExp_date(GetExpDate(rule_resource_release, presentTime[0]));
+						life_user_contract.setUser_id(q_present_user_info.getUser_id());
+						life_user_contract.setEff_flag("1");
+						log.debug("life_user_contract:"+life_user_contract.toString());
+						
+						LifeUserContractFrozen life_user_contract_forzen = new LifeUserContractFrozen();
+						life_user_contract_forzen.setContract_inst_id(q_present_user_info.getPresent_user_id());
+						life_user_contract_forzen.setBalance_type_id(rule_resource_release.getBalance_type_id());
+						life_user_contract_forzen.setBalance(rule_resource_release.getBalance());
+						life_user_contract_forzen.setFrozen_id(String.valueOf(db.GetNextForzenId()));
+						life_user_contract_forzen.setUser_id(q_present_user_info.getUser_id());
+						log.debug("life_user_contract_forzen:"+life_user_contract_forzen.toString());
+						
+						List<LifeUserReleaseCal> ListLifeUserReleaseCal = new ArrayList<LifeUserReleaseCal>();
+						for(int i=0; i<presentRule.length; i++){
+							LifeUserReleaseCal life_user_release_cal = new LifeUserReleaseCal();
+							life_user_release_cal.setContract_inst_id(q_present_user_info.getPresent_user_id());
+							life_user_release_cal.setUser_id(q_present_user_info.getUser_id());
+							life_user_release_cal.setFrozen_id(life_user_contract_forzen.getFrozen_id());
+							life_user_release_cal.setProcess_state("0");
+							life_user_release_cal.setBalance(Long.parseLong(presentRule[i]));
+							life_user_release_cal.setBalance_type_id(rule_resource_release.getBalance_type_id());
+							life_user_release_cal.setRelease_time(presentTime[i]);
+							life_user_release_cal.setEff_date(presentTime[i]);
+							life_user_release_cal.setExp_date(GetExpDate(rule_resource_release, presentTime[i]));
+							life_user_release_cal.setRemark(rule_resource_release.getContract_id());
+							log.debug("life_user_release_cal["+i+"]:"+life_user_release_cal.toString());
+							ListLifeUserReleaseCal.add(life_user_release_cal);
+						}
+						
+						QPresentUserInfoHis q_present_user_info_his = new QPresentUserInfoHis();
+						q_present_user_info_his.setEff_date(q_present_user_info.getEff_date());
+						q_present_user_info_his.setExp_date(q_present_user_info.getExp_date());
+						q_present_user_info_his.setOperate_type(q_present_user_info.getOperate_type());
+						q_present_user_info_his.setPresent_user_id(q_present_user_info.getPresent_user_id());
+						q_present_user_info_his.setProtocol_id(q_present_user_info.getProtocol_id());
+						q_present_user_info_his.setResource_type(q_present_user_info.getResource_type());
+						q_present_user_info_his.setResource_value(q_present_user_info.getResource_value());
+						q_present_user_info_his.setServ_code(q_present_user_info.getServ_code());
+						q_present_user_info_his.setUser_id(q_present_user_info.getUser_id());
+						q_present_user_info_his.setState(q_present_user_info.getState());
+						
+						
+						InfoUser info_user  = new InfoUser();
+						info_user = db.QueryInfoUser(q_present_user_info.getUser_id());
+						if(info_user == null){
+							log.error("send sms, msisdn_receive is null, user_id:"+q_present_user_info.getUser_id());
+							q_present_user_info.setState(111);
+							db.UpdateQPresentInfoState(q_present_user_info);
+							continue;
+						}
+						HlpSmsSend hlp_sms_send = new HlpSmsSend();
+						String sms_inst = CompareSmsPara(rule_resource_release.getContract_id(), "INST");
+						String sms_text = "|"+sms_inst+"|";
+						hlp_sms_send.setMsisdn_send("10023");
+						hlp_sms_send.setMessage_text(sms_text);
+						hlp_sms_send.setMsg_id(String.valueOf(db.GetNextMsgId()));
+						hlp_sms_send.setMsisdn_receive(db.QueryInfoUser(q_present_user_info.getUser_id()).getDevice_number());
+						
+						//--插入life_user_contract/life_user_contract_forzen/life_user_release_cal
+						db.DealInstPresent(q_present_user_info, q_present_user_info_his, life_user_contract, life_user_contract_forzen, ListLifeUserReleaseCal);
+						log.debug("user_id:"+q_present_user_info.getUser_id()+" inst done!!");
+						q_present_user_info.setState(1);
+					}else{
+						q_present_user_info.setState(109);
+						if(q_present_user_info.getOperate_type().equals("1")){
+							db.UpdateQPresentInfoState(q_present_user_info);
+						}
+						log.error("contract_id or balance_type_id error");
+						log.error("rule_resource_release.getContract_id():"+rule_resource_release.getContract_id());
+						log.error("q_present_user_info.getProtocol_id():"+q_present_user_info.getProtocol_id());
+						log.error("rule_resource_release.getBalance_type_id():"+rule_resource_release.getBalance_type_id());
+						log.error("q_present_user_info.getResource_type():"+q_present_user_info.getResource_type());
+						break;
+					}
+				}//-- end for
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ListPresentUser;
+	}//-- end of InstPresentUserInfo()
+}//-- end of class

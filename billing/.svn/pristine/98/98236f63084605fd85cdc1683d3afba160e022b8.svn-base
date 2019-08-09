@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<bean id="dSPayBalanceCode"
+		class="com.tydic.beijing.billing.account.datastore.DSPayBalanceCode"
+		init-method="load" />
+	<bean id="dSPayItemCode"
+		class="com.tydic.beijing.billing.account.datastore.DSPayItemCode"
+		init-method="load" />
+	<bean id="dSAcctItemCode"
+		class="com.tydic.beijing.billing.account.datastore.DSAcctItemCode"
+		init-method="load" />
+	<bean id="dSSpePayment"
+		class="com.tydic.beijing.billing.account.datastore.DSSpePayment"
+		init-method="load" />
+	<bean id="dSBalanceType"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType"
+		init-method="load" />
+	<bean id="dsAcctMonth" class="com.tydic.beijing.billing.account.datastore.DSAcctMonth"
+		init-method="load" />
+	<bean id="writeOff" class="com.tydic.beijing.billing.account.core.WriteOff"
+		scope="prototype">
+		<property name="payBalanceCodes" ref="dSPayBalanceCode" />
+		<property name="payItemCodes" ref="dSPayItemCode" />
+		<property name="acctItemCodes" ref="dSAcctItemCode" />
+		<property name="spePayments" ref="dSSpePayment" />
+		<property name="balanceTypes" ref="dSBalanceType" />
+		<property name="acctMonths" ref="dsAcctMonth" />
+	</bean>
+</beans>

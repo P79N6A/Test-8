@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="Recharge-callback-Service" />
+	<!-- <dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" 
+		/> -->
+	<dubbo:registry file=".dubbodubbo-process-registry.cache"
+		address="zookeeper://172.168.1.217:2181" />
+
+	<dubbo:monitor protocol="registry" />
+
+	<import resource="writeoff.xml" />
+	<import resource="simulatewriteoff.xml" />
+
+	<bean id="hisWriteOff" class="com.tydic.beijing.billing.account.biz.HistoryWriteOff"
+		scope="prototype" />
+	<bean id="rechargeCallbackOps"
+		class="com.tydic.beijing.billing.account.biz.RechargeCallbackOps">
+		<property name="accountProcess" ref="accountProcess" />
+	</bean>
+
+	<bean id="rechargeCallback"
+		class="com.tydic.beijing.billing.account.service.impl.RechargeCallbackImpl">
+		<property name="ops" ref="rechargeCallbackOps"></property>
+	</bean>
+
+	<dubbo:reference id="accountProcess"
+		interface="com.tydic.beijing.billing.account.service.AccountProcess"
+		retries="0" timeout="10000" />
+
+</beans>

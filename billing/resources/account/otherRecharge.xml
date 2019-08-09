@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="otherRecharge-Service" />
+	<dubbo:registry address="zookeeper://10.191.157.176:2181?backup=10.191.157.177:2181,10.191.157.178:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+
+	<dubbo:service interface="com.tydic.beijing.billing.account.service.OtherRecharge"
+		ref="otherRecharge" retries="0" timeout="30000" />
+
+	<bean id="balanceTypes"
+		class="com.tydic.beijing.billing.account.datastore.DSBalanceType" />
+	<bean id="rechargeTypeMapping"
+		class="com.tydic.beijing.billing.account.datastore.DSRechargeTypeMapping" />
+
+	<bean id="createAccountBookOps"
+		class="com.tydic.beijing.billing.account.biz.CreateAccountBookOps">
+		<property name="balanceTypes" ref="balanceTypes"></property>
+	</bean>
+
+	<bean id="createAccountBook"
+		class="com.tydic.beijing.billing.account.service.impl.CreateAccountBookImpl">
+		<property name="ops" ref="createAccountBookOps"></property>
+	</bean>
+
+	<bean id="userEventMapping"
+		class="com.tydic.beijing.billing.account.datastore.DSUserEventMapping" />
+
+	<bean id="dsAcctMonth" class="com.tydic.beijing.billing.account.datastore.DSAcctMonth" />
+	
+	<bean id="rechargeOps" class="com.tydic.beijing.billing.account.biz.RechargeOps">
+		<property name="balanceTypes" ref="balanceTypes"></property>
+		<property name="rechargeTypeMapping" ref="rechargeTypeMapping"></property>
+		<property name="createBook" ref="createAccountBook"></property>
+		<property name="userEventMapping" ref="userEventMapping"></property>
+		<property name="acctMonths" ref="dsAcctMonth"></property>
+	</bean>
+
+	<bean id="otherRecharge"
+		class="com.tydic.beijing.billing.account.service.impl.OtherRechargeImpl">
+		<property name="ops" ref="rechargeOps" />
+	</bean>
+</beans>

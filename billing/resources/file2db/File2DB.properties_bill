@@ -1,0 +1,19 @@
+TableName = BIL_ACT_REAL_TIME_BILL_
+Spilt = |
+TableColumn = user_id String|pay_id String|acct_month int|partition_num String|acct_item_code int|unit_type_id int|org_fee long|discount_fee long|adjust_before long|fee long|non_deduct_fee long|insert_date Date
+KeyColumn = user_id String|pay_id String|acct_month int||acct_item_code int|||||||$
+UpdateColumn = ||||||org_fee long|discount_fee long|adjust_before long|fee long|non_deduct_fee long|insert_date Date
+UpFlag = 1
+MonthBranch = 12
+MonthColumn = partition_num
+InsertLogFlag = 1
+LogTable = log_file2db_bill
+
+commit_num = 50
+file_dir = /home/billing_dev/data/account/BilActRealTimeBill
+bak_dir = /home/billing_dev/data/account/bill_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

@@ -1,0 +1,11 @@
+package test;
+
+public class Demo1 {
+
+	public static void main(String[] args) {
+		String a="baidu.com";
+		a+="www.";
+		System.out.println(a);
+	}
+
+}

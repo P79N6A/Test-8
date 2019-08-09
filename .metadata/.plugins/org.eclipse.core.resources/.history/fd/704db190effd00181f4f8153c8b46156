@@ -1,0 +1,69 @@
+package test;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
+
+import com.tydic.beijing.billing.common.BasicException;
+import com.tydic.beijing.billing.file2db.type.ObjFunction;
+
+public class Test {
+	
+	public static void main(String[] args) throws SQLException, ParseException, BasicException {
+		String column[];
+		String tableColum = "SERIALNO String|VERSION long|TICKETTYPE long|TIMESTAMP String|HOSTID String|SERVICESCENARIOUS long|CHARGEDPARTY String|CALLINGPARTY String|CALLEDPARTY String|ORIGNIALCALLINGPARTY String|ORIGNIALCALLEDPARTY String|PAYFLAG long|SERVID String|CUSTID String|BRAND String|SESSIONID String|SESSIONTERMINATEDTIME String|TERMINATEDCAUSE long|ORIGNIALHOST String|BALANCEINFO String|ACCUMLATORINFO String|TARIFFINFO String|MASTERPRODUCTID String|BEARERCAPABILITY String|SESSIONBEGINTIME String|GGSNIPADDRESS String|SGSNIPADDRESS String|CALLING_NUMBER_HOME_AREA String|APNNI String|PDPTYPE String|SERVEDPDPADDRESS String|RATINGGROUP String|ROAMINGTYPE String|CHARGINGID String|QOS String|CHARGINGTYPE String|IMSI String|LAC String|RATTYPE String|IMEI String|MCC_MNC String|SERVICE_ID String|UP_FLOW String|DOWN_FLOW String|TOTAL_FLOW String|STRING1 String|STRING2 String|STRING3 String|INT1 long|INT2 long|INSERT_DATE Date|PARTITION_NO String|RESOURCE_INFO String";
+		String spilt="|";
+		String tmp;
+		column = tableColum.split("\\" + spilt);
+		String main_insert;
+		String tableName="CDR_CDR200_11";
+		main_insert = "insert into " + tableName + " (";
+		String MonthColumn="PARTITION_NO";
+		int monthIndex = 0;
+		for (int i = 0; i < column.length; i++) {
+			tmp = column[i];
+			String field[] = tmp.split(" ");
+			main_insert = main_insert + field[0];
+			System.out.println(main_insert);
+            if (field[0].equals(MonthColumn)) {
+                monthIndex = i;
+                System.out.println(monthIndex);
+            }
+            if (i < column.length - 1) {
+                main_insert = main_insert + ", ";
+            }
+		}
+		main_insert = main_insert + ") values (";
+        for (int i = 0; i < column.length; i++) {
+            main_insert = main_insert + "?";
+            if (i < column.length - 1) {
+                main_insert = main_insert + ", ";
+            }
+        }
+		Boolean monthFlag[];
+		int MonthBranch=12;
+		monthFlag = new Boolean[MonthBranch];
+        for (int i = 0; i < monthFlag.length; i++) {
+            monthFlag[i] = false;
+        }
+        PreparedStatement pstmt_ins[];
+        pstmt_ins = new PreparedStatement[MonthBranch];
+        System.out.println(pstmt_ins[0]+"`````````");
+        String sql;
+        String sql_insert="";
+        main_insert = main_insert + ")";
+        sql_insert = main_insert;
+        for (int j = 0; j < MonthBranch; j++) {
+        	sql = sql_insert.replace(tableName, tableName + String.format("%02d", j + 1));
+        	System.out.println(sql+"111111111111111111");
+		}
+        String column_field[];
+        String line = new String();
+        line ="|1|0|20180729161234||200|17001267777|17001267777||17001267777|||41000000464413|||2575508329||||21000000418974:1000010777144:2,8,6286605,11,75;||75:8;|||20180728222432|||010|ctnet||||1|||3|460110692503830|||868228031602787|||5633|1573|7206|||||||12|3000:8;3001:1;";
+        column_field = line.split("\\" + spilt);
+        int monthTag = 0;
+        monthTag = Integer.parseInt(column_field[monthIndex]) - 1;
+        System.out.println(monthTag+"-------------------");
+	}
+}

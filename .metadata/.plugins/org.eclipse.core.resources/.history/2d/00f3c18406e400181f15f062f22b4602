@@ -1,0 +1,31 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
+public class Test {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		Double x = new Double(0);
+		Double y = new Double(0);
+		for(y=(double) 0;y<9999;y++){
+		x=(4986141-205*y)/150;
+		//System.out.println(x+"~~~~"+y);
+		String x1 = x.toString();
+		if (x1.length()-1==0&&x1.length()-2==0) {
+			System.out.println(x+"~~~~"+y);
+		}
+		}
+		String x1="31195.04";
+		int int1 = x1.length();
+		System.out.println(x1(int1-2));
+}
+
+	private static char[] x1(int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

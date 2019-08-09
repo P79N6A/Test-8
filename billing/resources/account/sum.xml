@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<context:annotation-config />
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+	<context:component-scan base-package="com.tydic.beijing.billing.account.datastore" />
+
+	<dubbo:application name="sum" />
+
+	<dubbo:registry file=".dubbodubbo-sumRefresh-registry.cache" address="zookeeper://172.168.1.218:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:service interface="com.tydic.beijing.billing.account.RefreshMainInterface"
+		ref="SumChargeMultiMain" loadbalance="consistenthash" />
+
+	<dubbo:consumer timeout="10000" />
+
+	<!-- <dubbo:registry address="multicast://224.5.6.7:1234" /> -->
+	<dubbo:registry file=".dubbodubbo-sum-registry.cache" address="zookeeper://172.168.1.218:2181" />
+
+	<dubbo:reference id="accountProcess"
+		interface="com.tydic.beijing.billing.account.service.AccountProcess" />
+
+	<bean id="refresh" class="com.tydic.beijing.billing.account.biz.RefreshTriggerOps" />
+	<bean id="SumChargeMultiMain" class="com.tydic.beijing.billing.account.SumChargeMultiMain"
+		scope="prototype">
+	</bean>
+
+	<!-- 可以使用变量配置 -->
+	<bean id="ConfSum"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>sum.properties</value>
+		</property>
+	</bean>
+
+	<bean id="LogUsedBalanceLog" class="com.tydic.beijing.billing.dao.LogUsedBalanceLog"
+		scope="prototype"></bean>
+	<bean id="BilActAddUp" class="com.tydic.beijing.billing.dao.BilActAddUp"
+		scope="prototype"></bean>
+
+	<bean id="dSAcctItemCode"
+		class="com.tydic.beijing.billing.account.datastore.DSAcctItemCode"
+		init-method="load" />
+	<bean id="dSCodeAcctMonth"
+		class="com.tydic.beijing.billing.account.datastore.DSCodeAcctMonth"
+		init-method="load" />
+
+	<bean id="Sum" class="com.tydic.beijing.billing.account.biz.Sum">
+		<property name="acctItemCodes" ref="dSAcctItemCode" />
+		<property name="codeAcctMonth" ref="dSCodeAcctMonth" />
+	</bean>
+
+	<bean id="SumCharge" class="com.tydic.beijing.billing.account.core.SumCharge"
+		init-method="getObject" scope="prototype">
+		<property name="conf_sum" ref="SumConf" />
+		<property name="sum" ref="Sum" />
+	</bean>
+
+	<!-- 配置进程处理的分区 -->
+	<bean id="SumChargeImpl"
+		class="com.tydic.beijing.billing.account.service.impl.SumChargeImpl">
+		<property name="sumcharge" ref="SumCharge" />
+		<property name="accountProcess" ref="accountProcess" />
+	</bean>
+
+	<!-- SumConf -->
+	<bean id="SumConf" class="com.tydic.beijing.billing.account.type.SumConf">
+		<property name="tariff_split1">
+			<value type="java.lang.String">${tariff_split1}</value>
+		</property>
+		<property name="tariff_split2">
+			<value type="java.lang.String">${tariff_split2}</value>
+		</property>
+		<property name="balance_split1">
+			<value type="java.lang.String">${balance_split1}</value>
+		</property>
+		<property name="balance_split2">
+			<value type="java.lang.String">${balance_split2}</value>
+		</property>
+		<property name="balance_split3">
+			<value type="java.lang.String">${balance_split3}</value>
+		</property>
+		<property name="resource_split1">
+			<value type="java.lang.String">${resource_split1}</value>
+		</property>
+		<property name="resource_split2">
+			<value type="java.lang.String">${resource_split2}</value>
+		</property>
+	</bean>
+
+	<!-- 配置tariff的分割符 -->
+	<bean id="TariffInfo" class="com.tydic.beijing.billing.account.type.TariffInfo"
+		scope="prototype">
+	</bean>
+
+	<!-- 配置balance的分割符 -->
+	<bean id="BalanceInfo" class="com.tydic.beijing.billing.account.type.BalanceInfo"
+		scope="prototype">
+	</bean>
+	
+	<!-- 配置resource的分隔符 -->
+	<bean id="ResourceInfo" class="com.tydic.beijing.billing.account.type.ResourceInfo"
+		scope="prototype">
+	</bean>
+</beans>

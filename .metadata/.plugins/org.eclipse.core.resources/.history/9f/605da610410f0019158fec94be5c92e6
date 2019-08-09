@@ -1,0 +1,1265 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+
+	<drivers>
+                <!-- <driver id="1" clazz="oracle.jdbc.driver.OracleDriver" url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" 
+                        user="newbilling" password="newbilling"> <active> <tables schema="NEWBILLING" 
+                        filter="table_name not like '%$%' " /> </active> </driver> 
+                        
+                        192.168.177.20:1521:bsstest  京东测试环境 billing billing
+                        172.168.1.211:1621:jdtest    公司测试环境 billing billingtest123 
+                        -->
+                <driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+                        password="BILLINGtest123">
+                        <active>
+                                <tables schema="billing"
+                                        filter="table_name not like '%$%' and table_name not in ('INFO_PAY', 'INFO_USER', 'PAY_USER_REL') " />
+                        </active>
+                </driver>
+                <driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="crm_user"
+                        password="CRM_USERtest123">
+                        <active>
+                                <tables schema="CRM_USER"
+                                        filter="table_name in ('INFO_PAY','INFO_USER', 'PAY_USER_REL','Q_USER_REASON_SEND','GROUP_MEMBER_REL','LIFE_USER_STATUS','LIFE_SERVICE_ATTR')" />
+                        </active>
+                </driver>
+				 <driver id="3" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="crm_user"
+                        password="CRM_USERtest123">
+                        <active>
+                                <tables schema="CRM_PUB"
+                                        filter="table_name in ('CODE_PROV_CODE')" />
+                        </active>
+                </driver>
+                 
+
+        </drivers>
+
+	<services>
+		<!-- log_act_pay -->
+		<service code="acct.logactpay.getBySerialNo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from log_act_pay where pay_charge_id = ?]]>
+			</script>
+		</service>
+		<!-- service QueryRemainResourceList -->
+		<service code="rating.RemainBalance.queryBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select a.*,b.unit_type_id from info_pay_balance a ,code_bil_balance_type b where a.pay_id=?
+ 					and  b.balance_type_id =a.balance_type_id and b.unit_type_id in ('1','2','3')and a.balance_type_id in(
+ 					select para_char3 from rule_parameters where domain_code='5001'
+ 					)and (to_char(sysdate, 'YYYYMMDD') between to_char(a.eff_date, 'YYYYMMDD') and to_char(a.exp_date, 'YYYYMMDD')) 
+
+				
+				]]>
+			</script>
+		</service>
+
+
+		<!-- QueryCurrentConsume -->
+		<service code="rating.BalanceConsumeData.queryBalanceFeeConsume"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+				select para_char1 as feeType,sum(fee) as fee from (
+			select distinct a.pay_id,a.acct_month,a.fee,b.para_char1,b.para_char3 from bil_act_real_time_bill_#AB# a,rule_parameters b where a.pay_id=? and b.domain_code='5003'
+			and a.acct_item_code=b.para_char3 and a.user_id=? and exists(select 1 from code_acct_month c where sysdate between c.act_eff_date and c.act_exp_date
+			and a.acct_month=c.acct_month  )) group by para_char1
+				
+				]]>
+			</script>
+		</service>
+		<!-- QueryCurrentConsume -->
+		<service code="rating.BalanceConsumeResource.queryBalanceConsume"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+				 select b.para_char2 as para_char1,balance-real_balance as fee  from info_pay_balance a ,rule_parameters b where 
+ 				a.balance_type_id=b.para_char4 and b.domain_code='5011' 
+ 				and a.pay_id=?
+ 				and sysdate between a.eff_date and a.exp_date 
+				
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.HistoryConsumeData.queryHistoryConsume"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					
+					
+					select * from (
+					select a.*,b.act_eff_date,b.act_exp_date from (
+					select a.acct_month,sum(a.fee) as fee from bil_act_bill a  where 
+					a.pay_id=? and a.user_id= ?  and a.unit_type_id='0' group by acct_month)a,code_acct_month b          
+          			where  a.acct_month=b.acct_month and 
+					substr(to_char(b.act_eff_date,'yyyyMMdd'),0,6)>=? and substr(to_char(b.act_eff_date,'yyyyMMdd'),0,6)<? )order by act_eff_date 
+					
+					
+				]]>
+
+			</script>
+
+		</service>
+
+		<service code="interface.SubsBillPeriodData.queryCurrentSubsBillPeriod"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select * from code_acct_month a where a.use_tag='1'
+					
+				]]>
+
+			</script>
+
+		</service>
+
+		<service code="interface.SubsBillPeriodData.querySubsBillPeriod"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select * from (         
+					select * from code_acct_month  a
+					where a.act_eff_date between to_date(?, 'yyyyMMdd') and to_date(? ,'yyyyMMdd' )
+					order by a.act_eff_date  desc ) where rownum <=(select para_char2 from rule_parameters where domain_code='5008' and para_char1= 'months') 
+					order by act_eff_date
+ 
+					
+				]]>
+
+			</script>
+
+		</service>
+
+		<service code="interface.UserPayInfo.queryUserInfoByNbr"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					
+					 select a.user_id,a.device_number,a.user_status,a.create_date,a.active_date,a.user_type,
+					a.prepay_flag,a.local_net,a.develop_channel_id,a.proto_flag,a.sub_user_status,
+					a.stop_date,b.pay_id,b.default_tag,b.eff_flag from info_user a ,(select * from pay_user_rel where 
+          			sysdate between eff_date and exp_date) b 
+					where a.device_number=?  and a.user_status not in ('402','403','404')
+					and a.user_id=b.user_id(+)
+					
+				]]>
+
+			</script>
+
+		</service>
+		
+<!-- 
+		and to_char(insert_date,'yyyyMMddHH24miss') >=  ? 
+					and to_char(insert_date,'yyyyMMddHH24miss') <=  ? 
+ -->
+			
+	<service code="interface.CDRCalling.queryForAutoHome" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+                  select '' serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.calledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo
+					from view_cdr_cdr#CD#_#AB# a where  a.tariffinfo is not null
+					and to_char(insert_date,'yyyyMMddHH24miss') >=  ? 
+					and to_char(insert_date,'yyyyMMddHH24miss') <=  ? 
+					and servid in (select user_id from GROUP_MEMBER_REL where group_id=?)		
+				]]>
+
+			</script>
+		</service>
+			
+
+		<!-- service QuerySubsCDR -->
+		<service code="interface.CDRCalling.queryCDRCalling" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+					select  id,serviceType,startTime,endTime,callingparty,orignialcalledparty calledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo ,longdistancetype,callingpartyvisitedcity,callId
+from (
+SELECT rownum id,serviceType,startTime,endTime,callingparty,orignialcalledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo,longdistancetype,callingpartyvisitedcity,callId
+  FROM (
+  select decode(a.servicescenarious,'100','1','200','2','300','3','400','4')as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.orignialcalledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo,a.longdistancetype,a.callingpartyvisitedcity,a.serialno callId
+					from view_cdr_cdr#CD#_#AB# a where a.servId=?  and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') order by sessionbegintime desc )
+					) where id>=? and id<=? 
+
+					
+				]]>
+
+			</script>
+		</service>
+
+	<!-- querySubsCdrType2 计费加被叫 -->
+	
+	<service code="interface.CDRCalling.queryCDRCallingType2" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+					select  id,serviceType,startTime,endTime,callingparty,orignialcalledparty calledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo,longdistancetype,callingpartyvisitedcity,callId
+from (
+SELECT rownum id,serviceType,startTime,endTime,callingparty,orignialcalledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo,longdistancetype,callingpartyvisitedcity,callId
+  FROM (
+  					select '1'as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.orignialcalledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo,a.longdistancetype,a.callingpartyvisitedcity,a.serialno callId
+					from view_cdr_cdr#CD#_#AB# a where a.servId=?  and a.orignialcalledparty=? and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') order by sessionbegintime desc )
+					) where id>=? and id<=? 
+
+					
+				]]>
+
+			</script>
+		</service>
+		<!-- 计费加主叫 -->
+		<service code="interface.CDRCalling.queryCDRCallingType3" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+					select  id,serviceType,startTime,endTime,callingparty,orignialcalledparty calledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo,longdistancetype,callingpartyvisitedcity,callId
+from (
+SELECT rownum id,serviceType,startTime,endTime,callingparty,orignialcalledparty,forwardingflag,fowardingnumber,
+callduration,roamingtype,payFlag,call_type,tariffinfo,longdistancetype,callingpartyvisitedcity,callId
+  FROM (
+  					select '1'as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.orignialcalledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo,a.longdistancetype,a.callingpartyvisitedcity,a.serialno callId
+					from view_cdr_cdr#CD#_#AB# a where a.servId=?  and a.callingparty=? and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') order by sessionbegintime desc )
+					) where id>=? and id<=? 
+
+					
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.VoiceCdr.queryCdrCountWithCallingNbr"  clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[
+			select count(1) result 
+					from view_cdr_cdr#CD#_#AB# a where 
+					to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss')  and a.tariffinfo is not null 
+					and a.callingparty=? and a.servId=?
+			
+			
+			 ]]>
+			</script>
+		</service>
+		
+		
+		<service code="interface.subscdr.totalTariffInfo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			<![CDATA[
+				select tariffinfo from (
+                   select tariffinfo ,(length(tariffinfo)-length(replace(tariffinfo,':0')))/length(':0') fee,
+                   length(translate(tariffinfo,';'||tariffinfo ,';')) length 
+                   from view_cdr_cdr#CD#_#AB# where servid=? and tariffinfo is not null  
+                   and to_date(sessionbegintime,'yyyyMMddHH24miss') between to_date(?,'yyyyMMddHH24miss')
+                   and to_date(?,'yyyyMMddHh24miss')
+                   )where  fee!=length
+            ]]>
+            </script>
+		</service>
+		
+		<service code="interface.subscdr.totalTariffInfoWithCalledNbr" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			<![CDATA[
+				select tariffinfo from (
+                   select tariffinfo ,(length(tariffinfo)-length(replace(tariffinfo,':0')))/length(':0') fee,
+                   length(translate(tariffinfo,';'||tariffinfo ,';')) length 
+                   from view_cdr_cdr#CD#_#AB# where servid=? and tariffinfo is not null  
+                   and to_date(sessionbegintime,'yyyyMMddHH24miss') between to_date(?,'yyyyMMddHH24miss')
+                   and to_date(?,'yyyyMMddHh24miss') and orignialcalledparty=?
+                   )where  fee!=length
+            ]]>
+            </script>
+		</service>
+		
+		<service code="interface.subscdr.totalTariffInfoWithCallingNbr" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			<![CDATA[
+				select tariffinfo from (
+                   select tariffinfo ,(length(tariffinfo)-length(replace(tariffinfo,':0')))/length(':0') fee,
+                   length(translate(tariffinfo,';'||tariffinfo ,';')) length 
+                   from view_cdr_cdr#CD#_#AB# where servid=? and tariffinfo is not null  
+                   and to_date(sessionbegintime,'yyyyMMddHH24miss') between to_date(?,'yyyyMMddHH24miss')
+                   and to_date(?,'yyyyMMddHh24miss') and callingparty=?
+                   )where  fee!=length
+            ]]>
+            </script>
+		</service>
+		
+		
+		<service code="interface.subscdr.totalDataFlow" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			<![CDATA[
+				  select sum(dataflow) totalDataFlow from (
+             select ceil(a.total_flow/1024) dataflow
+             from cdr_cdr#CD#_#AB# a where a.servid=? and a.tariffinfo is not null 
+             and to_date(sessionbegintime,'yyyyMMddHH24miss') between to_date(?,'yyyyMMddHH24miss')
+             and to_date(?,'yyyyMMddHh24miss')
+             and partition_no=?
+             union all
+             select ceil(a.total_flow/1024) dataflow
+             from cdr_cdr#CD#_#EF# a where a.servid=? and a.tariffinfo is not null 
+             and to_date(sessionbegintime,'yyyyMMddHH24miss') between to_date(?,'yyyyMMddHH24miss')
+             and to_date(?,'yyyyMMddHh24miss')
+             and partition_no=?
+             )
+            ]]>
+            </script>
+		</service>
+		
+		<service code="interface.CDRCalling.queryHisCDRCalling" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+					select  id,serviceType,startTime,endTime,callingparty,calledparty,forwardingflag,fowardingnumber,
+					callduration,roamingtype,payFlag,call_type,tariffinfo
+					from (
+				SELECT rownum id,serviceType,startTime,endTime,callingparty,calledparty,forwardingflag,fowardingnumber,
+		callduration,roamingtype,payFlag,call_type,tariffinfo
+  FROM (
+  select decode(a.servicescenarious,'100','1','200','2','300','3','400','4')as serviceType ,
+          to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          a.callingparty,a.calledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+          a.roamingtype,a.payFlag,a.call_type,
+          a.tariffinfo
+          from cdr_cdr#CD#_#AB# a where a.servId=? 
+          and to_date(a.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+          union(select '1'serviceType,to_date(b.sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(b.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          b.callingparty,b.calledparty,b.forwardingflag,b.fowardingnumber,b.callduriation callduration ,
+          b.roamingtype,b.payFlag,b.call_type,
+          b.tariffinfo from cdr_cdr#CD#_#EF# b where b.servId=? and to_date(b.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') )
+           )c order by c.startTime desc
+          ) where id>=? and id<=?
+
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.CDRCalling.queryCDRCallingCount"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select count(1) 
+					from view_cdr_cdr#CD#_#AB# a where 
+					to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss')  and a.tariffinfo is not null and a.servId=? 
+
+					
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.CDRCalling.queryCDRNetCallingCount"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT count(1)
+					  FROM (select *
+					          from cdr_cdr#CD#_#AB# a
+					         where partition_no = ?
+					           and a.servId = ?
+					           and to_date(sessionbegintime, 'yyyyMMddHH24miss') between
+					               to_date(?, 'yyyyMMddHH24miss') and
+					               to_date(?, 'yyyyMMddHH24miss')
+					           and a.tariffinfo is not null
+					        union all
+					        select *
+					          from cdr_cdr#CD#_#EF# a
+					         where partition_no = ?
+					           and a.servId = ?
+					           and to_date(sessionbegintime, 'yyyyMMddHH24miss') between
+					               to_date(?, 'yyyyMMddHH24miss') and
+					               to_date(?, 'yyyyMMddHH24miss')
+					           and a.tariffinfo is not null)
+
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.VoiceCdr.queryCdrCountWithCalledNbr"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select count(1) 
+					from view_cdr_cdr#CD#_#AB# a where 
+					to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss')  and a.tariffinfo is not null 
+					and a.orignialcalledparty=? and a.servId=? 
+
+					
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.CDRCalling.queryHisCDRCallingCount"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+				
+					select count(1) seq
+          from (select a.* from cdr_cdr#CD#_#AB# a where 
+          to_date(a.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') and a.servId=?
+          union (select b.* from cdr_cdr#CD#_#EF# b where 
+           to_date(b.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') and b.servId=?))
+          
+           
+
+					
+				]]>
+
+			</script>
+		</service>
+
+
+		<service code="interface.CDRSms.queryCDRSms" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+			select id,serviceType,startTime,endTime,callingparty,calledparty,
+				roamingtype,payFlag,call_type,tariffinfo
+			from (
+				SELECT rownum id,serviceType,startTime,endTime,callingparty,calledparty,
+					roamingtype,payFlag,call_type,tariffinfo
+				  FROM (
+				  select decode(a.servicescenarious,'100','1','200','2','300','3','400','4')as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.calledparty,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo
+					from view_cdr_cdr#CD#_#AB# a where a.servId=? and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+                   order by sessionbegintime desc )
+                   ) where id>=? and id <=?
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.CDRSms.queryCDRSmsWithCalledNbr" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+			select id,serviceType,startTime,endTime,callingparty,calledparty,
+				roamingtype,payFlag,call_type,tariffinfo
+			from (
+				SELECT rownum id,serviceType,startTime,endTime,callingparty,calledparty,
+					roamingtype,payFlag,call_type,tariffinfo
+				  FROM (
+				  select '3'as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.calledparty,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo
+					from view_cdr_cdr#CD#_#AB# a where a.servId=? and a.orignialcalledparty=? and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+                   order by sessionbegintime desc )
+                   ) where id>=? and id <=?
+					
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.CDRSms.queryCDRSmsWithCallingNbr" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+			select id,serviceType,startTime,endTime,callingparty,calledparty,
+				roamingtype,payFlag,call_type,tariffinfo
+			from (
+				SELECT rownum id,serviceType,startTime,endTime,callingparty,calledparty,
+					roamingtype,payFlag,call_type,tariffinfo
+				  FROM (
+				  select '3' as serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.calledparty,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo
+					from view_cdr_cdr#CD#_#AB# a where a.servId=? and a.callingparty=?  and a.tariffinfo is not null
+					and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+					to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+                   order by sessionbegintime desc )
+                   ) where id>=? and id <=?
+					
+				]]>
+
+			</script>
+		</service>
+		
+		<service code="interface.CDRSms.queryHisCDRSms" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+			select id,serviceType,startTime,endTime,callingparty,calledparty,
+        roamingtype,payFlag,call_type,tariffinfo
+      from (
+        SELECT rownum id,serviceType,startTime,endTime,callingparty,calledparty,
+          roamingtype,payFlag,call_type,tariffinfo
+          FROM (
+          select decode(a.servicescenarious,'100','1','200','2','300','3','400','4')as serviceType ,
+          to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          a.callingparty,a.calledparty,
+          a.roamingtype,a.payFlag,a.call_type,
+          a.tariffinfo
+          from cdr_cdr#CD#_#AB# a where a.servId=? 
+          and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+          union (select '3' serviceType ,to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(b.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          b.callingparty,b.calledparty,
+          b.roamingtype,b.payFlag,b.call_type,
+          b.tariffinfo from cdr_cdr#CD#_#EF# b where b.servId=? and to_date(b.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss')  )
+                    )order by startTime desc
+                   ) where id>? and id <=?
+					
+				]]>
+
+			</script>
+		</service>
+
+
+		<service code="interface.CDRNet.queryCDRNet" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT id,
+					       serviceType,
+					       startTime,
+					       endTime,
+					       payFlag,
+					       roamingtype,
+					       total_flow,
+					       tariffinfo FROM (
+					select id,
+					       serviceType,
+					       startTime,
+					       endTime,
+					       payFlag,
+					       roamingtype,
+					       total_flow,
+					       tariffinfo
+					  from (SELECT rownum id,
+					               serviceType,
+					               startTime,
+					               endTime,
+					               payFlag,
+					               roamingtype,
+					               total_flow,
+					               tariffinfo
+					          FROM (select decode(a.servicescenarious,
+					                              '100',
+					                              '1',
+					                              '200',
+					                              '2',
+					                              '300',
+					                              '3',
+					                              '400',
+					                              '4') as serviceType,
+					                       to_date(sessionbegintime, 'yyyyMMddHH24miss') as startTime,
+					                       to_date(a.sessionterminatedtime,
+					                               'yyyyMMddHH24miss') as endTime,
+					                       a.payFlag,
+					                       a.roamingtype,
+					                       a.total_flow,
+					                       a.tariffinfo
+					                  from cdr_cdr#CD#_#AB# a
+					                 where a.servId = ?
+					                   and a.tariffinfo is not null
+					                   and to_date(sessionbegintime, 'yyyyMMddHH24miss') between
+					                       to_date(?, 'yyyyMMddHH24miss') and
+					                       to_date(?, 'yyyyMMddHH24miss')
+					                   and partition_no=?
+					                   order by sessionbegintime desc))
+					   union all
+					   select id,
+					       serviceType,
+					       startTime,
+					       endTime,
+					       payFlag,
+					       roamingtype,
+					       total_flow,
+					       tariffinfo
+					  from (SELECT rownum id,
+					               serviceType,
+					               startTime,
+					               endTime,
+					               payFlag,
+					               roamingtype,
+					               total_flow,
+					               tariffinfo
+					          FROM (select decode(a.servicescenarious,
+					                              '100',
+					                              '1',
+					                              '200',
+					                              '2',
+					                              '300',
+					                              '3',
+					                              '400',
+					                              '4') as serviceType,
+					                       to_date(sessionbegintime, 'yyyyMMddHH24miss') as startTime,
+					                       to_date(a.sessionterminatedtime,
+					                               'yyyyMMddHH24miss') as endTime,
+					                       a.payFlag,
+					                       a.roamingtype,
+					                       a.total_flow,
+					                       a.tariffinfo
+					                  from cdr_cdr#CD#_#EF# a
+					                 where a.servId = ?
+					                   and a.tariffinfo is not null
+					                   and to_date(sessionbegintime, 'yyyyMMddHH24miss') between
+					                       to_date(?, 'yyyyMMddHH24miss') and
+					                       to_date(?, 'yyyyMMddHH24miss')
+					                   and partition_no=?
+					                   order by sessionbegintime desc
+					                 )))
+					 where id >= ?
+					   and id <= ?
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.CDRNet.queryHisCDRNet" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				select id,serviceType,startTime,endTime,payFlag,roamingtype,total_flow,tariffinfo
+        from (
+           SELECT rownum id,serviceType,startTime,endTime,payFlag,roamingtype,total_flow,tariffinfo
+           FROM (
+            select
+            decode(a.servicescenarious,'100','1','200','2','300','3','400','4')as serviceType ,
+          to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          a.payFlag,a.roamingtype,a.total_flow,
+          a.tariffinfo
+          from cdr_cdr#CD#_#AB# a where a.servId=?
+          and to_date(sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') 
+          union (select '2' serviceType ,
+          to_date(b.sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+          to_date(b.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+          b.payFlag,b.roamingtype,b.total_flow,
+          b.tariffinfo
+          from cdr_cdr#CD#_#EF# b where b.servId=?
+          and to_date(b.sessionbegintime,'yyyyMMddHH24miss') between 
+          to_date(?,'yyyyMMddHH24miss') and to_date(?,'yyyyMMddHH24miss') )
+             
+          )  order by startTime desc
+           ) where id>=? and id <=?
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.BilActRealTimeBill.queryNonDeductFee"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select nvl(sum(a.non_deduct_fee),0) from bil_act_real_time_bill_#AB# a ,code_acct_month b 
+					where a.user_id=? and a.pay_id=? and a.acct_month=b.acct_month and b.use_tag='1' and b.partition_no=?
+					and a.unit_type_id='0'
+					
+					
+				]]>
+
+			</script>
+		</service>
+		<service code="interface.BilActBill.queryOweFee" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select nvl(sum(a.owe_fee),0) from bil_act_bill a where a.user_id=? and a.pay_id=? 
+					and a.unit_type_id='0' 
+					
+					
+				]]>
+
+			</script>
+		</service>
+
+
+		<service code="interface.RuleParameters.queryRuleParameters"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from rule_parameters a where a.domain_code=? and a.para_name=? and a.para_char1=?
+					]]>
+
+			</script>
+		</service>
+
+		<service code="interface.parameters.getRuleParametersofCdrConfig"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from rule_parameters a where a.domain_code=? and a.para_name=? 
+					]]>
+
+			</script>
+		</service>
+
+
+
+		<service code="interface.InfoPayBalance.queryInfoPayBalancebyPayId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance a where a.pay_id=? and balance_type_id =?
+					]]>
+
+			</script>
+		</service>
+
+		<service code="interface.resourceadjust.getResourceBalanceForAdjust"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance a where a.pay_id=? and balance_type_id =?  and exp_date >=sysdate order by eff_date desc 
+					]]>
+
+			</script>
+		</service>
+
+
+		<service
+			code="interface.balanceadjustlog.getBalanceAdjustLogBySessionIdAndChannelNo"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from balance_adjust_log a where a.session_id = ? and channel_no = ?
+					]]>
+
+			</script>
+		</service>
+
+
+
+		<service code="interface.resourceadjust.getResourceBalanceForCheck"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance a where a.balance_id = ? 
+					]]>
+
+			</script>
+		</service>
+
+		<service code="interface.InfoPayBalance.queryRealFeeForActItem"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select distinct a.balance_id,a.pay_id,a.balance_type_id,a.balance,a.real_balance,a.used_balance,a.latn_id, 
+					b.spe_payment_id,b.feeType,b.acctitemcode 
+					from info_pay_balance a,
+					(select a.*,b.para_char2 feeType,b.para_char4 acctItemCode from code_bil_balance_type a ,rule_parameters b 
+					where a.spe_payment_id=b.para_num1 and b.domain_code='5005' and b.para_char2 in('-1',?))b where a.balance_type_id=b.balance_type_id 
+					and a.pay_id=? and sysdate between a.eff_date and a.exp_date 
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.valueAddedDual.getSerialNumber"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select ua_cdr_serial_no.nextval from valueadded_dual
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.valueAddedDual.getFileSerialNumber"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select seq_interface_valueadded.nextval id from valueadded_dual
+				]]>
+
+			</script>
+		</service>
+
+
+		<service code="interface.valueAddedTradeHistory.addHistory"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="interface.QAcctProcess.addQAcctProcess" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="interface.infouser.getUserInfoByDeviceNumber"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_user where device_number = ? and valid_flag = '0'
+				]]>
+			</script>
+		</service>
+
+
+		<service code="interface.infouser.queryStatusUser"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from crm_user.info_user a where a.valid_flag =0
+					and exists 
+						(select 1 from  crm_user.life_user_status b 
+							where a.user_id =b.user_id 
+							and b.user_status = '101' 
+							and b.eff_date <=to_date(?,'YYYY/MM/DD HH24:mi:ss') 
+							and b.exp_date >=to_date(?,'YYYY/MM/DD HH24:mi:ss'))
+				]]>
+			</script>
+		</service>		
+
+		<service code="interface.payuserrel.getPayInfoByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select * from pay_user_rel where user_id = ? and default_tag = '0' and (sysdate between eff_date and exp_date)
+				]]>
+			</script>
+		</service>
+		<service code="interface.bilactrealtimebill.getRealtimeBills"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from bil_act_real_time_bill_#MONTH# where user_id = ? and pay_id = ? and unit_type_id = '0'
+				]]>
+			</script>
+		</service>
+
+
+		<service code="interface.TbSmsSendHis.querySmsCount" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select count(1) from tb_sms_send_his where process_tag='0' and send_time <= sysdate + 1/24/60/6
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.TbSmsSendHis.querySmsSendHis" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select msg_id,msisdn_send,msisdn_receive,message_text,send_time,process_tag,para_key,deal_flag
+					from tb_sms_send_his where process_tag='9' and deal_flag=? and rownum<=?
+
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.RuleParameters.queryRunFlag" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					
+					select para_char2 from rule_parameters where domain_code='5006' and para_char1='runflag'
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.TbSmsSendHis.updateProcessTag" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.SendSmsDealHis.addSmsDealHis" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[
+					
+				]]>
+
+			</script>
+		</service>
+
+		<service code="interface.infopaybalance.queryBalanceInfoByPayId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance where pay_id = ? and (sysdate between eff_date and exp_date)
+				]]>
+			</script>
+		</service>
+		<!-- code_bil_balance_type -->
+		<service code="acct.codebilbalancetype.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_balance_type order by priority desc]]>
+			</script>
+		</service>
+
+		<service code="rating.CurrentBill.queryCurrentBill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select a.*,b.balance_type_id,b.real_balance,c.act_eff_date,c.act_exp_date from bil_act_real_time_bill_#AB# a,(
+					select pay_id,balance_type_id,real_balance 
+					from info_pay_balance   where pay_id=?
+ 					and balance_type_id in(select para_char3 from rule_parameters
+          where domain_code='5002'  ) and sysdate between eff_date and exp_date)b ,
+ 					code_acct_month c 
+          where a.pay_id=b.pay_id and a.unit_type_id='0' and a.user_id=? and a.acct_month=c.acct_month
+          and sysdate between c.act_eff_date and c.act_exp_date  
+				
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.parameters.getChannelNoMod" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+				select a.para_char2 from rule_parameters a where a.domain_code='5009'  and a.para_char1='CHANNEL_NO'
+				
+			]]>
+			</script>
+		</service>
+		<service code="interface.parameters.getFileDir" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				
+				select a.para_char2 from rule_parameters a where a.domain_code='5009' and a.para_char1='dir' ;
+				
+			]]>
+			</script>
+		</service>
+		<service code="interface.bilactrealtimebillfororacle.getRealtimeBills"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from bil_act_real_time_bill_#MONTH# where user_id = ? and pay_id = ? and unit_type_id = '0'
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.CodeActAcctItem.getAllCodeActAcctItem"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from code_act_acct_item
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.CodeAcctMonth.getCurrentCodeAcctMonth"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from code_acct_month a where to_date(?,'yyyyMMdd') between a.act_eff_date and a.act_exp_date 
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.RuleParameters.getSmsTemplateParam"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select *
+					from rule_parameters a where a.domain_code= '5006' and a.para_char1='template' and a.para_char3= 'service' ;
+
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.QBeforeAdjust.getQBeforeAdjust"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[
+				select * from q_before_adjust where status = 0 and rownum < 5000;
+			]]>
+			</script>
+		</service>
+		<service code="interface.QBeforeAdjust.updateQBeforeAdjust"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactaddup.queryBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="interface.queryCodeAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+					<![CDATA[
+						select * from code_acct_month a where a.use_tag='1'
+					]]>
+			</script>
+		</service>
+		<service code="interface.systemtime.getTimestamp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') time, to_char(systimestamp, 'yyyymmddhh24missff3') timestamp from v_dual]]>
+			</script>
+		</service>
+		<service code="interface.lifeproductresourcerel.querybyuserid"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+      			<![CDATA[select * from life_product_resource_rel a where a.user_id = ? and (sysdate between eff_date and exp_date)]]>
+			</script>
+		</service>
+
+
+		<!-- RuleProductResource -->
+		<service code="interface.RuleProductResource.Resource2Account"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[SELECT * FROM rule_product_resource t WHERE t.product_id = ?]]>
+			</script>
+		</service>
+
+		<!-- LifeProductResourceRel -->
+		<service code="interface.LifeProductResourceRel.Resource2Account"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[SELECT * FROM life_product_resource_rel t 
+					WHERE t.user_id = ? AND t.acct_month = ? AND t.user_product_id = ? 
+					AND t.balance_type_id = ?  and (sysdate between eff_date and exp_date)]]>
+			</script>
+		</service>
+
+		<!-- CodeAcctMonth -->
+		<service code="interface.CodeAcctMonth.Resource2Account"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[SELECT * FROM code_acct_month t WHERE t.use_tag = '1' AND t.act_tag = '0']]>
+			</script>
+		</service>
+
+
+		<!-- CreditSequenceUtils -->
+		<service code="interface.CreditSequenceUtils.Resource2Account"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[]]>
+			</script>
+		</service>
+		<!-- CreditSequenceUtils -->
+		<service code="interface.CreditSequenceUtils.Resource2Account2"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[SELECT t.para_num1 as duckduckgo FROM rule_parameters t WHERE t.domain_code = '7000' AND t.para_name = 'operType']]>
+			</script>
+		</service>
+		
+
+		<!-- add niuhutao -->
+		<service code="interface.InfoPayBalance.addInfoPayBalance"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+				<![CDATA[
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.InfoPayBalance.updateInfoPayBalance"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+				<![CDATA[
+				
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.BilActAccesslog.createBilActAccessLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+				<![CDATA[
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.InfoPayBalance.isBalanceIdExist"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance where pay_id = ? and balance_type_id = ? and eff_date = to_date(?, 'YYYY-MM-DD') and exp_date = to_date(?, 'YYYY-MM-DD') 
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.CodeBilBalanceType.getBalanceTypeAddFalg"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from CODE_BIL_BALANCE_TYPE where balance_type_id = ?
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.Sequences.getBalanceIdNextVal" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select Seq_balance_id.Nextval seq from v_dual
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.PayUserRel.getLatnId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select * from pay_user_rel where pay_id = ?
+				]]>
+			</script>
+		</service>
+
+		<service code="interface.InfoPayBalance.getOldBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select sum(real_balance) from info_pay_balance where pay_id = ? and balance_type_id = ? and eff_date<sysdate and exp_date>sysdate
+				]]>
+			</script>
+		</service>
+		<!-- end add niuhutao -->
+ 
+		<service code="interface.provcode.selectAllCityName" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select area_code,city_name from code_prov_code 
+				]]>
+			
+			</script>
+		
+		</service>
+ 
+ 
+ 		<service code="interface.ruleParameters.queryUnitType" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+ 			<script>
+ 				<![CDATA[
+ 					select DOMAIN_CODE,PARA_NAME,PARA_DESC,PARA_CHAR1,PARA_CHAR2,PARA_CHAR3,PARA_CHAR4,PARA_NUM1,PARA_NUM2,
+					PARA_NUM3,PARA_NUM4 from rule_parameters where domain_code='5001' and para_name='QueryRemainResourceList'
+ 					
+ 				]]>
+ 			</script>
+ 		</service>
+ 		
+ 		<service code="interface.TbSmsSendHis.checkInstance" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+ 			<script>
+ 				<![CDATA[
+ 					select count(1) msg_prior from tb_sms_send_his where process_tag in ('0000','9','1') and deal_flag in (?,'F'||'|'||?)
+ 				
+ 				]]>
+ 				
+ 			
+ 			</script>
+ 		
+ 		</service>
+ 		
+ 		
+ 		<!--//addby yanhongxia  找汽车之家ftp配置-->
+ 		<service code="interface.RuleParameters.queryFtpAddress"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from rule_parameters a where a.domain_code=5041 and a.para_char1=?
+					]]>
+
+			</script>
+		</service>
+		<!-- 恶意欠费用户 
+		<service code="maliceUser.getMaliceUser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select  * from billing.malace_user a where  a.jd_number in (select b.jd_number from 						billing.hsg_jd_number b where b.cs>=3) and user_status not like '4%' 
+  			and partition_id =?
+  			order by address1,jd_number
+      			
+      			]]>
+			</script>
+		</service>
+		-->
+	</services>
+</vds>

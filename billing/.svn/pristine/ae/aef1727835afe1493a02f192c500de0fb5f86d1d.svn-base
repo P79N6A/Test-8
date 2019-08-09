@@ -1,0 +1,6 @@
+file_format=1
+bak_dir	=F:/cdr/bak
+dup_dir	=F:/cdr/dup
+err_dir	=F:/cdr/err	
+inv_dir	=F:/cdr/bak/inv
+src_dir =F:/cdr/in

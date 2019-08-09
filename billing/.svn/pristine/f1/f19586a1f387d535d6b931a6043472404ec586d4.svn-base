@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<service
+			data="com.tydic.beijing.billing.ua.dao.DuplicatedRecord"
+			type="memcached" />
+	<!-- ua_dst_cdr -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaDstCdr" type="jdbc">
+		<query>
+			ua.uadstcdr.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- ua_dst_file -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaDstFile" type="jdbc">
+		<query>
+			ua.uadstfile.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- ua_dst_record -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaDstRecord" type="jdbc">
+		<query>
+			ua.uadstrecord.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- ua_medial -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaMedial" type="jdbc">
+		<query>
+			ua.uamedial.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+
+	<!-- ua_para_default -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaParaDefault" type="jdbc">
+		<query>
+			ua.uaparadefault.queryAll()
+		</query>
+	</service>
+
+	<!-- ua_para_info -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaParaInfo" type="jdbc">
+		<query>
+			ua.uaparainfo.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- ua_process -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaProcess" type="jdbc">
+		<query>
+			ua.uaprocess.queryByFileType(#{filter.file_type})
+		</query>
+		<query name="queryByFileTypeAndRecordSerial">
+			ua.uaprocess.queryByFileType(#{filter.file_type},#{filter.record_serial})
+		</query>
+	</service>
+
+	<!-- ua_src_file -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaSrcFile" type="jdbc">
+		<query>
+			ua.uasrcfile.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- ua_src_record -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaSrcRecord" type="jdbc">
+		<query>
+			ua.uasrcrecord.queryByFileType(#{filter.file_type})
+		</query>
+		<query name="queryByFileTypeAndRecordSerial">
+			ua.uasrcrecord.queryByFileTypeAndRecordSerial(#{filter.file_type},#{filter.record_serial})
+		</query>
+	</service>
+
+
+	<!-- ua_start -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaStart" type="jdbc">
+		<query>
+			ua.uastart.getByOnOff(#{filter.on_off})
+		</query>
+	</service>
+
+	<!-- sm_spr_msisdn_area_map -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmSprMsisdnAreaMap" type="jdbc">
+		<query>
+			ua.smsprmsisdnareamap.queryByIsValid()
+		</query>
+	</service>
+
+	<!-- sm_code_map -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmCodeMap" type="jdbc">
+		<query>
+			ua.smcodemap.queryAll()
+		</query>
+	</service>
+
+	<!-- sm_spz_city -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmSpzCity" type="jdbc">
+		<query>
+			ua.smspzcity.queryAll()
+		</query>
+	</service>
+
+	<!-- q_acct_process -->
+	<service data="com.tydic.beijing.billing.dao.QAcctProcess" type="jdbc">
+		<create name="QAcctProcess">
+			insert into q_acct_process (
+			CHANNEL_NO,SESSION_ID,
+			SERVICE_SCENARIOUS,CHARGED_PARTY,CALLING_PARTY,CALLED_PARTY,USER_ID,
+			SESSION_BEGIN_TIME,SESSION_TERMINATED_TIME,BALANCE_INFO,ACCUMLATOR_INFO,
+			TARIFF_INFO,PROCESS_TAG,INSERT_TIME,UPDATE_TIME, ACCT_MONTH, RESOURCE_INFO) values
+			(
+			${channel_no},
+			'${session_id}',
+			${service_scenarious},
+			'${charged_party}',
+			'${calling_party}',
+			'${called_party}',
+			'${user_id}',
+			'${session_begin_time}',
+			'${session_terminated_time}',
+			'${balance_info}',
+			'${accumlator_info}',
+			'${tariff_info}',
+			${process_tag},
+			sysdate,
+			null,
+			${acct_month},
+			'${resource_info}')
+		</create>
+	</service>
+
+	<!-- ua_dst_qtable -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaDstQtable" type="jdbc">
+		<query>
+			ua.uadstqtable.queryByFileType(#{filter.file_type})
+		</query>
+	</service>
+
+	<!-- sm_spr_access_number -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmSprAccessNumber" type="jdbc">
+		<query>
+			ua.smspraccessnumber.queryAll()
+		</query>
+	</service>
+
+	<!-- sm_rule_standard_number -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmRuleStandardNumber" type="jdbc">
+		<query>
+			ua.smrulestandardnumber.queryAll()
+		</query>
+	</service>
+
+	<!-- sm_code_number_class -->
+	<service data="com.tydic.beijing.billing.ua.dao.SmCodeNumberClass" type="jdbc">
+		<query>
+			ua.smcodenumberclass.queryAll()
+		</query>
+	</service>
+
+	<!-- ua_sequence_utils -->
+	<service data="com.tydic.beijing.billing.ua.dao.UaSequenceUtils" type="jdbc">
+		<query>
+			select ${filter.sequence_name}.nextval as duckduckgo from ua_sequence_utils
+		</query>
+
+	</service>
+
+	<!-- log_ua_file_type -->
+	<service data="com.tydic.beijing.billing.ua.dao.LogUaFileType" type="jdbc">
+		<query name="queryByFileName">
+			select
+			raw_file_name,record_count,record_normal,record_invalid,record_error,record_duplicate,break_point,to_char(login_time,
+			'yyyymmddhh24miss') as login_time,to_char(finish_time, 'yyyymmddhh24miss') as finish_time,completed from
+			log_ua_${filter.file_type}
+			where
+			raw_file_name = '${filter.raw_file_name}'
+		</query>
+
+		<create>
+			insert into log_ua_${file_type}
+			(raw_file_name,record_count,record_normal,record_invalid,record_error,record_duplicate,break_point,login_time,completed)
+			values('${raw_file_name}',${record_count},${record_normal},${record_invalid},${record_error},${record_duplicate},${break_point},sysdate,${completed})
+		</create>
+
+		<update name="updateByFileName">
+			update log_ua_${file_type} set
+			record_count=${record_count},
+			record_normal=${record_normal},
+			record_invalid=${record_invalid},
+			record_error=${record_error},
+			record_duplicate=${record_duplicate},
+			break_point=${break_point},
+			finish_time=sysdate,
+			completed=${completed} where
+			raw_file_name='${raw_file_name}'
+		</update>
+	</service>
+
+
+	<!-- log_ua_file_type_list -->
+	<service data="com.tydic.beijing.billing.ua.dao.LogUaFileTypeList" type="jdbc">
+		<query name="queryByFileName">
+			select * from log_ua_${filter.file_type}_list
+			where
+			raw_file_name = '${filter.raw_file_name}'
+		</query>
+
+		<create name="insertByFileName">
+			insert into log_ua_${file_type}_list (raw_file_name,file_name,dst_dir,record_count,break_point)
+			values('${raw_file_name}', '${file_name}', '${dst_dir}', ${record_count}, ${break_point})
+		</create>
+
+		<update name="updateByFileName">
+			update log_ua_${file_type}_list set
+			record_count=${record_count},
+			break_point=${break_point}
+			where
+			raw_file_name='${raw_file_name}' and file_name='${file_name}' and dst_dir='${dst_dir}'
+		</update>
+	</service>
+
+	<!-- err_ua_file_type -->
+	<service data="com.tydic.beijing.billing.ua.dao.ErrUaFileType" type="jdbc">
+		<query name="queryAll">
+			select raw_file_name,error_code,error_pos,record,redo_flag,rowidtochar(rowid) as row_id from
+			err_ua_file_type where redo_flag=1
+		</query>
+
+		<create name="insert">
+			insert into err_ua_file_type (raw_file_name,error_code,error_pos,record,redo_flag)
+			values('${raw_file_name}', ${error_code}, ${error_pos}, '${record}', ${redo_flag})
+		</create>
+		<update name="updateByRowid">
+			update err_ua_file_type set
+			error_code=${error_code},
+			redo_flag=0
+			where
+			rowid='${row_id}'
+		</update>
+
+		<batch>
+			<!-- <choose> <when test="name=='update4err'"> ua.erruafiletype.update(){ vds.sql.append(" and rowid in (${filter.row_id})"); 
+				} </when> </choose> -->
+
+			<choose>
+				<when test="name=='delete4err'">
+					ua.erruafiletype.delete(){
+					vds.sql.append(" and rowid in (${filter.row_id})");
+					}
+				</when>
+			</choose>
+		</batch>
+	</service>
+	<service data="com.tydic.beijing.billing.ua.dao.SmCodeMobilePrefix"  type="jdbc">
+		<query name="queryAll">
+			select lower_mobile_prefix,upper_mobile_prefix,area_code,prov_code,local_net,dealer_code,service_class,
+			user_type,to_char(eff_date, 'yyyymmddhh24miss') eff_date,to_char(exp_date, 'yyyymmddhh24miss')
+			exp_date
+			from sm_code_mobile_prefix
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.ua.dao.SmCodeTelePrefix"  type="jdbc">
+		<query name="queryAll">
+			select lower_tele_prefix,upper_tele_prefix,area_code,prov_code,local_net,dealer_code,service_class,
+			user_type,to_char(eff_date, 'yyyymmddhh24miss') eff_date,to_char(exp_date, 'yyyymmddhh24miss')
+			exp_date from sm_code_tele_prefix
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.ua.dao.SmCodeOtherMobilePrefix"  type="jdbc">
+		<query name="queryAll">
+			select lower_mobile_prefix,upper_mobile_prefix,area_code,prov_code,local_net,dealer_code,service_class,
+			user_type,to_char(eff_date, 'yyyymmddhh24miss') eff_date,to_char(exp_date, 'yyyymmddhh24miss')
+			exp_date
+			from sm_code_other_mobile_prefix
+		</query>
+	</service>
+
+
+</services>

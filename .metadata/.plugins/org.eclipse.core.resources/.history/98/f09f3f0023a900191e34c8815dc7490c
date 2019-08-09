@@ -1,0 +1,22 @@
+package test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Test2 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String value="179089";
+		for (int i = 2; i >= 1; i--) {
+			System.out.println("i"+i);
+			String tmp = value.substring(0, Math.min(i, value.length()));
+			System.out.println("tmp"+tmp);
+		}
+		int min = Math.min(1, 2);
+		System.out.println(min);
+		List<String> list = new ArrayList<String>();
+		System.out.println(list.isEmpty());
+	}
+
+}

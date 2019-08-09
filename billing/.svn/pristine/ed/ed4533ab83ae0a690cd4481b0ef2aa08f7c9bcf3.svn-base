@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+	<context:annotation-config />
+	<context:component-scan base-package="com.tydic.beijing.billing.memcache" />
+
+	<dubbo:application name="memcachedupdate" />
+	<dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />
+	
+	<!-- <dubbo:registry address="zookeeper://192.168.180.22:2181" /> -->
+
+	<dubbo:protocol name="dubbo" port="-1" dispather="message" threadpool="fixed" threads="24"/>
+	
+	<dubbo:monitor protocol="registry" />
+	
+	<dubbo:service
+		interface="com.tydic.beijing.billing.memcache.service.DB2Mem"
+		ref="DB2MemUpdateDubbo" loadbalance="consistenthash" retries="0" timeout="30000"/>
+	
+	<bean id="DBInfo" class="com.tydic.beijing.billing.memcache.type.DBInfo"
+		scope="prototype">
+		<property name="username" value="crm_user" />
+		<property name="password" value="crm_user" />
+		<property name="db_url" value="jdbc:oracle:thin:@192.168.180.22:1521:bssjd" />
+	</bean>
+
+	<bean id="DB2MemUpdateDubbo"
+		class="com.tydic.beijing.billing.memcache.service.impl.DB2MemUpdateDubbo"
+		scope="prototype">
+		<property name="g_imsi" value="g_imsi" /><!-- ¾©¶« -->
+		<!--  <property name="g_imsi" value="imsig" />  º£º½-->
+	</bean>
+	
+</beans>

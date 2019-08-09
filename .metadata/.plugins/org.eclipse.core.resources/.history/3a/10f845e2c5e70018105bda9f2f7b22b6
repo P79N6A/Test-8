@@ -1,0 +1,25 @@
+package test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		double x;
+		double y;
+		for(y=0;y<999999999;y++){
+		x=(4986141-205*y)/150;
+		BigDecimal b1 = new BigDecimal(x).setScale(2, RoundingMode.UP);
+		BigDecimal b2 = new BigDecimal(y).setScale(2, RoundingMode.UP);
+	    double num = b1.doubleValue();
+	    double num1 = b2.doubleValue();
+	    if (Math.round(num) - num == 0&&Math.round(num1)-num1==0) {
+		System.out.println("X="+x+";Y="+y);
+	    }
+		}
+		
+}
+
+}

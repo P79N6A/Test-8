@@ -1,0 +1,18 @@
+package test;
+
+public class Test {
+	
+	public static void main(String[] args) {
+		String column[];
+		String tableColum = "SERIALNO String|VERSION long|TICKETTYPE long|TIMESTAMP String|HOSTID String|SERVICESCENARIOUS long|CHARGEDPARTY String|CALLINGPARTY String|CALLEDPARTY String|ORIGNIALCALLINGPARTY String|ORIGNIALCALLEDPARTY String|PAYFLAG long|SERVID String|CUSTID String|BRAND String|SESSIONID String|SESSIONTERMINATEDTIME String|TERMINATEDCAUSE long|ORIGNIALHOST String|BALANCEINFO String|ACCUMLATORINFO String|TARIFFINFO String|MASTERPRODUCTID String|BEARERCAPABILITY String|SESSIONBEGINTIME String|GGSNIPADDRESS String|SGSNIPADDRESS String|CALLING_NUMBER_HOME_AREA String|APNNI String|PDPTYPE String|SERVEDPDPADDRESS String|RATINGGROUP String|ROAMINGTYPE String|CHARGINGID String|QOS String|CHARGINGTYPE String|IMSI String|LAC String|RATTYPE String|IMEI String|MCC_MNC String|SERVICE_ID String|UP_FLOW String|DOWN_FLOW String|TOTAL_FLOW String|STRING1 String|STRING2 String|STRING3 String|INT1 long|INT2 long|INSERT_DATE Date|PARTITION_NO String|RESOURCE_INFO String";
+		String spilt="|";
+		String tmp;
+		column = tableColum.split("\\" + spilt);
+		for (int i = 0; i < column.length; i++) {
+			tmp = column[i];
+			System.out.println(tmp);
+			String field[] = tmp.split(" ");
+			System.out.println(field[1]);
+		}
+	}
+}

@@ -1,0 +1,25 @@
+package test;
+
+import java.util.Random;
+
+public class Demo2 {
+
+	public static void main(String[] args) {
+		long billCycle=201811;
+//  		String CdrNetMonth = Long.toString(billCycle);
+//  		int NetMonth = Integer.parseInt(CdrNetMonth.substring(4,6));
+//  		System.out.println(NetMonth);
+//  		System.out.println(201811%100);
+		
+  		//long cycle=billCycle%100;
+  		//String month=cycle<10?"0"+cycle:""+cycle;
+  		String Scycle = Long.toString(billCycle);
+  		int CdrNetMonth = Integer.parseInt(Scycle.substring(4,6));
+  		//String CdrNetMonth = Scycle.substring(4, 6);
+  		if (CdrNetMonth>11) {
+  			CdrNetMonth=1;
+		}
+  		CdrNetMonth++;
+  		System.out.println(CdrNetMonth);
+	}
+}

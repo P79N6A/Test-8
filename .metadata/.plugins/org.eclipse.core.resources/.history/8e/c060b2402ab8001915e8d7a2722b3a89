@@ -1,0 +1,93 @@
+package com.tydic.beijing.billing.others;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import com.tydic.beijing.billing.account.type.MyApplicationContextUtil;
+
+import com.tydic.dsi.log.logger.LoggerFactory;
+import com.tydic.uda.service.S;
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
+public class CtcCardImportMain extends MyApplicationContextUtil {
+
+
+    private static final com.tydic.dsi.log.logger.Logger log = LoggerFactory.getLogger(CtcCardImportMain.class);
+    /**
+     *
+     *
+     * all表<br/>
+     *
+     * @param
+     */
+
+    public static void main(String[] args) throws Exception{
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] {"load.xml" });
+        mycontext = context;
+
+        CtcImport ctcImport =   (CtcImport)context.getBean("ctcImport");
+        //CtcCardImportMain boot = new CtcCardImportMain();
+        //String filePath = System.getProperty("user.dir")+ "/JDwarehousingfile";
+
+        while(true){
+            File direcroty = new File(ctcImport.getFileDir());
+            File[] files = direcroty.listFiles();
+            if(files.length >0 ){
+                try {
+                    for (File file : files) {
+                        File file1 = new File(ctcImport.getFileDir() + file.getName());
+                        File file2 = new File(ctcImport.getFileBakDir()  + file.getName());
+                        ctcImport.ctcImport(file);
+                        writeTo(file1,file2);
+                        file1.delete();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    log.error("文件导入异常：",e);
+                    System.exit(0);
+                }
+
+            }else{
+                Thread.sleep(1000*60*10);
+            }
+        }
+
+
+    }
+
+    private static void writeTo(File f, File newFile) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+        FileOutputStream fos = new FileOutputStream(newFile);
+        try{
+            byte[] buf = new byte[8192];
+            do{
+                int rc = fis.read(buf);
+                if(rc == -1)
+                    break;
+                fos.write(buf, 0, rc);
+                if(rc < buf.length)
+                    break;
+            }while(true);
+        }finally{
+            fis.close();
+            fos.close();
+        }
+    }
+
+
+}

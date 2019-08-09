@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<service data="com.tydic.beijing.billing.dao.RuleRefreshTrigger"
+		type="jdbc">
+		<query name="queryAllActive">
+			tools.rulerefreshtrigger.getAllActive()
+		</query>
+		<update>
+			update rule_refresh_trigger set refresh_status =
+			'${refresh_status}',
+			refresh_timestamp = sysdate, memo = '${memo}'
+			where
+			service_name = '${service_name}' and
+			datastore_name=
+			'${datastore_name}'
+			and refresh_now = 1
+		</update>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LogRefreshTrigger"
+		type="jdbc">
+		<update>
+			insert into log_refresh_trigger(refresh_batch_id,
+			service_name, service_ip, service_port,service_pid,datastore_name,
+			refresh_status, refresh_timestamp, memo)
+			values(${refresh_batch_id}, '${service_name}', '${service_ip}',
+			'${service_port}','${service_pid}','${datastore_name}',
+			'${refresh_status}', sysdate, '${memo}')
+		</update>
+	</service>
+</services>

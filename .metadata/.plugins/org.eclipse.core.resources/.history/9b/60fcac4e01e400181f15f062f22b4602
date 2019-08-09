@@ -1,0 +1,16 @@
+package test;
+
+public class Test {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		int x;
+		int y;
+		for(y=5000;y<10000;y++){
+		x=(4986141-205*y)/150;
+		System.out.println("X="+x+";Y="+y);
+		
+		}
+		
+}
+}

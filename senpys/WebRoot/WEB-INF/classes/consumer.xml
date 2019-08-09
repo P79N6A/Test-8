@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://jsf.jd.com/schema/jsf  http://jsf.jd.com/schema/jsf/jsf.xsd">
+	
+   
+    
+   <!--生产
+   
+    <jsf:registry id="jsfRegistry" protocol="jsfRegistry" index="i.jsf.jd.com"/>
+ 	<jsf:server id="jsf" protocol="jsf"/>
+    
+     -->  
+ 	<jsf:registry id="jsfRegistry" protocol="jsfRegistry" index="i.jsf.jd.com" >
+        <jsf:parameter key="app" value="payableapp" />
+    </jsf:registry>
+ 	
+    
+       
+ <jsf:consumer id="payableSafService" interface="com.jd.fsp.criterion.saf.service.PayableCriterionSAFService" protocol="jsf" alias="FMS_SP_PAYABLE:0.0.1" timeout="20000" >
+<!-- 测试  
+ <jsf:parameter key="token" value="123456" hide="true"/> -->
+ <!-- 生产  -->
+ <jsf:parameter key="token" value="8508254541EFF7A4" hide="true"/> 
+</jsf:consumer>  
+
+      
+    <!-- 普通的spring bean的定义 -->
+    <bean id="dubboAction" class="com.tydic.demo.py.DubboAction"> 
+    <!-- 实例化action中的dubboService 方法注入 --> 
+     
+      <property name="payableSafService" ref="payableSafService"/>  
+         
+         
+    </bean>  
+
+</beans> 

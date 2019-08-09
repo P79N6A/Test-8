@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing"
+			password="billing">
+			<active>
+				<tables schema="billing"
+					filter="table_name not like '%$%' and table_name not in ('INFO_PAY', 'INFO_USER', 'PAY_USER_REL') " />
+			</active>
+		</driver>
+		<driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="crm_user"
+			password="crm_user">
+			<active>
+				<tables schema="CRM_USER"
+					filter="table_name in ('INFO_PAY','INFO_USER', 'PAY_USER_REL','Q_USER_REASON_SEND')" />
+			</active>
+		</driver>
+	</drivers>
+	<services>
+		<!-- INFO_USER -->
+		<service code="outerf.infouser.getByDeviceNumber" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+            <![CDATA[SELECT * FROM INFO_USER WHERE DEVICE_NUMBER = ? and VALID_FLAG = '0']]>
+			</script>
+		</service>
+
+		<!-- LIFE_USER_PAY -->
+		<service code="outerf.lifeuserpay.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM LIFE_USER_PAY WHERE USER_ID = ?]]>
+			</script>
+		</service>
+
+		<!-- PAY_USER_REL -->
+		<service code="outerf.payuserrel.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM PAY_USER_REL  WHERE USER_ID = ?]]>
+			</script>
+		</service>
+
+		<!-- BIL_ACT_BILL -->
+		<service code="outerf.bilactbill.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM BIL_ACT_BILL WHERE USER_ID = ?]]>
+			</script>
+		</service>
+
+		<service code="outerf.bilactbill.getByUserIdList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM BIL_ACT_BILL WHERE USER_ID = ?]]>
+			</script>
+		</service>
+
+		<service code="outerf.bilactbill.getByUserIdNext" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM BIL_ACT_BILL WHERE USER_ID = ?]]>
+			</script>
+		</service>
+
+		<!-- TB_BIL_PRESENT_USER_INFO -->
+		<service code="outerf.tbbilpresentuserinfo.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM TB_BIL_PRESENT_USER_INFO WHERE USER_ID = ?]]>
+			</script>
+		</service>
+		
+		<!--  LIFE_USER_RELEASE_CAL
+		<service code="outerf.LifeUserReleaseCal.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[select * from LIFE_USER_RELEASE_CAL  where user_id =? and process_state=0]]>
+			</script>
+		</service>-->
+		<service code="outerf.LifeUserReleaseCal.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[
+                ]]>
+			</script>
+		</service>
+
+		<!-- CODE_BIL_BALANCE_TYPE -->
+		<service code="outerf.codebilblancetype.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_BIL_BALANCE_TYPE]]>
+			</script>
+		</service>
+
+		<!-- INFO_PAY_BALANCE -->
+		<service code="outerf.infopaybalance.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM INFO_PAY_BALANCE WHERE PAY_ID=?]]>
+			</script>
+		</service>
+
+		<!-- CODE_ACCT_MONTH -->
+		<service code="outerf.codeacctmonth.getByAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_ACCT_MONTH WHERE Acct_Month=?]]>
+			</script>
+		</service>
+		
+		<service code="outerf.codeacctmonth.getActiveAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_ACCT_MONTH WHERE use_tag = 1]]>
+			</script>
+		</service>
+
+		<!-- CODE_ACT_ACCT_ITEM -->
+		<service code="outerf.codeactacctitem.getByAcctItemCode"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_ACT_ACCT_ITEM WHERE Acct_Item_Code=?]]>
+			</script>
+		</service>
+
+		<!-- added by tian -->
+		<service code="outerf.codeacctmonth.getByBillingCycleId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_ACCT_MONTH WHERE to_char(act_eff_date, 'YYYYMM') = ?]]>
+			</script>
+		</service>
+		<service code="outerf.bilactbill.getByUserIdAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM BIL_ACT_BILL WHERE USER_ID = ? and ACCT_MONTH = ? and UNIT_TYPE_ID = 0]]>
+			</script>
+		</service>
+		<service code="outerf.codeactacctitem.getAllItemCode" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM CODE_ACT_ACCT_ITEM]]>
+			</script>
+		</service>
+		<service code="outerf.userpresenthis.getRebate" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+                <![CDATA[select * from user_present_his where user_id = ? and acct_month = ?]]>
+			</script>
+		</service>
+		<service code="outerf.ruleparameters.getBaiTiaoBalanceTypeId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+                <![CDATA[SELECT * FROM RULE_PARAMETERS where domain_code = 5007 and para_name = 'QuerySubsAcctBalance' and para_desc = 'baitiao.balance_type_id']]>
+			</script>
+		</service>
+		<service code="outerf.ruleparameters.getParentAcctItemCode"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+                <![CDATA[select para_char2 from rule_parameters where domain_code = 5010 and para_name = 'SumAcctItem' and para_char1 in (select para_char2 from rule_parameters where domain_code = 5010 and para_name = 'SumAcctItemRel' and para_char1 = ?)]]>
+			</script>
+		</service>
+		<service code="outerf.bilactrealtimebill.getRealtimeBill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select * from bil_act_real_time_bill_#MONTH# where user_id = ? and pay_id = ? and acct_month = ? and unit_type_id = '0'
+				]]>
+			</script>
+		</service>
+				<service code="acct.codeacctmonth.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalanceasync.queryByPayId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance_async where pay_id = ? and async_state in (0, 9)]]>
+			</script>
+		</service>
+		
+		<service code="outerf.ruleparameters.query9000RuleParameters" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+      			select * from RULE_PARAMETERS where domain_code = 9000 
+      			]]>
+			</script>
+		</service>
+	</services>
+</vds>

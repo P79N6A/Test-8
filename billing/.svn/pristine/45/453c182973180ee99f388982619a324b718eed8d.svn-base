@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- memcached 支持 -->
+	<bean class="com.tydic.uda.resolver.mem.MemcachedOperateResolver">
+		<property name="memcachedAddressList">
+			<list>
+			 
+				<value>172.168.1.217:12002</value> 
+				<value>172.168.1.217:12002</value>
+			 <!--
+				<value>172.168.3.85:11211</value> 
+				<value>172.168.3.85:11211</value>
+				<value>172.168.3.85:11211</value>
+				-->
+			</list>
+		</property>
+		<property name="connectionPoolSize" value="2" />
+	</bean>
+
+	<bean class="com.tydic.uda.service.factory.XmlDataServiceFactory">
+		<property name="serviceLocations">
+			<list>
+				<value>classpath:daoservices/*.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

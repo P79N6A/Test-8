@@ -1,0 +1,593 @@
+package com.tydic.beijing.billing.file2db.service.impl;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
+import com.tydic.beijing.billing.common.BasicException;
+import com.tydic.beijing.billing.common.ErrorCode;
+import com.tydic.beijing.billing.file2db.service.File2DB;
+import com.tydic.beijing.billing.file2db.type.ObjFunction;
+
+public class File2DBImpl implements File2DB {
+
+    private final static Logger LOGGER = Logger.getLogger(File2DBImpl.class);
+    private final static Integer RECONNECT_TIMES = 10;//数据库异常情况的下，重连的次数
+
+    private String tableName;
+    private String tableColum;
+    private String keyColumn;
+    private String updateColumn;
+    private String user_name;
+    private String pass_word;
+    private String url;
+    private String spilt;
+    private int commit_num;
+    private String file_dir;
+    private String bak_dir;
+    private String DateFormat;
+    private String UpFlag;
+    private int MonthBranch;
+    private String MonthColumn;
+    private String InsertLogFlag;
+    private String LogTable;
+
+    private String sql_select;
+    private String sql_insert;
+    private String sql_update;
+    private String sql;
+
+    private Connection conn;
+    private PreparedStatement pstmt_ins[];
+    private PreparedStatement pstmt_sel[];
+    private PreparedStatement pstmt_up[];
+    private ResultSet rs_sel;
+
+    private String main_insert;
+    private String main_select;
+    private String main_update;
+    private String column[];
+    private String key[];
+    private String update[];
+    private List<ObjFunction> ins_objFunction;
+    private List<ObjFunction> sel_objFunction;
+    private List<ObjFunction> up_objFunction;
+
+    private File file_ins;
+    //用于记录存在哪个月的记录，提交后归零
+    private Boolean monthFlag[];
+    //月份字段位置
+    private int monthIndex;
+    //log table
+    private String logSql;
+    private PreparedStatement logPstmt;
+
+    @Override
+    public void init() {
+        String confFile = System.getProperty("CONFFILE");
+        if (confFile == null) {
+            confFile = "/File2DB.properties";
+        }
+        InputStream is = File2DB.class.getResourceAsStream(confFile);
+        Properties prop = new Properties();
+		try {
+			LOGGER.info("load pros");
+			prop.load(is);
+		} catch (IOException e) {
+			LOGGER.error("load f2o.properties error" + e.toString());
+		}
+		spilt = prop.getProperty("Spilt");
+		tableName = prop.getProperty("TableName");
+		tableColum = prop.getProperty("TableColumn");
+		keyColumn = prop.getProperty("KeyColumn");
+		updateColumn = prop.getProperty("UpdateColumn");
+		user_name = prop.getProperty("DB.UserName");
+		pass_word = prop.getProperty("DB.PassWord");
+		url = prop.getProperty("DB.Url");
+		commit_num = Integer.parseInt(prop.getProperty("commit_num"));
+		file_dir = prop.getProperty("file_dir");
+		bak_dir = prop.getProperty("bak_dir");
+		DateFormat = prop.getProperty("DateFormat");
+		UpFlag = prop.getProperty("UpFlag");
+		MonthBranch = Integer.parseInt(prop.getProperty("MonthBranch"));
+		MonthColumn = prop.getProperty("MonthColumn");
+		InsertLogFlag = prop.getProperty("InsertLogFlag");
+		LogTable = prop.getProperty("LogTable");
+
+        String tmp;
+
+        if (UpFlag.equals("1")) {
+            //select sql
+            sel_objFunction = new ArrayList<ObjFunction>();
+            main_select = "select count(1) from " + tableName + " where ";
+            key = keyColumn.split("\\" + spilt);
+            for (int i = 0; i < key.length; i++) {
+                tmp = key[i];
+                if (tmp.isEmpty() || tmp.equals("$") || tmp.equals("^")) {
+                    sel_objFunction.add(null);
+                    continue;
+                }
+                String field[] = tmp.split(" ");
+                if (field[1].equals("Date")) {
+                    sel_objFunction.add(new ObjFunction(field[1], DateFormat));
+                } else {
+                    sel_objFunction.add(new ObjFunction(field[1], null));
+                }
+                main_select = main_select + field[0] + "=? and ";
+            }
+            int desc = main_select.lastIndexOf("and");
+            main_select = main_select.substring(0, desc);
+            sql_select = main_select;
+            LOGGER.info("sql_select : " + sql_select);
+
+            //update sql
+            up_objFunction = new ArrayList<ObjFunction>();
+            main_update = "update " + tableName + " set ";
+            update = updateColumn.split("\\" + spilt);
+            for (int i = 0; i < update.length; i++) {
+                tmp = update[i];
+                if (tmp.isEmpty() || tmp.equals("$") || tmp.equals("^")) {
+                    up_objFunction.add(null);
+                    continue;
+                }
+                String field[] = tmp.split(" ");
+                if (field[1].equals("Date")) {
+                    up_objFunction.add(new ObjFunction(field[1], DateFormat));
+                } else {
+                    up_objFunction.add(new ObjFunction(field[1], null));
+                }
+                main_update = main_update + field[0];
+                main_update = main_update + "=?, ";
+            }
+            desc = main_update.lastIndexOf(",");
+            main_update = main_update.substring(0, desc);
+            main_update = main_update + " where ";
+            key = keyColumn.split("\\" + spilt);
+            for (int i = 0; i < key.length; i++) {
+                tmp = key[i];
+                if (tmp.isEmpty() || tmp.equals("$") || tmp.equals("^")) {
+                    continue;
+                }
+                String field[] = tmp.split(" ");
+                main_update = main_update + field[0] + "=? and ";
+            }
+            desc = main_update.lastIndexOf("and");
+            main_update = main_update.substring(0, desc);
+            sql_update = main_update;
+            LOGGER.info("sql_update : " + sql_update);
+        }
+
+        //insert sql
+        main_insert = "insert into " + tableName + " (";
+        column = tableColum.split("\\" + spilt);
+        ins_objFunction = new ArrayList<ObjFunction>();
+        for (int i = 0; i < column.length; i++) {
+            tmp = column[i];
+            String field[] = tmp.split(" ");
+            main_insert = main_insert + field[0];
+            if (field[0].equals(MonthColumn)) {
+                monthIndex = i;
+            }
+            if (field[1].equals("Date")) {
+                ins_objFunction.add(new ObjFunction(field[1], DateFormat));
+            } else {
+                ins_objFunction.add(new ObjFunction(field[1], null));
+            }
+            if (i < column.length - 1) {
+                main_insert = main_insert + ", ";
+            }
+        }
+        main_insert = main_insert + ") values (";
+
+        for (int i = 0; i < column.length; i++) {
+            main_insert = main_insert + "?";
+            if (i < column.length - 1) {
+                main_insert = main_insert + ", ";
+            }
+        }
+        main_insert = main_insert + ")";
+        sql_insert = main_insert;
+
+        LOGGER.info("sql_insert : " + sql_insert);
+
+        monthFlag = new Boolean[MonthBranch];
+        for (int i = 0; i < monthFlag.length; i++) {
+            monthFlag[i] = false;
+        }
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            conn = DriverManager.getConnection(url, user_name, pass_word);
+            pstmt_ins = new PreparedStatement[MonthBranch];
+            if (UpFlag.equals("1")) {
+                pstmt_sel = new PreparedStatement[MonthBranch];
+                pstmt_up = new PreparedStatement[MonthBranch];
+            }
+            for (int i = 0; i < MonthBranch; i++) {
+                if (MonthBranch != 1) {
+                    sql = sql_insert.replace(tableName, tableName + String.format("%02d", i + 1));
+                } else {
+                    sql = sql_insert;
+                }
+                LOGGER.info("insert " + tableName + String.format("%02d", i + 1) + " : " + sql);
+                pstmt_ins[i] = conn.prepareStatement(sql);
+                if (UpFlag.equals("1")) {
+                    if (MonthBranch != 1) {
+                        sql = sql_select.replace(tableName, tableName + String.format("%02d", i + 1));
+                    } else {
+                        sql = sql_select;
+                    }
+                    LOGGER.info("select " + tableName + String.format("%02d", i + 1) + " : " + sql);
+                    pstmt_sel[i] = conn.prepareStatement(sql);
+                    if (MonthBranch != 1) {
+                        sql = sql_update.replace(tableName, tableName + String.format("%02d", i + 1));
+                    } else {
+                        sql = sql_update;
+                    }
+                    LOGGER.info("update " + tableName + String.format("%02d", i + 1) + " : " + sql);
+                    pstmt_up[i] = conn.prepareStatement(sql);
+                }
+            }
+            if (InsertLogFlag.equals("1")) {
+                logSql = "insert into " + LogTable + " (file_name, source_dir, bak_dir, error_flag, deal_time) values (?, ?, ?, ?, ?)";
+                logPstmt = conn.prepareStatement(logSql);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            LOGGER.error("DB init error" + e.toString());
+        }
+    }
+
+    @Override
+    public void doFile2DB() {
+        String filename = "";
+
+        BufferedReader reader;
+        String line = new String();
+        long statistics = 0;
+        int index_sel;
+        int index_up;
+        int cnt_up[];
+        int cnt_ins[];
+        int cnt = 0;
+        List<HashSet<String>> setLine = null;
+        String keySet = null;
+
+        setLine = new ArrayList<HashSet<String>>();
+        cnt_up = new int[MonthBranch];
+        cnt_ins = new int[MonthBranch];
+        for (int i = 0; i < MonthBranch; i++) {
+            cnt_up[i] = 0;
+            cnt_ins[i] = 0;
+            HashSet<String> e = new HashSet<String>();
+            setLine.add(e);
+        }
+
+        try {
+            File dir = new File(file_dir); // 建立当前目录中文件的File对象
+            File list_f[] = dir.listFiles(); // 取得代表目录中所有文件的File对象数组
+            List<File> list = new ArrayList<File>();
+            for (int i = 0; i < list_f.length; i++) {
+                String nametmp = list_f[i].getName();
+                if (nametmp.endsWith(".tmp")) {
+                    continue;
+                }
+                list.add(list_f[i]);
+            }
+            for (File tmp : list) {
+                LOGGER.info(tmp.lastModified() + " " + tmp.getName());
+            }
+            System.out.println("=============");
+            Collections.sort(list, new Comparator<File>() {
+                public int compare(File file, File newFile) {
+                    //排序方法：文件名
+                    if (file.getName().compareTo(newFile.getName()) > 0) {
+                        return 1;
+                    } else if (file.getName().compareTo(newFile.getName()) == 0) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                    /*
+                     * 排序方法：修改时间
+                    if (file.lastModified() > newFile.lastModified()) {
+                        return 1;
+                    } else if (file.lastModified() == newFile.lastModified()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                	 */
+                }
+            });
+            for (File tmp : list) {
+                LOGGER.info(tmp.lastModified() + " " + tmp.getName());
+            }
+
+            String column_field[];
+            int monthTag = 0;
+
+            for (int i = 0; i < list.size(); i++) {
+                file_ins = list.get(i);
+                filename = file_ins.getName();
+                filename = file_dir + "/" + filename;
+                reader = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(filename)));
+                LOGGER.info("1"+filename);
+                try {
+                    long time1 = System.currentTimeMillis();
+                    while ((line = reader.readLine()) != null) {
+                    	LOGGER.info("2"+line);
+                        column_field = line.split("\\" + spilt);
+                        keySet = null;
+                        if (UpFlag.equals("1")) {
+                            //select
+                            index_sel = 0;
+                            index_up = 0;
+                            if (MonthBranch != 1) {
+                                monthTag = Integer.parseInt(column_field[monthIndex]) - 1;
+                            }
+                            if (monthTag < 0 || monthTag > MonthBranch) {
+                                throw new BasicException(ErrorCode.ERR_FILE2DB_LAST_ITEM_NO_MONTH, "file item last column is not month error");
+                            }
+                            monthFlag[monthTag] = true;
+                            for (int index = 0; index < column_field.length; index++) {
+                                if (up_objFunction.get(index) != null) {
+                                    up_objFunction.get(index).setType(pstmt_up[monthTag], index_up, column_field[index].trim());
+                                    index_up++;
+                                }
+                                ins_objFunction.get(index).setType(pstmt_ins[monthTag], index, column_field[index].trim());
+                            }
+                            for (int index = 0; index < column_field.length; index++) {
+                                if (sel_objFunction.get(index) != null) {
+                                    sel_objFunction.get(index).setType(pstmt_sel[monthTag], index_sel, column_field[index].trim());
+                                    index_sel++;
+                                    sel_objFunction.get(index).setType(pstmt_up[monthTag], index_up, column_field[index].trim());
+                                    index_up++;
+                                    //keyMap 赋值
+                                    keySet = keySet + column_field[index].trim();
+                                }
+                            }
+                            rs_sel = pstmt_sel[monthTag].executeQuery();
+                            while (rs_sel.next()) {
+                                if (rs_sel.getInt(1) > 0) {
+                                    pstmt_up[monthTag].addBatch();
+                                    cnt_up[monthTag]++;
+                                } else {
+                                    //查找set中是否存在
+                                    if (setLine.get(monthTag).contains(keySet)) {
+                                        pstmt_up[monthTag].addBatch();
+                                        cnt_up[monthTag]++;
+                                    } else {
+                                        pstmt_ins[monthTag].addBatch();
+                                        setLine.get(monthTag).add(keySet);
+                                        cnt_ins[monthTag]++;
+                                    }
+                                }
+                            }
+                            LOGGER.info("update num:" + monthTag + " " + cnt_up[monthTag] + "   insert num:" + monthTag + " " + cnt_ins[monthTag]);
+                        } else {
+                            if (MonthBranch != 1) {
+                                monthTag = Integer.parseInt(column_field[monthIndex]) - 1;
+                            }
+                            if (monthTag < 0 || monthTag > MonthBranch) {
+                                throw new BasicException(ErrorCode.ERR_FILE2DB_LAST_ITEM_NO_MONTH, "file item last column is not month error");
+                            }
+                            monthFlag[monthTag] = true;
+                            //insert
+                          //把流量详单表的partition_no从原来的月份标识改为USER_ID最后一位供分区使用 add by lxy 20181213
+//                        	if (tableName=="cdr_cdr200_"||tableName.equals("cdr_cdr200_")) {
+//                            	column_field[51]=column_field[12].substring(column_field[12].length()-1);
+//                            	LOGGER.info("表名为："+tableName);
+//                            	LOGGER.info("分区字段为："+column_field[51]);
+//                    		}
+                            for (int index = 0; index < column_field.length; index++) {
+                            	LOGGER.debug("column_field="+column_field[index]);
+                                ins_objFunction.get(index).setType(pstmt_ins[monthTag], index, column_field[index].trim());
+                            }
+                            int append = column_field.length;
+                            while (append < ins_objFunction.size()) {
+                                ins_objFunction.get(append).setType(pstmt_ins[monthTag], append, null);
+                                append++;
+                            }
+                            pstmt_ins[monthTag].addBatch();
+                        }
+
+                        statistics++;
+                        cnt++;
+                        if (cnt % commit_num == 0) {
+                            for (int j = 0; j < MonthBranch; j++) {
+                                if (monthFlag[j] == true) {
+                                    if (UpFlag.equals("1")) {
+                                        if (cnt_ins[j] > 0) {
+                                            pstmt_ins[j].executeBatch();
+                                            cnt_ins[j] = 0;
+                                        }
+                                        if (cnt_up[j] > 0) {
+                                            pstmt_up[j].executeBatch();
+                                            cnt_up[j] = 0;
+                                        }
+                                        setLine.get(j).clear();
+                                    } else {
+                                        pstmt_ins[j].executeBatch();
+                                    }
+                                    LOGGER.info("deal " + cnt);
+                                    cnt = 0;
+                                }
+                                monthFlag[j] = false;
+                            }
+                        }
+                    }
+
+                    if (reader != null) {
+                        reader.close();
+                    }
+
+                    //每个文件提交（或者文件条数达到设定值）
+                    for (int j = 0; j < MonthBranch; j++) {
+                        if (monthFlag[j] == true) {
+                            if (UpFlag.equals("1")) {
+                                if (cnt_ins[j] > 0) {
+                                    pstmt_ins[j].executeBatch();
+                                    cnt_ins[j] = 0;
+                                }
+                                if (cnt_up[j] > 0) {
+                                    pstmt_up[j].executeBatch();
+                                    cnt_up[j] = 0;
+                                }
+                                setLine.get(j).clear();
+                            } else {
+                                pstmt_ins[j].executeBatch();
+                            }
+                            LOGGER.info("deal " + cnt);
+                            cnt = 0;
+                        }
+                        monthFlag[j] = false;
+                    }
+                    //修改文件位置
+                    if (file_ins.renameTo(new File(bak_dir, file_ins.getName())) == false) {
+                        throw new BasicException(ErrorCode.ERR_FILE2DB_RENAME,
+                                "rename " + bak_dir + " " + file_ins.getName()
+                                        + " fail!");
+                    }
+                    //记录处理文件日志
+                    if (InsertLogFlag.equals("1")) {
+                        logPstmt.setString(1, file_ins.getName());
+                        logPstmt.setString(2, file_dir);
+                        logPstmt.setString(3, bak_dir);
+                        logPstmt.setInt(4, 0);
+                        logPstmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                        logPstmt.executeQuery();
+                    }
+
+                    long time2 = System.currentTimeMillis();
+                    if (time2 - time1 > 1000 * 60 * 5) {
+                        LOGGER.info("insert num[ " + Long.toString(statistics) + "] " + "run time[" + Long.toString(time2 - time1) + "]");
+                    }
+                } catch (SQLException ex)//add by cws at 2018.5.17
+                {
+                    int reconnct;
+                    for (reconnct = 0; reconnct < RECONNECT_TIMES; reconnct++) {
+                        try {
+                            Thread.sleep(6000);//每次重连休眠6秒
+                            Class.forName("oracle.jdbc.driver.OracleDriver");
+                            conn = DriverManager.getConnection(url, user_name, pass_word);
+                            break;
+                        } catch (SQLException | ClassNotFoundException e1) {
+                            LOGGER.info("reconnect times:" + reconnct);
+                        }
+                        if (reconnct == RECONNECT_TIMES - 1) {
+                            LOGGER.error("DB RECONNECT FAILED");
+                            LOGGER.error("ERROR FILE: " + filename + "\nException error:" + ex.toString());
+                            System.exit(-1);
+                        }
+                    }
+                    LOGGER.info("RECONNNECT FILE:" + filename );
+                    if (reader != null) {
+                        reader.close();
+                    }
+                    conn.close();
+                    init();//重连
+
+                    //每个文件提交（或者文件条数达到设定值）
+                    for (int j = 0; j < MonthBranch; j++) {
+                        if (monthFlag[j] == true) {
+                            if (UpFlag.equals("1")) {
+                                if (cnt_ins[j] > 0) {
+                                    pstmt_ins[j].executeBatch();
+                                    cnt_ins[j] = 0;
+                                }
+                                if (cnt_up[j] > 0) {
+                                    pstmt_up[j].executeBatch();
+                                    cnt_up[j] = 0;
+                                }
+                                setLine.get(j).clear();
+                            } else {
+                                pstmt_ins[j].executeBatch();
+                            }
+                            LOGGER.info("deal " + cnt);
+                            cnt = 0;
+                        }
+                        monthFlag[j] = false;
+                    }
+                    //修改文件位置
+                    if (file_ins.renameTo(new File(bak_dir, file_ins.getName())) == false) {
+                        LOGGER.error("ERROR FILE: " + filename + "\nException error: rename fail");
+                        System.exit(-1);
+                    }
+                    //记录处理文件日志
+                    if (InsertLogFlag.equals("1")) {
+                        logPstmt.setString(1, file_ins.getName());
+                        logPstmt.setString(2, file_dir);
+                        logPstmt.setString(3, bak_dir);
+                        logPstmt.setInt(4, 1);
+                        logPstmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                        logPstmt.executeQuery();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("ERROR FILE: " + filename + "\nException error:" + e.toString());
+                    if (reader != null) {
+                        reader.close();
+                    }
+                    //每个文件提交（或者文件条数达到设定值）
+                    for (int j = 0; j < MonthBranch; j++) {
+                        if (monthFlag[j] == true) {
+                            if (UpFlag.equals("1")) {
+                                if (cnt_ins[j] > 0) {
+                                    pstmt_ins[j].executeBatch();
+                                    cnt_ins[j] = 0;
+                                }
+                                if (cnt_up[j] > 0) {
+                                    pstmt_up[j].executeBatch();
+                                    cnt_up[j] = 0;
+                                }
+                                setLine.get(j).clear();
+                            } else {
+                                pstmt_ins[j].executeBatch();
+                            }
+                            LOGGER.info("deal " + cnt);
+                            cnt = 0;
+                        }
+                        monthFlag[j] = false;
+                    }
+                    //修改文件位置
+                    if (file_ins.renameTo(new File(bak_dir, file_ins.getName())) == false) {
+                        LOGGER.error("ERROR FILE: " + filename + "\nException error: rename fail");
+                        System.exit(-1);
+                    }
+                    //记录处理文件日志
+                    if (InsertLogFlag.equals("1")) {
+                        logPstmt.setString(1, file_ins.getName());
+                        logPstmt.setString(2, file_dir);
+                        logPstmt.setString(3, bak_dir);
+                        logPstmt.setInt(4, 1);
+                        logPstmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                        logPstmt.executeQuery();
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("FileNotFoundException erro:" + e.toString());
+        } catch (Exception e) {
+        	LOGGER.info(e.printStackTrace(), e);
+            LOGGER.error("Exception erro:" + e.toString());
+        }
+    }
+
+}

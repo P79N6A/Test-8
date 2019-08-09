@@ -1,0 +1,18 @@
+TableName = JIDO_DX
+Spilt = ,
+TableColumn = cdr_type String,file_id String,record_type String,org_number String,trim_number String,start_time String,imsi String,imei String,inter_roam_fee String,long_type String,sms_length String,smg_code String,sms_code String,rele_gateway_code String,reserve1 String,reserve2 String,reserve3 String,reserve4 String,reserve5 String
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 1
+MonthColumn = 
+InsertLogFlag = 1
+LogTable = log_file2db_JIDO_DX
+
+commit_num = 50
+file_dir = /Users/persen/tmp/JIDO_DX
+bak_dir = /Users/persen/tmp/JIDO_DX_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

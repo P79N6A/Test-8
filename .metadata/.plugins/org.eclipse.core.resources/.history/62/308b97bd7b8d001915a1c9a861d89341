@@ -1,0 +1,38 @@
+package test;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class Demo4 {
+
+	public static void main(String[] args) {
+		String product_eff="2019/06/10 15:00:45";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd hh:mm:ss");
+		try {
+			Date pff = dateFormat.parse(product_eff);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(pff);
+			int month = cal.get(Calendar.DAY_OF_MONTH);
+//			cal.set(Calendar.DATE, 1);
+//			cal.roll(Calendar.DATE, -1);
+			int maxDate = cal.get(Calendar.DATE);
+			System.out.println("maxDate"+maxDate);
+			double scale=0;
+			scale = (double) (maxDate - month + 1) / (double) maxDate;
+			System.out.println(scale);
+			System.out.println(month);
+			System.out.println(cal.get(Calendar.MONTH));
+			if (pff.before(dateFormat.parse("2019/06/30 15:00:45"))) {
+				System.out.println("true");
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+	}
+
+}

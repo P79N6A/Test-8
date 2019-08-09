@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<!-- INFO_USER -->
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+		<query>
+			outerf.infouser.getByDeviceNumber(#{filter.DEVICE_NUMBER})
+		</query>
+	</service>
+
+
+	<!-- LIFE_USER_PAY -->
+	<service data="com.tydic.beijing.billing.dao.LifeUserPay" type="jdbc">
+		<query name="getByUserId">
+			outerf.lifeuserpay.getByUserId(#{filter.USER_ID})
+		</query>
+	</service>
+
+	<!-- PAY_USER_REL -->
+	<service data="com.tydic.beijing.billing.dao.PayUserRel" type="jdbc">
+		<query name="getByUserId">
+			outerf.payuserrel.getByUserId(#{filter.USER_ID})
+		</query>
+	</service>
+
+	<!-- BIL_ACT_BILL -->
+	<service data="com.tydic.beijing.billing.dao.BilActBill" type="jdbc">
+		<query name="getByUserId">
+			outerf.bilactbill.getByUserId(#{filter.USER_ID})
+		</query>
+
+
+		<query name="getByUserIdList">
+			outerf.bilactbill.getByUserIdList(#{filter.USER_ID})
+		</query>
+
+
+		<query name="getByUserIdNext">
+			outerf.bilactbill.getByUserIdNext(#{filter.USER_ID})
+		</query>
+		<query name="queryBills">
+			outerf.bilactbill.getByUserIdAcctMonth(#{filter.USER_ID},
+			#{filter.ACCT_MONTH})
+		</query>
+	</service>
+
+
+	<!-- TB_BIL_PRESENT_USER_INFO -->
+	<service data="com.tydic.beijing.billing.dao.TbBilPresentUserInfo"
+		type="jdbc">
+		<query name="getByUserId">
+			outerf.tbbilpresentuserinfo.getByUserId(#{filter.USER_ID})
+		</query>
+	</service>
+	
+	<!-- LIFE_USER_RELEASE_CAL  
+	<service data="com.tydic.beijing.billing.dao.LifeUserReleaseCal"
+		type="jdbc">
+		<query name="getByUserId">
+			outerf.LifeUserReleaseCal.getByUserId(){
+			vds.sql.append("select a.* from LIFE_USER_RELEASE_CAL a,LIFE_USER_CONTRACT b 
+			where 
+			a.user_id=b.user_id
+			and a.process_state=0 
+			and b.CONTRACT_ID not in 
+			(select c.para_char1 from rule_parameters c where c.domain_code='9000')
+			and a.user_id='${filter.USER_ID}'");
+			}
+		</query>
+	</service>-->
+	<service data="com.tydic.beijing.billing.dao.LifeUserReleaseCal"
+		type="jdbc">
+		<query name="getByUserId">
+			outerf.LifeUserReleaseCal.getByUserId(){
+			vds.sql.append("select a.* from LIFE_USER_RELEASE_CAL a
+			where
+			a.process_state=0
+			and a.balance_type_id!=18
+			and a.user_id='${filter.USER_ID}'");
+			}
+		</query>
+	</service>
+	<!-- CODE_BIL_BALANCE_TYPE -->
+	<service data="com.tydic.beijing.billing.dao.CodeBilBalanceType"
+		type="jdbc">
+		<query name="getAll">
+			outerf.codebilblancetype.getAll()
+		</query>
+	</service>
+
+	<!-- INFO_PAY_BALANCE -->
+	<service data="com.tydic.beijing.billing.dao.InfoPayBalance"
+		type="jdbc">
+		<query name="getByPayId">
+			outerf.infopaybalance.getByUserId(#{filter.PAY_ID})
+		</query>
+	</service>
+
+	<!-- CODE_ACCT_MONTH -->
+	<service data="com.tydic.beijing.billing.dao.CodeAcctMonth"
+		type="jdbc">
+		<query name="getByAcctMonth">
+			outerf.codeacctmonth.getByAcctMonth(#{filter.Acct_Month})
+		</query>
+		<query name="getByBillingCycleId">
+			outerf.codeacctmonth.getByBillingCycleId(#{filter.Billing_Cycle_Id})
+		</query>
+		<query name="getActiveAcctMonth">
+			outerf.codeacctmonth.getActiveAcctMonth()
+		</query>
+		<query name="getAll">
+			acct.codeacctmonth.getAll()
+		</query>
+	</service>
+
+	<!-- CODE_ACT_ACCT_ITEM -->
+	<service data="com.tydic.beijing.billing.dao.CodeActAcctItem"
+		type="jdbc">
+		<query name="getByAcctItemCode">
+			outerf.codeactacctitem.getByAcctItemCode(#{filter.Acct_Item_Code})
+		</query>
+		<query name="getAllItemCode">
+			outerf.codeactacctitem.getAllItemCode()
+		</query>
+	</service>
+
+	<!-- LOG_ACT_PAY -->
+	<service data="com.tydic.beijing.billing.dao.UserPresentHis"
+		type="jdbc">
+		<query name="getRebate">
+			outerf.userpresenthis.getRebate(#{filter.User_Id},
+			#{filter.Acct_Month})
+		</query>
+	</service>
+
+	<!-- RULE_PARAMETERS -->
+	<service data="com.tydic.beijing.billing.dao.RuleParameters"
+		type="jdbc">
+		<query name="getBaiTiaoBalanceTypeId">
+			outerf.ruleparameters.getBaiTiaoBalanceTypeId()
+		</query>
+		<query name="getParentAcctItemCode">
+			outerf.ruleparameters.getParentAcctItemCode(#{filter.para_char1})
+		</query>
+		<query name="query9000RuleParameters">
+		    outerf.ruleparameters.query9000RuleParameters()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActRealTimeBillForOracle"
+		type="jdbc">
+		<query name="getRealtimeBill">
+			outerf.bilactrealtimebill.getRealtimeBill(#{filter.user_id},
+			#{filter.pay_id}, #{filter.acct_month}) {
+			vds.sql.replace("MONTH", "${filter.month}");
+			}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LogRefreshTrigger"
+		type="jdbc">
+		<create>
+			insert into log_refresh_trigger(refresh_batch_id,
+			service_name, service_ip, service_port,
+			service_pid,datastore_name,refresh_status,refresh_timestamp,memo)
+			values(${refresh_batch_id}, '${service_name}', '${service_ip}',
+			'${service_port}',
+			'${service_pid}','${datastore_name}','${refresh_status}', sysdate,
+			'${memo}')
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.InfoPayBalanceAsync"
+		type="jdbc">
+		<query name="getByPayId">
+			acct.infopaybalanceasync.queryByPayId(#{filter.pay_id})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.UserInfoForMemCached"
+		type="memcached">
+	</service>
+</services>

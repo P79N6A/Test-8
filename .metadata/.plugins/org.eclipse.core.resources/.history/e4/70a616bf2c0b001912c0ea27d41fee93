@@ -1,0 +1,818 @@
+package com.tydic.beijing.billing.interfacex.biz;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import com.tydic.beijing.billing.dao.BalanceAdjustLog;
+import com.tydic.beijing.billing.dao.BalanceConsumeData;
+import com.tydic.beijing.billing.dao.BalanceConsumeResource;
+import com.tydic.beijing.billing.dao.BilActAccesslog;
+import com.tydic.beijing.billing.dao.BilActAddUp;
+import com.tydic.beijing.billing.dao.BilActBill;
+import com.tydic.beijing.billing.dao.BilActRealTimeBill;
+import com.tydic.beijing.billing.dao.BilActRealTimeBillForOracle;
+import com.tydic.beijing.billing.dao.CDR100Transfer;
+import com.tydic.beijing.billing.dao.CDRCalling;
+import com.tydic.beijing.billing.dao.CDRNet;
+import com.tydic.beijing.billing.dao.CDRSms;
+import com.tydic.beijing.billing.dao.CodeAcctMonth;
+import com.tydic.beijing.billing.dao.CodeActAcctItem;
+import com.tydic.beijing.billing.dao.CurrentBillDto;
+import com.tydic.beijing.billing.dao.GroupMemberRel;
+import com.tydic.beijing.billing.dao.HistoryConsumeData;
+import com.tydic.beijing.billing.dao.InfoPayBalance;
+import com.tydic.beijing.billing.dao.InfoUser;
+import com.tydic.beijing.billing.dao.LifeProductIOP;
+import com.tydic.beijing.billing.dao.LifeProductIOPLocal;
+import com.tydic.beijing.billing.dao.LifeProductResourceRel;
+import com.tydic.beijing.billing.dao.NetCdr;
+import com.tydic.beijing.billing.dao.PayUserRel;
+import com.tydic.beijing.billing.dao.PrivnumMessReceiveHis;
+import com.tydic.beijing.billing.dao.ProvCode;
+import com.tydic.beijing.billing.dao.QAcctProcess;
+import com.tydic.beijing.billing.dao.QBeforeAdjust;
+import com.tydic.beijing.billing.dao.QTransferDownload;
+import com.tydic.beijing.billing.dao.QTransferDownloadJDN;
+import com.tydic.beijing.billing.dao.QTransferDownloadJDNHis;
+import com.tydic.beijing.billing.dao.QueryLong;
+import com.tydic.beijing.billing.dao.RemainBalance;
+import com.tydic.beijing.billing.dao.RuleParameters;
+import com.tydic.beijing.billing.dao.SendSmsDealHis;
+import com.tydic.beijing.billing.dao.Sequences;
+import com.tydic.beijing.billing.dao.SystemTime;
+import com.tydic.beijing.billing.dao.TbSmsSend;
+import com.tydic.beijing.billing.dao.TbSmsSendHis;
+import com.tydic.beijing.billing.dao.UserPayInfo;
+import com.tydic.beijing.billing.dao.ValueAddedDual;
+import com.tydic.beijing.billing.dao.ValueAddedRemainFee;
+import com.tydic.beijing.billing.dao.ValueAddedTradeHistory;
+import com.tydic.beijing.billing.dao.VoiceCdr;
+import com.tydic.uda.core.Condition;
+import com.tydic.uda.service.S;
+
+import oracle.net.aso.p;
+
+public class DbTool {
+
+	private static Logger log = Logger.getLogger(DbTool.class);
+	
+
+	public List<RemainBalance> queryBalance(String pay_id) {
+		return S.get(RemainBalance.class).query(Condition.build("queryBalance").filter("pay_id", pay_id));
+	}
+
+	public List<BalanceConsumeData> queryBalanceFeeConsume(String payId, String userId, String month) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("pay_id", payId);
+		filter.put("userId", userId);
+		filter.put("month", month);
+		return S.get(BalanceConsumeData.class).query(Condition.build("queryBalanceFeeConsume").filter(filter));
+
+	}
+
+	public List<BalanceConsumeResource> queryBalanceConsume(String payId) {
+
+		return S.get(BalanceConsumeResource.class)
+				.query(Condition.build("queryBalanceConsume").filter("pay_id", payId));
+	}
+
+	public List<UserPayInfo> queryUserInfoByNbr(String deviceNumber) {
+
+		return S.get(UserPayInfo.class)
+				.query(Condition.build("queryUserInfoByNbr").filter("deviceNumber", deviceNumber));
+
+	}
+
+	public List<HistoryConsumeData> queryHistoryConsume(String pay_id, String userId, String start_month,
+			String end_month) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("pay_id", pay_id);
+		filter.put("userId", userId);
+		filter.put("start_month", start_month);
+		filter.put("end_month", end_month);
+
+		return S.get(HistoryConsumeData.class).query(Condition.build("queryHistoryConsume").filter(filter));
+	}
+
+	public List<CodeAcctMonth> querySubsBillPeriod(String startMonth, String endMonth) {
+
+		return S.get(CodeAcctMonth.class).query(
+				Condition.build("querySubsBillPeriod").filter("startMonth", startMonth).filter("endMonth", endMonth));
+	}
+
+	public List<CDRCalling> queryCDRCalling(String table, String userId, String month, String startDate, String endDate,
+			long startRow, long endRow) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		return S.get(CDRCalling.class).query(Condition.build("queryCDRCalling").filter(filter));
+
+	}
+
+	public List<CDRCalling> queryCDRCallingWithCalledNbr(String table, String userId, String month, String startDate,
+			String endDate, long startRow, long endRow, String calledNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		filter.put("calledNbr", calledNbr);
+		return S.get(CDRCalling.class).query(Condition.build("queryCDRCallingType2").filter(filter));
+
+	}
+
+	public List<CDRCalling> queryCDRCallingWithCallingNbr(String table, String userId, String month, String startDate,
+			String endDate, long startRow, long endRow, String callingNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		filter.put("callingNbr", callingNbr);
+		return S.get(CDRCalling.class).query(Condition.build("queryCDRCallingType3").filter(filter));
+
+	}
+
+	public List<CDRCalling> queryHisCDRCalling(String table, String userId, String month, String monthsys,
+			String startDate, String endDate, long startRow, long endRow) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("monthsys", monthsys);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		return S.get(CDRCalling.class).query(Condition.build("queryHisCDRCalling").filter(filter));
+
+	}
+
+	public long queryCDRCallingCount(String table, String servId, String month, String startDate, String endDate) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("servId", servId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+
+		return S.get(CDRCalling.class).queryFor().queryForLong(Condition.build("long").filter(filter));
+	}
+	
+	public long queryCDRNetCallingCount(String table, String servId, String month, String startDate, String endDate) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("servId", servId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+
+		return S.get(CDRCalling.class).queryFor().queryForLong(Condition.build("queryCDRNetCalling").filter(filter));
+	}
+
+	public long queryCdrCountWithCalledNbr(String table, String servId, String month, String startDate, String endDate,
+			String calledNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("servId", servId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("calledNbr", calledNbr);
+
+		return S.get(VoiceCdr.class).queryFor().queryForLong(Condition.build("long").filter(filter));
+
+	}
+
+	public QueryLong queryCdrCountWithCallingNbr(String table, String servId, String month, String startDate,
+			String endDate, String callingNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("servId", servId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("callingNbr", callingNbr);
+
+		return S.get(QueryLong.class).queryFirst(Condition.build("queryCdrCountWithCallingNbr").filter(filter));
+	}
+
+	public long queryHisCDRCallingCount(String table, String servId, String month, String monthsys, String startDate,
+			String endDate) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("monthsys", monthsys);
+		filter.put("servId", servId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		return S.get(Sequences.class).queryFor().queryForLong(Condition.build("long").filter(filter));
+	}
+
+	public List<CDRSms> queryCDRSms(String table, String userId, String month, String startDate, String endDate,
+			long startRow, long endRow) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		return S.get(CDRSms.class).query(Condition.build("queryCDRSms").filter(filter));
+
+	}
+
+	public List<CDRSms> queryCDRSmsWithCalledNbr(String table, String userId, String month, String startDate,
+			String endDate, long startRow, long endRow, String calledNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		filter.put("calledNbr", calledNbr);
+		return S.get(CDRSms.class).query(Condition.build("queryCDRSmsWithCalledNbr").filter(filter));
+
+	}
+
+	public List<CDRSms> queryCDRSmsWithCallingNbr(String table, String userId, String month, String startDate,
+			String endDate, long startRow, long endRow, String callingNbr) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		filter.put("callingNbr", callingNbr);
+		return S.get(CDRSms.class).query(Condition.build("queryCDRSmsWithCallingNbr").filter(filter));
+
+	}
+
+	public List<CDRSms> queryHisCDRSms(String table, String userId, String month, String monthsys, String startDate,
+			String endDate, long startRow, long endRow) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("monthsys", monthsys);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		return S.get(CDRSms.class).query(Condition.build("queryHisCDRSms").filter(filter));
+
+	}
+
+	public List<CDRNet> queryCDRNet(String table, String userId, String month, String startDate, String endDate,
+			long startRow, long endRow,String partitionNo,String netMonth) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		filter.put("partitionNo", partitionNo);
+		filter.put("netMonth", netMonth);
+		return S.get(CDRNet.class).query(Condition.build("queryCDRNet").filter(filter));
+
+	}
+
+	public List<CDRNet> queryHisCDRNet(String table, String userId, String month, String monthsys, String startDate,
+			String endDate, long startRow, long endRow) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("table", table);
+
+		filter.put("month", month);
+		filter.put("monthsys", monthsys);
+		filter.put("servId", userId);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("startRow", startRow);
+		filter.put("endRow", endRow);
+		return S.get(CDRNet.class).query(Condition.build("queryHisCDRNet").filter(filter));
+
+	}
+
+	public long queryNonDeductFee(String userId, String payId, String month) {
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("userId", userId);
+		filter.put("payId", payId);
+		filter.put("month", month);
+
+		return S.get(BilActRealTimeBill.class).queryFor().queryForLong(Condition.build("long").filter(filter));
+	}
+
+	public long queryOweFee(String userId, String payId) {
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("userId", userId);
+		filter.put("payId", payId);
+
+		return S.get(BilActBill.class).queryFor().queryForLong(Condition.build("long").filter(filter));
+	}
+
+	public List<RuleParameters> queryRuleParameters(int domainCode, String paraName, String paraChar1) {
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("domainCode", domainCode);
+		filter.put("paraName", paraName);
+		filter.put("paraChar1", paraChar1);
+		return S.get(RuleParameters.class).query(Condition.build("queryRuleParameters").filter(filter));
+
+	}
+
+	public List<InfoPayBalance> queryInfoPayBalancebyPayIdandBalanceType(String payId, int balanceTypeId) {
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("payId", payId);
+		filter.put("balanceTypeId", balanceTypeId);
+		return S.get(InfoPayBalance.class).query(Condition.build("queryInfoPayBalancebyPayId").filter(filter));
+
+	}
+
+	public void createInfoPayBalance(InfoPayBalance infoPayBalance) {
+
+		S.get(InfoPayBalance.class).create(infoPayBalance);
+
+	}
+
+	public List<ValueAddedRemainFee> queryRealFeeForActItem(String payId, String feeType) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("payId", payId);
+		filter.put("feeType", feeType);
+
+		return S.get(ValueAddedRemainFee.class).query(Condition.build("queryRealFeeForActItem").filter(filter));
+	}
+
+	public String getSerialNumber() {
+		return S.get(ValueAddedDual.class).queryFor().queryForString(Condition.build("String"));
+	}
+
+	public void addHistory(ValueAddedTradeHistory his) {
+
+		S.get(ValueAddedTradeHistory.class).create(his);
+
+	}
+
+	public void addQAcctProcess(QAcctProcess process) {
+		S.get(QAcctProcess.class).create(process);
+	}
+
+	public void updateInfoPayBalance(InfoPayBalance infoPayBalance) {
+
+		S.get(InfoPayBalance.class).update(infoPayBalance);
+	}
+
+	public void createBalanceAdjustLog(BalanceAdjustLog balanceAdjustLog) {
+
+		S.get(BalanceAdjustLog.class).create(balanceAdjustLog);
+
+	}
+
+	public void createBilActAccessLog(BilActAccesslog bilActAccesslog) {
+
+		S.get(BilActAccesslog.class).create(bilActAccesslog);
+	}
+
+	public long querySmsCount() {
+
+		return S.get(TbSmsSendHis.class).queryFor().queryForLong(Condition.build("long"));
+	}
+
+	public List<TbSmsSendHis> querySmsSendHis(long count) {
+
+		return S.get(TbSmsSendHis.class).query(Condition.build("querySmsSendHis").filter("rownum", count));
+
+	}
+
+	public String queryRunFlag() {
+
+		// return S.get(RuleParameters.class).queryFor()
+		// .queryForLong(Condition.build("long"));
+
+		RuleParameters param = S.get(RuleParameters.class).queryFirst(Condition.build("queryRunFlag"));
+		if (param != null) {
+			return param.getPara_char2();
+		}
+		return null;
+	}
+
+	public void updateProcessTag(List<TbSmsSendHis> smsList) {
+		List<TbSmsSendHis> sms = smsList;
+		for (TbSmsSendHis iter : sms) {
+
+			int num = S.get(TbSmsSendHis.class).update(iter);
+			if (num == 0) {
+				log.debug("状态更新失败,消息[" + iter.getMsg_id() + "]");
+
+			}
+		}
+
+	}
+
+	public void addSmsDealHis(List<SendSmsDealHis> smsList) {
+		List<SendSmsDealHis> sms = smsList;
+		for (SendSmsDealHis iter : sms) {
+			S.get(SendSmsDealHis.class).create(iter);
+
+		}
+	}
+
+	public InfoUser queryUserInfoByDeviceNumber(String deviceNumber) {
+		return S.get(InfoUser.class)
+				.queryFirst(Condition.build("getUserInfoByDeviceNumber").filter("device_number", deviceNumber));
+	}
+
+	public PayUserRel queryPayInfoByUserId(String userId) {
+		return S.get(PayUserRel.class).queryFirst(Condition.build("getPayInfoByUserId").filter("user_id", userId));
+	}
+
+	public List<InfoPayBalance> queryBalanceInfoByPayId(String payId) {
+		return S.get(InfoPayBalance.class).query(Condition.build("queryBalanceInfoByPayId").filter("pay_id", payId));
+	}
+
+	public List<BilActRealTimeBillForOracle> queryCurrentBillsByUserId(String userId, String payId, String currMonth) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("user_id", userId);
+		filter.put("pay_id", payId);
+		filter.put("month", currMonth);
+		return S.get(BilActRealTimeBillForOracle.class).query(Condition.build("getRealtimeBills").filter(filter));
+	}
+
+	public List<CurrentBillDto> queryCurrentBill(String pay_id, String user_id, String month) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("pay_id", pay_id);
+		filter.put("userId", user_id);
+		filter.put("month", month);
+		return S.get(CurrentBillDto.class).query(Condition.build("queryCurrentBill").filter(filter));
+
+	}
+
+	public RuleParameters getChannelNoMod() {
+
+		return S.get(RuleParameters.class).queryFirst(Condition.build("getChannelNoMod"));
+
+	}
+
+	public RuleParameters getFileDir() {
+		return S.get(RuleParameters.class).queryFirst(Condition.build("getFileDir"));
+	}
+
+	/**
+	 * 用于详单查询中转换呼叫类型和漫游类型
+	 * 
+	 * @param domainCode
+	 * @param paraName
+	 * @return
+	 */
+	public static List<RuleParameters> getRuleParametersofCdrConfig(String domainCode, String paraName) {
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("domainCode", domainCode);
+		filter.put("paraName", paraName);
+		return S.get(RuleParameters.class).query(Condition.build("getRuleParametersofCdrConfig").filter(filter));
+	}
+
+	/**
+	 * 获取数据库配置，所有的
+	 * 
+	 * @return
+	 */
+	public static List<CodeActAcctItem> getAllCodeActAcctItem() {
+		return S.get(CodeActAcctItem.class).query(Condition.build("getAllCodeActAcctItem"));
+	}
+
+	public List<CodeAcctMonth> queryCurrentSubsBillPeriod() {
+		return S.get(CodeAcctMonth.class).query(Condition.build("queryCurrentSubsBillPeriod"));
+	}
+
+	public List<InfoUser> getUserInfoByDeviceNumber(String devicenumber) {
+
+		return S.get(InfoUser.class)
+				.query(Condition.build("getUserInfoByDeviceNumber").filter("device_number", devicenumber));
+	}
+
+	public ValueAddedDual getFileSerialNumber() {
+		return S.get(ValueAddedDual.class).queryFirst(Condition.build("getFileSerialNumber"));
+	}
+
+	public List<InfoPayBalance> getResourceBalanceForAdjust(String payId, int balanceTypeId) {
+		// return
+		// S.get(InfoPayBalance.class).query(Condition.build("getResourceBalanceForAdjust").filter("pay_id",payId).filter("balance_type_id",balanceTypeId));
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("payId", payId);
+		filter.put("balanceTypeId", balanceTypeId);
+		return S.get(InfoPayBalance.class).query(Condition.build("getResourceBalanceForAdjust").filter(filter));
+
+	}
+
+	public InfoPayBalance getResourceBalanceForCheck(String balanceId) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("balanceId", balanceId);
+		return S.get(InfoPayBalance.class).queryFirst(Condition.build("getResourceBalanceForCheck").filter(filter));
+
+	}
+
+	public List<BalanceAdjustLog> getBalanceAdjustLogBySessionIdAndChannelNo(String sessionId, String channelNo) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("sessionId", sessionId);
+		filter.put("channelNo", channelNo);
+		return S.get(BalanceAdjustLog.class)
+				.query(Condition.build("getBalanceAdjustLogBySessionIdAndChannelNo").filter(filter));
+	}
+
+	public CodeAcctMonth getCurrentCodeAcctMonth(String date) {
+		return S.get(CodeAcctMonth.class).queryFirst(Condition.build("getCurrentCodeAcctMonth").filter("date", date));
+	}
+
+	public List<RuleParameters> getSmsTemplateParam() {
+
+		return S.get(RuleParameters.class).query(Condition.build("getSmsTemplateParam"));
+	}
+
+	public List<QBeforeAdjust> getQBeforeAdjust() {
+		return S.get(QBeforeAdjust.class).query(Condition.build("getQBeforeAdjust"));
+	}
+
+	public void updateQBeforeAdjust(QBeforeAdjust adjust) {
+		S.get(QBeforeAdjust.class).update(adjust);
+	}
+
+	public List<BilActAddUp> queryBilActAddUp(Map<String, Object> filter) {
+		return S.get(BilActAddUp.class).query(Condition.build("getBilActAddUp").filter(filter));
+	}
+
+	public Map<Integer, CodeAcctMonth> queryCodeAcctMonth() {
+		List<CodeAcctMonth> list = S.get(CodeAcctMonth.class).query(Condition.build("queryCodeAcctMonth"));
+		Map<Integer, CodeAcctMonth> map = new HashMap<Integer, CodeAcctMonth>();
+		for (CodeAcctMonth month : list) {
+			map.put(month.getAcct_month(), month);
+		}
+		return map;
+	}
+
+	public String getSysDate() {
+		SystemTime st = S.get(SystemTime.class).queryFirst(Condition.build("getTimestamp"));
+		return st.getTime();
+	}
+
+	// added by tian@20150126 for: 网厅改版需求(获取主套餐资源信息)
+	public List<LifeProductResourceRel> getLifeProductResourceRel(String userId) {
+		return S.get(LifeProductResourceRel.class).query(Condition.build("queryByUserId").filter("user_id", userId));
+	}
+
+	public List<VoiceCdr> getTotalTariffInfo(String userId, String table, String month, String startDate,
+			String endDate) {
+		return S.get(VoiceCdr.class)
+				.query(Condition.build("queryTotalTariffInfo").filter("servId", userId).filter("table", table)
+						.filter("month", month).filter("startDate", startDate).filter("endDate", endDate));
+	}
+
+	public List<VoiceCdr> getTotalTariffInfoWithCalledNbr(String userId, String table, String month, String startDate,
+			String endDate, String calledNbr) {
+		return S.get(VoiceCdr.class)
+				.query(Condition.build("queryTotalTariffInfoWithCalledNbr").filter("servId", userId)
+						.filter("table", table).filter("month", month).filter("startDate", startDate)
+						.filter("endDate", endDate).filter("calledNbr", calledNbr));
+	}
+
+	public List<VoiceCdr> getTotalTariffInfoWithCallingNbr(String userId, String table, String month, String startDate,
+			String endDate, String callingNbr) {
+		return S.get(VoiceCdr.class)
+				.query(Condition.build("queryTotalTariffInfoWithCallingNbr").filter("servId", userId)
+						.filter("table", table).filter("month", month).filter("startDate", startDate)
+						.filter("endDate", endDate).filter("callingNbr", callingNbr));
+	}
+
+	public NetCdr getTotalDataFlow(String userId, String table, String month, String startDate, String endDate,String partitionNo,String netMonth) {
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("servId", userId);
+		filter.put("table", table);
+		filter.put("month", month);
+		filter.put("startDate", startDate);
+		filter.put("endDate", endDate);
+		filter.put("partitionNo", partitionNo);
+		filter.put("netMonth", netMonth);
+		return S.get(NetCdr.class).queryFirst(Condition.build("queryTotalDataFlow").filter(filter));
+	}
+
+	public static Map<String, String> initCityCode() {
+
+		List<ProvCode> city = S.get(ProvCode.class).query(Condition.build("SelectAllCityName"));
+		Map<String, String> cityMap = new HashMap<String, String>();
+
+		for (Iterator<ProvCode> iter = city.iterator(); iter.hasNext();) {
+			ProvCode item = iter.next();
+			String code = item.getArea_code();
+			String name = item.getCity_name();
+			cityMap.put(code, name);
+		}
+
+		return cityMap;
+	}
+
+	public Map<String, String> queryUnitType() {
+		Map<String, String> unitMap = new HashMap<String, String>();
+
+		List<RuleParameters> unitList = S.get(RuleParameters.class).query(Condition.build("queryUnitType"));
+		for (RuleParameters iter : unitList) {
+			unitMap.put(iter.getPara_char3(), iter.getPara_char1());
+
+		}
+
+		return unitMap;
+	}
+
+	public void updateProcessTag(TbSmsSendHis sms) {
+
+		int num = S.get(TbSmsSendHis.class).update(sms);
+		if (num == 0) {
+			log.error("状态更新失败,消息[" + sms.getMsg_id() + "]");
+		}
+	}
+
+	public int updateDealFlag(TbSmsSend sms) {
+		return S.get(TbSmsSend.class).update(sms);
+
+	}
+
+	public List<TbSmsSendHis> querySmsSendHis(String instanceId, int amount) {
+
+		return S.get(TbSmsSendHis.class)
+				.query(Condition.build("querySmsSendHis").filter("instanceId", instanceId).filter("amount", amount));
+
+	}
+
+	public TbSmsSendHis checkInstance(String instanceId) {
+		return S.get(TbSmsSendHis.class).queryFirst(Condition.build("checkInstance").filter("instanceId", instanceId));
+	}
+
+	public void recovery(String instanceId) {
+		S.get(TbSmsSendHis.class).update(Condition.build("recovery").filter("instanceId", instanceId));
+	}
+
+	// add by yanhongxia
+	// 通过号码找到user_id
+	public String getUserIdByNumber(String number) {
+		InfoUser infoUser = S.get(InfoUser.class)
+				.queryFirst(Condition.build("getUserInfoByDeviceNumber").filter("device_number", number));
+		String user_id = infoUser.getUser_id();
+		return user_id;
+	}
+
+	// 通过user_id找到group_id
+	public String getGroup(String user_id) {
+		GroupMemberRel gRel = S.get(GroupMemberRel.class)
+				.queryFirst(Condition.build("getGroupByUserId").filter("user_id", user_id));
+		String groupId = gRel.getGroup_id();
+		return groupId;
+	}
+
+	// 通过domain_code=5041,para_char1得到ftp的配置
+	public List<RuleParameters> getFTPaddress() {
+		List<RuleParameters> rParameters = S.get(RuleParameters.class)
+				.query(Condition.build("getRuleParametersofCdrConfig").filter("paraName", "EXPERTCDRVIDEO").filter("domainCode","5041"));
+		return rParameters;
+	}
+	
+	// 通过domain_code=5041,para_char1得到ftp的配置
+		public RuleParameters getJDNFTPaddress() {
+			RuleParameters rParameter = S.get(RuleParameters.class)
+					.queryFirst(Condition.build("getRuleParametersofCdrConfig").filter("paraName", "JDNCDRVIDEO").filter("domainCode","5041"));
+			return rParameter;
+		}
+	
+	//查询Q表,下载音频
+	public List<QTransferDownload> getQTransferDownload(String processtime){
+		List<QTransferDownload> qDownloads=new ArrayList<QTransferDownload>();
+		qDownloads=S.get(QTransferDownload.class).query(Condition.build("queryQTransferDonwLoad").filter("processtime",processtime));
+		return qDownloads;
+	}
+	
+	//查询Q表,下载京牛音频
+		public List<QTransferDownloadJDN> getQTransferDownloadJDN(String processtime){
+			List<QTransferDownloadJDN> qDownloads=new ArrayList<QTransferDownloadJDN>();
+			qDownloads=S.get(QTransferDownloadJDN.class).query(Condition.build("queryQTransferDonwLoadForJDN").filter("processtime",processtime));
+			return qDownloads;
+		}
+	//修改Q表，下载失败
+	public void updateQTransferDownload(QTransferDownload qDownload) throws Exception{
+		S.get(QTransferDownload.class).update(qDownload);
+	}
+	
+	//修改Q表，下载京牛失败
+		public void updateQTransferDownloadForJDN(QTransferDownloadJDN qDownload) throws Exception{
+			S.get(QTransferDownloadJDN.class).update(qDownload);
+		}
+	
+	//查询CDR100Transfer
+	public int queryCallId(String callId,String partitionId) {
+		CDR100Transfer cdrtransfer =  S.get(CDR100Transfer.class).queryFirst(Condition.build("queryCallId").filter("partitionId",partitionId).filter("callId",callId));	
+		if(cdrtransfer==null){
+			return 0;
+		}else{
+			return 1;
+		}
+	}
+
+	//插入CDR100Transfer、QTransferDownload
+	public void insertCDR100Transfer(CDR100Transfer cdrt,QTransferDownload qtd){		
+		S.get(CDR100Transfer.class).create(cdrt);
+		S.get(QTransferDownload.class).create(qtd);
+	}
+
+
+    //删除Q表
+	public void deleteQTransferDownload(QTransferDownload qDownload) throws Exception{
+		S.get(QTransferDownload.class).batch(Condition.build("deleteQTransferDownload").filter("callid",qDownload.getCallId()), qDownload);
+	}
+
+	//删除京牛语音Q表
+		public void deleteQTransferDownloadForJDN(QTransferDownloadJDN qDownload) throws Exception{
+			S.get(QTransferDownloadJDN.class).batch(Condition.build("deleteQTransferDownloadforJdn").filter("callid",qDownload.getCallId()), qDownload);
+		}
+		
+	//删除京牛语音Q表
+		public void addQTransferDownloadForJDNHis(QTransferDownloadJDNHis qDownload) throws Exception{
+			S.get(QTransferDownloadJDNHis.class).create(qDownload);
+		}
+	//更新CDR100Transfer表
+	public void updateCdr100Transfer(CDR100Transfer cTransfer) throws Exception{
+		S.get(CDR100Transfer.class).update(cTransfer);
+	}
+	
+	//查询话单表
+	public CDR100Transfer geCdr100TransferByCallId(String callid){
+		CDR100Transfer cdr100Transfer=new CDR100Transfer();
+		cdr100Transfer=S.get(CDR100Transfer.class).queryFirst(Condition.build("queryCDR100Transfer").filter("callid",callid));
+		return cdr100Transfer;
+	}
+
+	public String getGroupIdbyDeviceNumber(String origCalled) {
+		
+		InfoUser infoUser = S.get(InfoUser.class).queryFirst(Condition.build("getUserInfoByDeviceNumber").filter("device_number",origCalled));
+		if(infoUser == null ){
+			return "";
+		}
+ 
+		GroupMemberRel groupMemberRel = S.get(GroupMemberRel.class).queryFirst(Condition.build("getGroupByUserId").filter("user_id",infoUser.getUser_id()));
+	    if(groupMemberRel == null){
+	    	return "";
+	    }else{
+	    	return groupMemberRel.getGroup_id();
+	    }
+
+	}
+	public QTransferDownload getforRecordUrl(String month,String callId) {
+
+		return S.get(QTransferDownload.class).queryFirst(Condition.build("getforRecordUrl").filter("callid", callId));
+	}
+
+
+	public CDR100Transfer getForMp3(String month, String callId) {
+		return S.get(CDR100Transfer.class).queryFirst(Condition.build("queryCallId").filter("partitionId",month).filter("callId",callId));
+	}
+
+	public void updatePrivnumMessReceiveHis(PrivnumMessReceiveHis his) {
+		S.get(PrivnumMessReceiveHis.class).update(his);
+	}
+
+	public PrivnumMessReceiveHis getLoadUrl(String month, String callId) {
+		return S.get(PrivnumMessReceiveHis.class).queryFirst(Condition.build("getLoadUrl").filter("callId",callId));
+	}
+}

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- - Copyright 1999-2011 Alibaba Group. - - Licensed under the Apache License, 
+	Version 2.0 (the "License"); - you may not use this file except in compliance 
+	with the License. - You may obtain a copy of the License at - - http://www.apache.org/licenses/LICENSE-2.0 
+	- - Unless required by applicable law or agreed to in writing, software - 
+	distributed under the License is distributed on an "AS IS" BASIS, - WITHOUT 
+	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. - See the 
+	License for the specific language governing permissions and - limitations 
+	under the License. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+">
+
+	<import resource="./uda.xml" />
+
+	<dubbo:application name="OuterfProviderApplication" />
+
+	<dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />
+
+	<dubbo:monitor protocol="registry" />
+
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+
+	<bean id="ops" class="com.tydic.beijing.billing.outerf.busi.DataOps" />
+	<bean id="dsAcctMonth" class="com.tydic.beijing.billing.account.datastore.DSAcctMonth" />
+	<bean id="queryBalance"
+		class="com.tydic.beijing.billing.outerf.busi.QuerySubsAcctBalanceBusi">
+		<property name="ops" ref="ops"></property>
+		<property name="acctMonths" ref="dsAcctMonth"></property>
+	</bean>
+	<!-- QuerySubsAcctBalance -->
+	<dubbo:service
+		interface="com.tydic.beijing.billing.outerf.api.QuerySubsAcctBalance"
+		ref="QuerySubsAcctBalanceProvider" loadbalance="roundrobin" retries="0"
+		timeout="30000" />
+	<bean id="QuerySubsAcctBalanceProvider"
+		class="com.tydic.beijing.billing.outerf.provider.QuerySubsAcctBalanceProvider">
+		<property name="busi" ref="queryBalance"></property>
+	</bean>
+
+	<!-- QuerySubsBill -->
+	<dubbo:service interface="com.tydic.beijing.billing.outerf.api.QuerySubsBill"
+		ref="QuerySubsBillProvider" loadbalance="roundrobin" retries="0"
+		timeout="30000" />
+
+	<bean id="QuerySubsBillProvider"
+		class="com.tydic.beijing.billing.outerf.provider.QuerySubsBillProvider">
+		<property name="busi">
+			<bean class="com.tydic.beijing.billing.outerf.busi.QuerySubsBillBusi" />
+		</property>
+	</bean>
+</beans>

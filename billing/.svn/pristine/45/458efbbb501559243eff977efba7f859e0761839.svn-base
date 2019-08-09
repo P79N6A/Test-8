@@ -1,0 +1,19 @@
+TableName = cdr_cdr500_12
+Spilt = |
+TableColumn = serialno long|version long|tickettype long|timestamp String|hostid String|servicescenarious long|chargedparty String|callingparty String|calledparty String|orignialcallingparty String|orignialcalledparty String|payflag long|servid String|custid String|brand String|sessionid String|sessionterminatedtime String|terminatedcause long|orignialhost String|balanceinfo String|accumlatorinfo String|tariffinfo String|masterproductid String|bearercapability String|sessionbegintime String|eventcause String|cyclebegintime String|cycleendtime String|cycletype long|userstate String|string1 String|string2 String|string3 String|int1 long|int2 long|insert_date Date|partition_no String
+KeyColumn = 
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 0
+MonthColumn = partition_no
+InsertLogFlag = 1
+LogTable = log_file2db_cdr500
+
+commit_num = 50
+file_dir = /home/billing_dev/data/account/CdrCdr500
+bak_dir = /home/billing_dev/data/account/cdr500_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@192.168.180.22:1521:bssjd

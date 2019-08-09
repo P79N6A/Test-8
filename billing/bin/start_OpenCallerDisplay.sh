@@ -1,0 +1,1 @@
+nohup sh ./OpenCallerDisplay.sh >openCallerDisplay.log &

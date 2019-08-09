@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	
+	<dubbo:application name="ValueAddedCharge" />
+	<!--  <dubbo:registry address="multicast://224.5.6.7:1234?unicast=false" />  -->
+	<dubbo:registry address="zookeeper://172.168.1.217:2181" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message"
+		threadpool="fixed" threads="24" />
+	<dubbo:monitor protocol="registry" />
+			
+	<dubbo:service interface="com.tydic.beijing.billing.interfacex.service.ValueAddedCharge"
+		ref="valueAddedCharge" retries="0" timeout="30000"/>
+
+	<bean id="valueAddedCharge"
+		class="com.tydic.beijing.billing.interfacex.service.impl.ValueAddedChargeImpl" >
+		<property name="listFormat"   ref="listFormat"/>	
+		<property name="db"  ref="dbtool" />
+		<property name="useTag"  >
+		<list>
+			<value>1</value>
+			<value>0</value>
+		</list>
+		</property>
+		<property name="actTag" >
+		<list>
+			<value>0</value>
+			<value>1</value>
+		</list>
+		</property>
+	</bean>
+	
+	<bean id="dbtool"  class="com.tydic.beijing.billing.interfacex.biz.DbTool"  />
+	
+	<bean id="listFormat"
+		class="com.tydic.beijing.billing.dto.ValueAddedFileFormat"  >
+		<property name="listFormat">
+			<map key-type="java.lang.Integer" value-type="java.lang.String">
+				<entry key="0" value="SerialNo"/>
+				<entry key="1" value="Version"/>
+				<entry key="2" value="TicketType"/>
+				<entry key="3" value="TimeStamp" />
+				<entry key="4" value="HostID"/>
+				<entry key="5" value="ServiceScenarious"/>
+				<entry key="6" value="ChargedParty"/>
+				<entry key="7" value="CallingParty "/>
+				<entry key="8" value="CalledParty "/>
+				<entry key="9" value="OrignialCallingParty "/>
+				<entry key="10" value="OrignialCalledParty "/>
+				<entry key="11" value="PayFlag"/>
+				<entry key="12" value="ServID"/>
+				<entry key="13" value="CustID"/>
+				<entry key="14" value="Brand"/>
+				<entry key="15" value="SessionId"/>
+				<entry key="16" value="SessionTerminatedTime"/>
+				<entry key="17" value="TerminatedCause"/>
+				<entry key="18" value="OrignialHost"/>
+				<entry key="19" value="Balanceinfo"/>
+				<entry key="20" value="Accumlatorinfo"/>
+				<entry key="21" value="TariffInfo"/>
+				<entry key="22" value="MasterProductID"/>
+				<entry key="23" value="BearerCapability"/>
+				<entry key="24" value="SessionBeginTime"/>
+				<entry key="25" value="ProductId"/>
+				<entry key="26" value="SPC_ProductID"/>
+				<entry key="27" value="SP_ProductID"/>
+				<entry key="28" value="ServiceID"/>
+				<entry key="29" value="ContentID"/>
+				<entry key="30" value="OrderMethodID"/>
+				<entry key="31" value="PushID"/>
+				<entry key="32" value="CP_ID"/>
+				<entry key="33" value="SpID"/>
+				<entry key="34" value="MessageId"/>
+				<entry key="35" value="ServiceCapacity"/>
+				<entry key="36" value="ChargingType"/>
+				<entry key="37"   value="Notes"/>
+				<entry key="38"   value="ValueAddServiceType"/>
+				<entry key="39"   value="Charging-Id"/>
+				<entry key="40"   value="ApnNI"/>
+				<entry key="41"   value="ClientIP"/>
+				<entry key="42"   value="QoS"/>
+				<entry key="43"   value="MTMode"/>
+				<entry key="44"   value="MTAmount"/>
+				<entry key="45"   value="MTMoney"/>
+				<entry key="46"   value="MTChargeAdd"/>
+				<entry key="47"   value="String1"/>
+				<entry key="48"   value="String2"/>
+				<entry key="49"   value="String3"/>
+				<entry key="50"   value="String4"/>
+				<entry key="51"   value="Int1"/>
+				<entry key="52"   value="Int2"/>
+				<entry key="53"   value="insert_date" />
+				<entry key="54"   value="partition_no" />
+						
+			</map>
+		</property>
+	</bean>		
+</beans>
+

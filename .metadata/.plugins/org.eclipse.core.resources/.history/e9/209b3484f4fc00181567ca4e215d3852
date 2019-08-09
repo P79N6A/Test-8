@@ -1,0 +1,14 @@
+package test;
+
+import java.util.Random;
+
+public class Demo2 {
+
+	public static void main(String[] args) {
+		long billCycle=201811;
+  		String CdrNetMonth = Long.toString(billCycle);
+  		int NetMonth = Integer.parseInt(CdrNetMonth.substring(4,6));
+  		System.out.println(NetMonth);
+  		System.out.println(201811%100);
+	}
+}

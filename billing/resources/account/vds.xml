@@ -1,0 +1,904 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+
+
+<!-- 公司  172.168.1.246:1521:bssgx billing/billing
+172.168.1.211:1621:jdtest billing/BILLINGtest123  crm_user/CRM_USERtest123
+     京东测试环境 192.168.177.20:1521:bsstest
+ -->
+
+
+
+ 
+	<drivers>
+		<driver password="billing" user="billing"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" clazz="oracle.jdbc.driver.OracleDriver"
+			id="1">
+			<active>
+				<tables
+					filter="table_name not like '%$%' and table_name not in ('INFO_PAY', 'INFO_USER', 'PAY_USER_REL', 'Q_PRESENT_USER_INFO') "
+                                        schema="billing" />
+			</active>
+		</driver>
+		<driver password="crm_user" user="crm_user"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" clazz="oracle.jdbc.driver.OracleDriver"
+			id="2">
+			<active>
+				<tables
+					filter="table_name in ('INFO_PAY','INFO_USER', 'PAY_USER_REL','Q_USER_REASON_SEND', 'Q_PRESENT_USER_INFO','LIFE_USER_PROTO')"
+					schema="crm_user" />
+			</active>
+		</driver>
+		
+	</drivers>
+
+	<!-- 公司
+	<drivers>
+        <driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@192.168.177.20:1521:bsstest" user="billing"
+                        password="billing">
+                        <active>
+                                <tables
+                                        filter="table_name not like '%$%' and table_name not in ('INFO_PAY', 'INFO_USER', 'PAY_USER_REL', 'Q_PRESENT_USER_INFO') "
+                                        schema="billing" />
+                        </active>
+                </driver>
+                <driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@192.168.177.20:1521:bsstest" user="crm_user"
+                        password="crm_user">
+                        <active>
+                        <tables
+                                        filter="table_name in ('INFO_PAY','INFO_USER', 'PAY_USER_REL','Q_USER_REASON_SEND', 'Q_PRESENT_USER_INFO')"
+                        schema="crm_user" />
+        </active>
+        </driver>
+        </drivers>
+        	 -->
+	<services>
+		<!-- pay_user_rel -->
+		<service code="acct.payuserrel.getByPId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from pay_user_rel where pay_user_id = ?]]>
+			</script>
+		</service>
+		<service code="acct.payuserrel.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from pay_user_rel where user_id = ? order by priority desc]]>
+			</script>
+		</service>
+		<service code="acct.payuserrel.getByUserIdForRefund" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from pay_user_rel where user_id = ? and default_tag = '0' order by exp_date desc]]>
+			</script>
+		</service>
+
+		<!-- Q_ACCT_PROCESS -->
+		<service code="acct.qacctprocess.getByChannelNo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<!-- process_tag = 0 未处理 -->
+      			<![CDATA[select * from q_acct_process where channel_no = ? and process_tag = 0 and rownum < 5000]]>
+			</script>
+		</service>
+		<service code="acct.qacctprocess.getBySessionId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+		      	<![CDATA[select CHANNEL_NO,SESSION_ID,
+				SERVICE_SCENARIOUS,CHARGED_PARTY,CALLING_PARTY,CALLED_PARTY,USER_ID,
+				SESSION_BEGIN_TIME,SESSION_TERMINATED_TIME,BALANCE_INFO,ACCUMLATOR_INFO,
+				TARIFF_INFO,PROCESS_TAG,to_char(INSERT_TIME,
+				'yyyy-mm-dd hh24:mi:ss') INSERT_TIME ,to_char(UPDATE_TIME,
+				'yyyy-mm-dd hh24:mi:ss') UPDATE_TIME, ACCT_MONTH, RESOURCE_INFO from q_acct_process where session_id = ? ]]>
+			</script>
+		</service>
+		<service code="acct.qacctprocess.updateProcessTag" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.qacctprocess.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete from q_acct_process where session_id = ? ]]>
+			</script>
+		</service>
+		<!-- q_acct_process_his -->
+		<service code="acct.qacctprocess.hisinsert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- sysdate systimestamp from dual -->
+		<service code="acct.systemtime.getTimestamp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') time, to_char(systimestamp, 'yyyymmddhh24missff3') timestamp from v_dual]]>
+			</script>
+		</service>
+
+		<!-- code_acct_month -->
+		<service code="acct.codeacctmonth.queryBySysdate" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month where use_tag = 1]]>
+			</script>
+		</service>
+
+		<service code="acct.codeacctmonth.queryByAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month a where a.acct_month = ? and a.use_tag = '1']]>
+			</script>
+		</service>
+
+		<service code="acct.codeacctmonth.queryByUseTag" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month a where a.use_tag = 1 and act_tag = ?]]>
+			</script>
+		</service>
+
+		<!-- CODE_ACT_ACCT_ITEM -->
+		<service code="acct.codeactacctitem.getUnitTypeId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_act_acct_item where acct_item_code = ?]]>
+			</script>
+		</service>
+
+		<!-- LOG_USED_BALANCE_LOG -->
+		<service code="acct.logusedbalancelog.insertLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.logusedbalancelog.queryLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<!-- process_tag = 0 未处理 -->
+				<![CDATA[select * from log_used_balance_log where insert_timestamp < ? and process_tag = 0]]>
+			</script>
+		</service>
+		<service code="acct.logusedbalancelog.updateLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+				<![CDATA[update log_used_balance_log set process_tag = ? where ]]>
+			</script>
+		</service>
+
+		<!-- BIL_ACT_ADD_UP -->
+		<!-- select -->
+		<service code="acct.bilactaddup.queryBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactaddup.insertBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactaddup.updateBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<!-- <![CDATA[update bil_act_add_up_${filter.month} set fee=fee+?, update_time=?, 
+					insert_timestamp=? where user_id = ? and acct_month = ? and acct_item_code 
+					= ?]]> -->
+			</script>
+		</service>
+		<!-- BilActBalanceAddUp -->
+		<!-- select -->
+		<service code="acct.bilactaddup.queryBilActBalanceAddUp"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- LogActPreWriteoff -->
+		<!-- insert -->
+		<service code="acct.logactprewriteoff.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- BilActRealTimeBill -->
+		<!-- select -->
+		<service code="acct.bilactrealtimebill.queryBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactrealtimebill.insertBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactrealtimebill.updateBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- code_bil_pay_balance_code -->
+		<service code="acct.codebilpaybalancecode.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+      			select * from code_bil_pay_balance_code order by priority desc]]>
+			</script>
+		</service>
+		<!-- code_bil_pay_item_code -->
+		<service code="acct.codebilpayitemecode.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_pay_item_code order by priority desc]]>
+			</script>
+		</service>
+		<!-- code_act_acct_item -->
+		<service code="acct.codeactacctitem.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_act_acct_item order by order_number asc]]>
+			</script>
+		</service>
+		<!-- rule_bil_spe_payment -->
+		<service code="acct.rulebilspepayment.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_bil_spe_payment order by spe_payment_id asc, include_tag asc, priority desc]]>
+			</script>
+		</service>
+		<!-- code_bil_balance_type -->
+		<service code="acct.codebilbalancetype.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_balance_type order by priority desc]]>
+			</script>
+		</service>
+		<service code="acct.codebilbalancetype.getByBalanceTypeId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_balance_type where balance_type_id = ?]]>
+			</script>
+		</service>
+		<!-- bil_act_user_real_time_bill_xx -->
+		<service code="acct.bilactuserrealtimebill.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.getByAcctItemCode"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_pay_balance -->
+		<service code="acct.infopaybalance.getByBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance where balance_id = ?]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.getBalance4Refund" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance a where a.pay_id = ? and  sysdate <=exp_date  ]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.getByPayId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance where pay_id = ? order by exp_date asc]]>
+			</script>
+		</service>
+		<!-- 账本恢复 real_balance = balance JD模型临时方法 -->
+		<service code="acct.infopaybalance.getInitRealBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+	      			<![CDATA[select * from info_pay_balance a, code_bil_balance_type b, code_acct_month c where a.balance_type_id = b.balance_type_id and b.unit_type_id = 0 and a.pay_id = ? and c.use_tag = 1 and to_char(a.eff_date, 'YYYYMMDD') <= to_char(c.act_exp_date, 'YYYYMMDD') and to_char(a.exp_date, 'YYYYMMDD') >= to_char(c.act_exp_date, 'YYYYMMDD')]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.getBalace2balanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[SELECT *  FROM INFO_PAY_BALANCE T WHERE T.PAY_ID = ?
+				   AND T.BALANCE_TYPE_ID = ?   AND T.EFF_DATE = ?
+				   AND T.EXP_DATE = ?   AND SYSDATE BETWEEN T.EFF_DATE AND T.EXP_DATE]]>
+			</script>
+		</service>
+		<!-- 月结 账本初始化 real_balance = balance -->
+		<service code="acct.infopaybalance.getInit" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+	      			<![CDATA[select a.* from info_pay_balance a, code_acct_month c where a.pay_id = ? and c.use_tag = 1 and c.act_tag = 2 and to_char(a.eff_date, 'YYYYMMDD') <= to_char(c.act_exp_date, 'YYYYMMDD') and to_char(a.exp_date, 'YYYYMMDD') >= to_char(c.act_exp_date, 'YYYYMMDD')]]>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.infopaybalance.updateByBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update4recharge" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update2zero" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update4MonthEnd" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- 账本恢复 real_balance = balance JD模型临时方法 -->
+		<service code="acct.infopaybalance.initRealBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- life_user_pay_addup -->
+		<!-- 目前未用 使用历史累计量判断限额不合理 -->
+		<service code="acct.lifeuserpayaddup.getWriteOffFee" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from life_user_pay_addup where user_id = ? and pay_id = ?]]>
+			</script>
+		</service>
+		<!-- bil_act_bill -->
+		<service code="acct.logusedbalancelog.insertBilActBill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactbill.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from bil_act_bill where user_id = ? and owe_fee > 0]]>
+			</script>
+		</service>
+		<service code="acct.bilactbill.update4recharge" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_user -->
+		<service code="acct.infouser.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user where user_id = ? and VALID_FLAG = '0']]>
+			</script>
+		</service>
+		<service code="acct.infouser.getByDeviceNo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user where device_number = ? and VALID_FLAG = '0']]>
+			</script>
+		</service>
+		<service code="acct.infouser.getYesterdayInfoUser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+		    <script>
+		    	<![CDATA[ 
+		    	        SELECT * FROM  INFO_USER A WHERE trunc(A.ACTIVE_DATE)  = trunc(sysdate-1)
+     					AND EXISTS (SELECT 1
+            			FROM CRM_USER.LIFE_USER_PROTO B
+           				WHERE A.USER_ID = B.USER_ID)
+            	 ]]>
+			</script>
+		</service>
+		<!-- log_act_pay -->
+		<service code="acct.logactpay.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- log_act_writeoff_log -->
+		<service code="acct.logactwriteofflog.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_pay -->
+		<service code="acct.infopay.getByPayid" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from info_pay where pay_id = ?]]>
+			</script>
+		</service>
+		<!-- v_dual for sequences -->
+		<service code="acct.Sequences.getBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_balance_id.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getMsgId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_hlp_sms_send.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getQReasonSn" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_q_reason_sn.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getBillingId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_billing_id.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getSeqQBlock" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_q_block.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getSeqBilChannel4Credit" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_billFile_Channel4credit.nextval from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getOperatorId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_access_operator_id.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<!-- q_recharge_callback -->
+		<service code="acct.qrechargecallback.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.qrechargecallback.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.qrechargecallback.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				--@DataSource(1)
+				select * from q_recharge_callback where state < 2 and mod(user_id,?)=? and rownum < 2]]>
+			</script>
+		</service>
+		
+		<service code="acct.qrechargecallbackwriteoff.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+				--@DataSource(1)
+				select * from q_recharge_callback where state =11 and mod(user_id,?)=? and rownum < 2]]>
+			</script>
+		</service>
+		<!-- rule_recharge_type_mapping -->
+		<service code="acct.rulerechargetypemapping.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_recharge_type_mapping]]>
+			</script>
+		</service>
+		<!-- hlp_sms_send -->
+		<service code="acct.hlpsmssend.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">                     
+			<script>
+			</script>
+		</service>
+		<!-- q_refund -->
+		<service code="acct.qrefund.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from q_refund where state = 0 and rownum < 2]]>
+			</script>
+		</service>
+		<service code="acct.qrefund.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- bil_act_accesslog -->
+		<service code="acct.bilactaccesslog.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- q_user_reason_send -->
+		<service code="acct.quserreasonsend.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- month end write off -->
+		<!-- info_user -->
+		<service code="acct.infouser.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user]]>
+			</script>
+		</service>
+		<!-- rule_user_event_mapping -->
+		<service code="acct.ruleusereventmapping.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_user_event_mapping]]>
+			</script>
+		</service>
+		<!-- bil_act_adjust -->
+		<service code="acct.bilactadjust.queryByUserItemMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from bil_act_adjust where user_id = ? and acct_item_code = ? and acct_month = ? and eff_flag = 1]]>
+			</script>
+		</service>
+		<!-- q_block -->
+		<service code="acct.qblock.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- q_block -->
+		<service code="acct.qblockurge.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="acct.codeacctmonth.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalanceasync.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance_async where async_state = 0 and rownum < 2]]>
+			</script>
+		</service>
+		<service code="acct.infopaybalanceasync.queryByPayId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance_async where pay_id = ? and async_state in (0, 9)]]>
+			</script>
+		</service>
+		<service code="acct.qrechargecallback.updateasync2sync" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+      			<![CDATA[update q_recharge_callback a set a.state = ?]]>
+			</script>
+		</service>
+		<service code="acct.logactwriteoff.insert" clazz="com.tydic.beijing.billing.dao.LogActWriteoff"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.logrefreshtrigger.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- bil_act_balance_add_up -->
+		<!-- select -->
+		<service code="acct.bilactbalanceaddup.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactbalanceaddup.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactbalanceaddup.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infouser.fixmembilluser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from fix_info_user]]>
+			</script>
+		</service>
+		<service code="acct.endinfoUser.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from end_info_user where end_status = 0 and mod(user_id, ?) = ? and rownum < 5000]]>
+			</script>
+		</service>
+		<service code="acct.endinfoUser.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- bil_act_resource_add_up -->
+		<!-- select -->
+		<service code="acct.bilactresourceaddup.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactresourceaddup.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactresourceaddup.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- RULE_PARAMETERS -->
+		<service code="account.ruleParameters.select" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[SELECT * FROM RULE_PARAMETERS]]>
+			</script>
+		</service>
+		<!-- 合约 -->
+		<service code="acct.QPresentUserInfo.getPresentUserList"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from q_present_user_info where state=0
+				]]>
+			</script>
+		</service>
+
+		<service code="acct.QPresentUserInfo.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[ ]]>
+			</script>
+		</service>
+
+		<service code="acct.QPresentUserInfo.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete from q_present_user_info where present_user_id = ? ]]>
+			</script>
+		</service>
+
+		<service code="acct.Sequences.getNextForzenId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select SEQ_FORZEN_ID.Nextval seq from v_dual
+				]]>
+			</script>
+		</service>
+
+		<service code="acct.Sequences.GetNextReleaseOperId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select SEQ_RELEASE_OPER_ID.Nextval seq from v_dual
+				]]>
+			</script>
+		</service>
+
+		<service code="acct.RuleContract.getRuleContract" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select * from RULE_CONTRACT where CONTRACT_ID = ?
+				]]>
+			</script>
+		</service>
+
+		<service code="acct.RuleResourceRelease.getRuleResourceReleaseList"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from rule_resource_release where CONTRACT_ID = ?
+				]]>
+			</script>
+		</service>
+		<service code="acct.RuleResourceRelease.getLongTerm"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					 SELECT * FROM RULE_RESOURCE_RELEASE A
+ 						WHERE A.RESOURCE_EFF_MOD != 1
+   						AND A.EFF_CYCLE_VALUE IS NOT NULL
+				]]>
+			</script>
+		</service>
+
+		<service code="acct.LifeUserContract.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.LifeUserContract.getByUIDAndCID" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT *
+  						FROM BILLING.LIFE_USER_CONTRACT A
+ 				WHERE USER_ID = ? AND contract_id=?
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.LifeUserContract.queryByUIDAndCIID" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT *
+  						FROM BILLING.LIFE_USER_CONTRACT A
+ 				WHERE USER_ID = ? AND contract_inst_id=?
+				]]>
+			</script>
+		</service>
+		<service code="acct.LifeUserContractFrozen.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="acct.LifeUserReleaseCal.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="acct.LifeUserReleaseCal.GetUserNeedPresentList"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+				select * from (
+					select distinct contract_inst_id,user_id from life_user_release_cal where release_time<sysdate and process_state='0'  and mod(substr(contract_inst_id,-2), ?)=?
+					)
+					where rownum<100
+				]]>
+			</script>
+		</service>
+		
+		<!-- select distinct contract_inst_id from life_user_release_cal where release_time<sysdate and process_state='0' and mod(contract_inst_id, ?)=? group by contract_inst_id -->
+		
+		<service code="acct.LifeUserReleaseCal.GetLifeUserReleaseCal"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from life_user_release_cal where release_time<sysdate and process_state='0' and contract_inst_id = ?
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.LifeUserReleaseCal.IsexistLifeUserReleaseCal"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from life_user_release_cal where user_id = ? and remark = ? and process_state='1'
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.LifeUserReleaseCal.getByContractInstId"
+		clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT * FROM BILLING.LIFE_USER_RELEASE_CAL 
+ 					WHERE user_id=? and contract_inst_id=?
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.QPresentUserInfoHis.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="acct.LifeUserReleaseCal.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="acct.LifeUserReleaseCal.UpdateLifeUserReleaseCalClose" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<service code="acct.LogActTradeRelease.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[	]]>
+			</script>
+		</service>
+		<service code="acct.LogActTradeRelease.getByUIDAndFID" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[SELECT * FROM BILLING.LOG_ACT_TRADE_RELEASE 
+ 				WHERE USER_ID = ? AND FROZEN_ID = ?	]]>
+			</script>
+		</service>		
+		<service code="billing.HlpSmsSend.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[]]>
+			</script>
+		</service>
+		
+		<service code="acct.InfoPayBalance.QueryInfoPayBalance"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from info_pay_balance where pay_id = ? and sysdate > eff_date and sysdate < exp_date
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.QPresentUserInfo.GetPresentUserId"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select present_user_id, protocol_id, user_id from q_present_user_info where state=0 group by present_user_id, protocol_id, user_id
+				]]>
+			</script>
+		</service>
+		
+		<service code="acct.QPresentUserInfo.GetQPresentUserInfo"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select * from q_present_user_info where present_user_id = ?  and state=0
+				]]>
+			</script>
+		</service>
+
+		<!-- 合约 -->
+		
+		<service code="acct.LifeUserProto.getByUserId"
+		clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					 SELECT *
+					 FROM LIFE_USER_PROTO where user_id=? 
+				]]>
+			</script>
+		</service>
+		
+		
+	</services>
+		
+	
+</vds>

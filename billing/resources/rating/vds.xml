@@ -1,0 +1,1249 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+<drivers>
+
+<!-- 
+	 <driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.211:1621:newbss" user="billing"
+			password="billing">
+ -->
+
+<!-- 京东测试环境 
+<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+                        url="jdbc:oracle:thin:@192.168.177.20:1521:bsstest" user="billing"
+                        password="billing"> -->
+         
+         <!-- 公司
+              
+	 <driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.231:1621:billing" user="billing"
+			password="billing">
+			
+			<active>
+				<tables schema="billing"  filter="table_name like '%RULE%' or table_name like '%INFO%' or table_name like '%CODE%' or table_name like '%USER%' or table_name like '%ACT%' 
+				 or table_name in ('V_DUAL','HLP_SMS_SEND') or table_name like 'RATING_DEDUCT_LOG%' "  /> 
+			</active>-->
+			
+		<!--	<driver id="1" clazz="Altibase.jdbc.driver.AltibaseDriver"
+                        url="jdbc:Altibase://172.168.1.217:20300/mydb" user="billing"
+                                                password="billing"> 
+                                                
+                <active>
+				<tables schema="billing"  filter="table_name like '%RULE%' or table_name like '%INFO%' or table_name like '%CODE%' or table_name like '%USER%' or table_name like '%ACT%' " /> 
+			</active>
+			 
+			
+		</driver>-->
+		<!-- 172.168.1.211:1621:newbss  192.168.180.22:1521:bssjd-->
+		<!--url="jdbc:oracle:thin:@172.168.1.211:1621:newbss" user="crm_user" 
+		172.168.1.231:1621 
+     <driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+	 url="jdbc:oracle:thin:@192.168.177.20:1521:bsstest" user="crm_user"
+	 password="crm_user">
+	   <active>
+	     <tables schema="CRM_USER" filter="table_name in ('Q_USER_REASON_SEND','LIFE_IMSI','INFO_USER','PAY_USER_REL')" />
+	   </active>
+	 </driver>-->
+	   
+ 
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="BILLING"
+			password="BILLINGtest123">
+			
+			<active>
+				<tables schema="billing"  filter="table_name like '%RULE%' or table_name like '%INFO%' or table_name like '%CODE%' or table_name like '%USER%' or table_name like '%ACT%' 
+				 or table_name in ('V_DUAL','HLP_SMS_SEND') or table_name like 'RATING_DEDUCT_LOG%'or table_name like 'LIFE_PRODUCT_RESOURCE_REL' or table_name like 'CDR_CDR%' "  /> 
+
+          <tables schema="CRM_OFR"
+     			filter="table_name in ('CODE_OFR')" />
+		
+
+				
+			</active>
+		</driver>
+		
+		<driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+	 				url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+	 				password="BILLINGtest123">
+	   		<active>
+	     		<tables schema="CRM_USER" filter="table_name in ('Q_USER_REASON_SEND','LIFE_IMSI','INFO_USER','PAY_USER_REL','LIFE_USER_STATUS','LIFE_USER_PRODUCT','INFO_USER_REASON')" />
+	   		</active>
+	 	</driver>
+	 	<driver id="3" clazz="oracle.jdbc.driver.OracleDriver"
+   			url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+   				password="BILLINGtest123">
+   		<active>
+    			<tables schema="CRM_PUB"
+     			filter="table_name in ('CODE_LIST')" />
+   		</active>
+  		</driver>
+		<driver id="4" clazz="oracle.jdbc.driver.OracleDriver"
+   			url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+   				password="BILLINGtest123">
+   		<active>
+    			<tables schema="CRM_CUST"  filter="table_name in('INFO_AUTH_MOBILE','INFO_ALLLIST') "  />
+   		</active>
+  		</driver>
+		
+ <!-- 海航
+	  <driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.32)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.34)(PORT=1521))(LOAD_BALANCE=no)(FAILOVER=on)(CONNECT_DATA=(SERVICE_NAME=bsssrv1)))" user="billing"
+			password="SLPZB8d0">	
+			<active>
+				<tables schema="billing"  filter="table_name like '%RULE%' or table_name like '%INFO%' or table_name like '%CODE%' or table_name like '%USER%' or table_name like '%ACT%' 
+				 or table_name in ('V_DUAL','HLP_SMS_SEND') or table_name like 'RATING_DEDUCT_LOG%' or table_name like 'LIFE_PRODUCT_RESOURCE_REL' "  /> 
+			</active>						
+	  </driver>	
+	
+    <driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+	     url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.32)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.34)(PORT=1521))(LOAD_BALANCE=no)(FAILOVER=on)(CONNECT_DATA=(SERVICE_NAME=bsssrv1)))" user="crm_user" 
+	        password="SLPZB8d0">
+	   <active>
+	     <tables schema="CRM_USER" filter="table_name in ('Q_USER_REASON_SEND','LIFE_IMSI','INFO_USER','PAY_USER_REL','LIFE_IMSI_HNA','LIFE_USER_STATUS','LIFE_USER_PRODUCT','PAY_USER_REL')" />
+	   </active>
+	 </driver>
+	 
+	 <driver id="3" clazz="oracle.jdbc.driver.OracleDriver"
+   	url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.32)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.72.98.34)(PORT=1521))(LOAD_BALANCE=no)(FAILOVER=on)(CONNECT_DATA=(SERVICE_NAME=bsssrv1)))" user="crm_user"
+   		password="bssHh520">
+        <active>
+   	    	<tables schema="CRM_PUB"
+   		    	filter="table_name in ('CODE_LIST')" />
+        </active>
+  	</driver>		
+ 
+		-->
+		
+</drivers>
+<services>
+<!-- QUERY -->
+<service name="getUserbyDeviceNumber" code="rate.infouser.getUserbyDeviceNumber" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from info_user a 
+		where 
+		a.device_number=? 
+		]]>
+</script>
+</service>
+
+<service name="getParameterInfo" code="rate.RuleParameters.getparainfo" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from RULE_PARAMETERS a 
+		where 
+		a.domain_code=?
+		and a.para_name=? 
+		and a.para_char1=?
+		]]>
+</script>
+</service>
+
+
+<service  code="rate.RuleEventTypeTree.getAllRuleEventTypeTree" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from rule_event_type_tree order by priority desc 
+		]]>
+</script>
+</service>
+
+<service  code="rating.CodeSpecialNbr.getAllCodeSpecialNbr" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from code_special_nbr 
+		]]>
+</script>
+</service>
+
+<service  code="rating.CodeSpecialNbr.getAllCodeCountry" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from code_country where state ='1'
+		]]>
+</script>
+</service>
+
+
+
+<service  code="rating.CodeAcctMonth.getAllCodeAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from code_acct_month 
+		]]>
+</script>
+</service>
+
+<service  code="rating.RuleOfrSplit.getAllRuleOfrSplit" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from rule_ofr_split 
+		]]>
+</script>
+</service>
+
+
+
+
+<service code="rate.RuleEventTypeTree.getRootEventTreebyFather" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select * from rule_event_type_tree a 
+		where UP_EVENT_TYPE_RULE_TREE_ID = ? 
+		]]>
+</script>
+</service>
+
+
+<!-- CREATE -->
+<service code="dsi.secure.createforReference" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="false">
+<script>
+      <![CDATA[
+		insert into T_DSI_CONSUMER_FOR_REFERENCE
+		   (USER_IP,
+		    USER_HOSTID,
+		    USER_MAC_ADDRESS,
+		    USER_ID,
+		    CREATE_TIME,
+		    EFF_START_TIME,
+		     EFF_END_TIME,
+		     MODIFY_TIME,
+		     STATUS)
+		 values (?,?,?,?,?,?,?,?,?)
+		]]>
+</script>
+</service>
+<!-- SEQ -->
+<service code="dsi.secure.getForReferenceSeq" clazz="com.tydic.vds.service.single.CommonService"
+isQuery="true">
+<script>
+      <![CDATA[
+		select SEQ_T_DSI_FOR_REFERENCE.Nextval from dsi_dual
+		]]>
+</script>
+</service>
+<!--  
+<service code="rating.ruleOfrResourceRel.getSumCode" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ofr_resource_rel where  msg_types=?
+		]]>
+	</script>
+</service>
+-->
+
+<service code="rating.codeRatableResource.getSumInfo" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from code_ratable_resource 
+		]]>
+	</script>	
+</service>
+<service code="rating.codeRatableResource.getRatableResourceAttr" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from code_ratable_resource where ratable_resource_code= ?
+		]]>
+	</script>	
+</service>
+
+<service code="rating.ruleDinnerSelect.getAllAtomDinners" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_dinner_select where ofr_b_id=? and msg_type=?
+		]]>
+	</script>
+</service>
+
+<service code="rating.ruleDinnerSelect.getAllRuleDinnerSelect" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_dinner_select 
+		]]>
+	</script>
+</service>
+
+
+
+
+
+
+<service code="rating.lifeUserProduct.getUserProduct" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from life_user_product where user_id=?
+		]]>
+	</script>
+</service>
+
+<service code="account.cyclerent.lifeUserProduct" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT *  FROM LIFE_USER_PRODUCT T
+ 				WHERE T.USER_ID = ?   AND T.EFF_FLAG = 0
+   				AND to_date(?,'yyyymmddhh24miss') BETWEEN T.EFF_DATE AND T.EXP_DATE]]>
+			</script>
+		</service>
+
+<!--  
+<service code="rating.infoRatableHistory.getSumValue" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from info_ratable_history where resource_code=? and owner_type=? and owner_id=? and latn_id=? and 
+			acct_month=?
+		]]>
+	</script>
+</service>-->
+
+
+
+
+ 
+ <!--  
+<service code="rating.RuleEvtPricingStrategy.getStrategyInfo" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_evt_pricing_strategy where pricing_plan_id=? and event_type_id=?
+		]]>
+	</script>
+</service>
+-->
+
+
+<service code="rating.RuleEvtPricingStrategy.getAllStrategy" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_evt_pricing_strategy 
+		]]>
+	</script>
+</service>
+<!--  
+<service code="rating.RuleOfrGroup.getGroupInfoByMsgType" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ofr_group where msg_type=?
+		]]>
+	</script>
+</service>
+-->
+<service code="rating.RuleOfrGroup.getAllGroupInfo" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ofr_group 
+		]]>
+	</script>
+</service>
+
+
+<service code="rating.RuleGroupFavMode.getAllGroupFav" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_group_fav_mode
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleFormula.getFormulaByMsgType" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_formula where msg_type=? and sysdate between eff_date and exp_date 
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleFormula.getAllRuleFormula" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_formula where sysdate between eff_date and exp_date
+		]]>
+	</script>
+</service>
+
+<service code="rating.InfoRatableHistory.getAllRatableValue" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from info_ratable_history
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleStrategySectRel.getAllStrategySecRels" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_stratagy_sect_rel
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleStrategySectRel.getStrategySecRels" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_stratagy_sect_rel where strategy_id =?
+		]]>
+	</script>
+
+</service>>
+
+<service code="rating.RulePricingSection.getAllPricingSections" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_pricing_section
+		]]>
+	</script>
+</service>
+<service code="rating.RulePricingSection.getRulePricingSection" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_pricing_section where pricing_section=?
+		]]>
+	</script>
+</service>
+
+
+
+<service code="rating.RuleSectionRule.getAllSectionRules" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_section_rule
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleSectionRule.getRuleSectionRule" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_section_rule where pricing_section=?
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleSectionRule.getSonRuleSectionRule" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_section_rule where upper_pricing_section=? order by PRIORITY desc
+		]]>
+	</script>
+</service>
+
+
+<service code="rating.RuleOfrSplit.getRuleOfrSplit" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ofr_split where ofr_id =?
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleTariff.getAllTariff" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_tariff order by tariff_sn desc 
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleHoliday.getAllHolidays" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_holiday
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleOfrResourceRel.getAllResourceRels" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ofr_resource_rel
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleRateCondition.getRuleRateCondition" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_rate_condition where cond_id =?
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleRateCondition.getAllRuleRateCondition" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_rate_condition 
+		]]>
+	</script>
+</service>
+
+<service code="rating.RulePricingSectionDisct.getAllSectionDiscount" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_pricing_section_disct 
+		]]>
+	</script>
+</service>
+
+<service code="rating.SessionInformationExt.getSessionInformationBySessionId" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from session_information_ext where session_id=?
+		]]>
+	</script>
+</service>
+
+<service code="rating.TbDeductRecordHistory.getDeductHistoryById" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from TB_DEDUCT_RECORD_HISTORY where smid=?
+		]]>
+	</script>
+</service>
+
+<service code="rating.RuleRatableCond.getRatableConds" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from rule_ratable_cond order by group_id,group_seq
+		]]>
+	</script>
+</service>
+
+<service code="rating.CodeRecordType.getAllCodeRecordType" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from code_record_type
+		]]>
+	</script>
+</service>
+
+
+	<service code="rating.infopaybalance.updateRealBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+      		</script>
+		</service>
+
+
+<service code="rating.SessionInformationExt.getSessionInfoById" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from session_information_ext where session_id=?
+		]]>
+	</script>
+</service>
+
+
+<service code="rating.InfoPay.getAcctInfoById" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from info_pay where pay_id=?
+		]]>
+	</script>
+</service>
+
+
+<service code="rating.CodeCountry.getCodeCountryInfo" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+	<script>
+		<![CDATA[
+			select * from code_country where area_code=?
+		]]>
+	</script>
+</service>
+
+
+
+<service code="rating.InfoRatableHistory.addRatableHistory" 
+	clazz="com.tydic.vds.service.single.CommonService"  isQuery="false">
+<script>
+</script>
+</service>
+
+
+<service code="rating.InfoRatableHistory.updateRatableHistory" 
+	clazz="com.tydic.vds.service.single.CommonService"  isQuery="false">
+<script>
+</script>
+</service>
+
+<service name="queryRatableHistory" code="rating.InfoRatableHistory.queryRatableHistory" 
+	clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+<script>
+	<![CDATA[
+			select * from info_ratable_history where resource_code=?  and owner_type=? and owner_id=? and latn_id=? and acct_month=?
+		]]>
+</script>
+</service>
+
+
+<!-- account start -->
+	<!-- pay_user_rel -->
+		<service code="acct.payuserrel.getByPId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from pay_user_rel where pay_user_id = ?]]>
+			</script>
+		</service>
+		<service code="acct.payuserrel.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from pay_user_rel where user_id = ? order by priority desc]]>
+			</script>
+		</service>
+
+		<!-- Q_ACCT_PROCESS -->
+		<service code="acct.qacctprocess.getByChannelNo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<!-- process_tag = 0 未处理 -->
+      			<![CDATA[select * from q_acct_process where channel_no = ? and process_tag = 0 and rownum < 5000]]>
+			</script>
+		</service>
+		<service code="acct.qacctprocess.updateProcessTag" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+      		</script>
+		</service>
+		<service code="acct.payuserrel.queryPayUserRelByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			<![CDATA[
+			select * from pay_user_rel where user_id=? and default_tag='0' and sysdate between eff_date and exp_date
+			]]>
+			</script>
+		</service>
+		<!-- sysdate systimestamp from dual -->
+		<service code="acct.systemtime.getTimestamp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') time, to_char(systimestamp, 'yyyymmddhh24missff3') timestamp from v_dual]]>
+			</script>
+		</service>
+
+		<!-- code_acct_month -->
+		<service code="acct.codeacctmonth.queryBySysdate" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month where use_tag = 1]]>
+			</script>
+		</service>
+
+		<service code="acct.codeacctmonth.queryByAcctMonth" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_acct_month a where a.acct_month = ? and a.use_tag = '1';]]>
+			</script>
+		</service>
+
+		<!-- CODE_ACT_ACCT_ITEM -->
+		<service code="acct.codeactacctitem.getUnitTypeId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_act_acct_item where acct_item_code = ?]]>
+			</script>
+		</service>
+
+		<!-- LOG_USED_BALANCE_LOG -->
+		<service code="acct.logusedbalancelog.insertLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.logusedbalancelog.queryLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<!-- process_tag = 0 未处理 -->
+				<![CDATA[select * from log_used_balance_log where insert_timestamp < ? and process_tag = 0]]>
+			</script>
+		</service>
+		<service code="acct.logusedbalancelog.updateLogUsedBalanceLog"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+				<![CDATA[update log_used_balance_log set process_tag = ? where ]]>
+			</script>
+		</service>
+
+		<!-- BIL_ACT_ADD_UP -->
+		<!-- select -->
+		<service code="acct.bilactaddup.queryBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactaddup.insertBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactaddup.updateBilActAddUp" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<!-- <![CDATA[update bil_act_add_up_${filter.month} set fee=fee+?, update_time=?, 
+					insert_timestamp=? where user_id = ? and acct_month = ? and acct_item_code 
+					= ?]]> -->
+			</script>
+		</service>
+
+		<!-- LogActPreWriteoff -->
+		<!-- insert -->
+		<service code="acct.logactprewriteoff.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- BilActRealTimeBill -->
+		<!-- select -->
+		<service code="acct.bilactrealtimebill.queryBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+		<!-- insert -->
+		<service code="acct.bilactrealtimebill.insertBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- update -->
+		<service code="acct.bilactrealtimebill.updateBilActRealTimeBill"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="false">
+			<script>
+			</script>
+		</service>
+
+		<!-- code_bil_pay_balance_code -->
+		<service code="acct.codebilpaybalancecode.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_pay_balance_code order by priority desc]]>
+			</script>
+		</service>
+		<!-- code_bil_pay_item_code -->
+		<service code="acct.codebilpayitemecode.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_pay_item_code order by priority desc]]>
+			</script>
+		</service>
+		<!-- code_act_acct_item -->
+		<service code="acct.codeactacctitem.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_act_acct_item order by order_number asc]]>
+			</script>
+		</service>
+		<!-- rule_bil_spe_payment -->
+		<service code="acct.rulebilspepayment.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_bil_spe_payment order by spe_payment_id asc, include_tag asc, priority desc]]>
+			</script>
+		</service>
+		<!-- code_bil_balance_type -->
+		<service code="acct.codebilbalancetype.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_balance_type order by priority desc]]>
+			</script>
+		</service>
+		<service code="acct.codebilbalancetype.getByBalanceTypeId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from code_bil_balance_type where balance_type_id = ?]]>
+			</script>
+		</service>
+		<!-- bil_act_user_real_time_bill_xx -->
+		<service code="acct.bilactuserrealtimebill.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.getByAcctItemCode"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.bilactuserrealtimebill.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_pay_balance -->
+		<service code="acct.infopaybalance.getByBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance where balance_id = ?]]>
+			</script>
+		</service>
+		<service code="rating.infopaybalance.getInfoPayBalanceAfterUpdate" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance where balance_id = ?]]>
+			</script>
+		</service>
+		
+		<service code="rating.infopaybalance.getSumResourceBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+      			select * from info_pay_balance where pay_id = ? and balance_type_id =?
+      			and exp_date >= to_date(?,'yyyyMMdd');
+      			
+      			]]>
+			</script>
+		</service>
+
+		<service code="acct.infopaybalance.getByPayId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_pay_balance where pay_id = ? order by exp_date asc ]]>
+			</script>
+		</service>
+		
+		<service code="rating.infopaybalance.queryLiangHaoBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+		<script>
+		       <![CDATA[select * from info_pay_balance where pay_id=? and balance_type_id in(7,8,9) and sysdate between eff_date and exp_date and exp_date<=to_date('20391231235959','YYYY/MM/DD HH24:mi:ss') order by exp_date
+		       ]]>
+		</script>
+		</service>
+		
+		<!-- update -->
+		<service code="acct.infopaybalance.updateByBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update4recharge" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update2zero" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.update4MonthEnd" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.infopaybalance.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- life_user_pay_addup -->
+		<!-- 目前未用 使用历史累计量判断限额不合理 -->
+		<service code="acct.lifeuserpayaddup.getWriteOffFee" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from life_user_pay_addup where user_id = ? and pay_id = ?]]>
+			</script>
+		</service>
+		<!-- bil_act_bill -->
+		<service code="acct.bilactbill.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from bil_act_bill where user_id = ? and owe_fee > 0]]>
+			</script>
+		</service>
+		<service code="acct.bilactbill.update4recharge" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_user -->
+		<service code="acct.infouser.getByDeviceNo" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user where device_number = ?]]>
+			</script>
+		</service>
+		
+		<service code="rating.infouser.getInfoUserbyImsi" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select a.* from info_user a,life_imsi b  where a.user_id =b.user_id 
+      			and (b.imsi= ? or b.g_imsi =? or b.lte_imsi =? )
+      			 and a.user_status  not in ('402','403','404')
+      			
+      			 ]]>
+			</script>
+		</service>
+		
+		<service code="rating.queryInfoAllList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[
+				--@DataSource(1)
+				select a.* from info_user a,crm_cust.info_auth_mobile b,crm_cust.info_alllist c
+      						where a.user_id=b.user_id and b.customer_id=c.customer_id 
+      						   and c.alllist_type='2' and sysdate between c.eff_date and c.exp_date 
+      			
+      			 ]]>
+			</script>
+		</service>
+		
+		<service code="rating.infouser.queryNeedStopUser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			    <![CDATA[
+			    --@DataSource(1)
+			    select a.* from info_user a where a.valid_flag ='0'
+			    and a.user_status in ('201','101') and a.tele_type ='GSM' 
+			      and a.create_date<= to_date(?,'YYYY/MM/DD HH24:MI:SS')
+				and a.main_ofr_id not in ('JDCAR001')
+ 			      and a.user_id not in(select user_id from crm_user.info_user_reason where reason_id='300')
+      				and not exists
+			         (select b.* from cdr_cdr100_#CD# b where a.user_id = b.servid)
+			           and not exists
+			             (select c.* from cdr_cdr100_#AB# c where a.user_id = c.servid)
+      			 ]]>
+			</script>
+		</service>
+		<service code="rating.queryLiangHaoInfoUser" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			    <![CDATA[
+			    --@DataSource(2)
+			    select a.* from info_user a, pay_user_rel b where a.user_id = b.user_id
+			    and a.user_status in('101','201')
+   				and b.default_tag = '0'
+   				and b.eff_flag = 0
+   				and a.active_date < trunc(sysdate, 'mm')
+   				and exists
+ 		(select 1
+          from billing.info_pay_balance c
+         where b.pay_id = c.pay_id
+           and c.balance_type_id in (7, 8, 9)
+           and sysdate between c.eff_date and c.exp_date
+           and c.balance>0 and c.exp_date<=to_date('20391231235959','YYYY/MM/DD HH24:mi:ss'))
+			    ]]>
+	    </script>
+	    </service>
+		<!-- log_act_pay -->
+		<service code="acct.logactpay.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- log_act_writeoff_log -->
+		<service code="acct.logactwriteofflog.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- info_pay -->
+		<service code="acct.infopay.getByPayid" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from info_pay where pay_id = ?]]>
+			</script>
+		</service>
+		<!-- v_dual for sequences -->
+		<service code="acct.Sequences.getBalanceId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_balance_id.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getMsgId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_hlp_sms_send.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getQReasonSn" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_q_reason_sn.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<service code="acct.Sequences.getBillingId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select seq_billing_id.nextval seq from v_dual]]>
+			</script>
+		</service>
+		<!-- q_recharge_callback -->
+		<service code="acct.qrechargecallback.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.qrechargecallback.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="acct.qrechargecallback.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from q_recharge_callback where state = 0 and rownum < 2]]>
+			</script>
+		</service>
+		<!-- rule_recharge_type_mapping -->
+		<service code="acct.rulerechargetypemapping.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from rule_recharge_type_mapping]]>
+			</script>
+		</service>
+		<!-- hlp_sms_send -->
+		<service code="acct.hlpsmssend.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- q_refund -->
+		<service code="acct.qrefund.query" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select * from q_refund where state = 0 and rownum < 2]]>
+			</script>
+		</service>
+		<service code="acct.qrefund.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- bil_act_accesslog -->
+		<service code="acct.bilactaccesslog.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- q_user_reason_send -->
+		<service code="acct.quserreasonsend.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<!-- month end write off -->
+		<!-- info_user -->
+		<service code="acct.infouser.getAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user]]>
+			</script>
+		</service>
+
+<!-- account end -->
+	
+<!-- interface -->
+		<service code="rating.RemainBalance.queryBalance" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select a.*,b.unit_type_id from info_pay_balance a ,code_bil_balance_type b where a. pay_id=?
+ 					and  b.balance_type_id =a.balance_type_id and b.unit_type_id in ('1','2','3')and a.balance_type_id in(
+ 					select para_char3 from rule_parameters where domain_code='5001'
+ 					)and sysdate between a.eff_date and a.exp_date 
+
+				
+				]]>
+			</script>
+		</service>
+
+		<service code="rating.CurrentBill.queryCurrentBill" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select a.*,b.balance_type_id,b.real_balance,c.act_eff_date,c.act_exp_date from bil_act_real_time_bill_#AB# a,(
+					select pay_id,balance_type_id,real_balance 
+					from info_pay_balance   where pay_id=?
+ 					and balance_type_id in(select para_char3 from rule_parameters
+          where domain_code='5002' and ) and sysdate between eff_date and exp_date)b ,
+ 					code_acct_month c 
+          where a.pay_id=b.pay_id and a.unit_type_id='0' and a.acct_month=c.acct_month
+          and sysdate between c.act_eff_date and c.act_exp_date  
+				
+				]]>
+			</script>
+		</service>
+		
+		<!-- 资源到账  拷贝月租 -->
+		<service code="account.cyclerent.lifeUserStatus" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT *  FROM CRM_USER.LIFE_USER_STATUS T
+ 				WHERE T.USER_ID = ?   AND T.EFF_FLAG = 0   AND SYSDATE BETWEEN T.EFF_DATE AND T.EXP_DATE]]>
+			</script>
+		</service>
+		<service code="acct.payuserrel.getByUserIdForResTrade" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[SELECT *  FROM PAY_USER_REL T WHERE T.USER_ID = ?
+   				AND T.EFF_FLAG = 0   AND SYSDATE BETWEEN T.EFF_DATE AND T.EXP_DATE 
+   				ORDER BY T.PRIORITY DESC]]>
+			</script>
+		</service>
+		<!-- RULE_PARAMETERS -->
+		<service code="account.ruleParameters.select" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[SELECT * FROM RULE_PARAMETERS]]>
+			</script>
+		</service>
+		
+		<service code="account.cyclerent.ruleofrsplit" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_OFR_SPLIT T]]>
+			</script>
+		</service>
+		
+		<service code="account.cyclerent.ruleOfrTariffRelation" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_OFR_TARIFF_RELATION T]]>
+			</script>
+		</service>
+		<service code="account.cyclerent.ruleTariffConfInfo" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_TARIFF_CONF_INFO T]]>
+			</script>
+		</service>
+		<service code="account.cyclerent.ruleGroupStateRelation" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_GROUP_STATE_RELATION T]]>
+			</script>
+		</service>
+		<service code="account.cyclerent.ruleItemCodeRelation" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_ITEM_CODE_RELATION T]]>
+			</script>
+		</service>
+		<service code="account.cyclerent.ruleProductResource" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM RULE_PRODUCT_RESOURCE T]]>
+			</script>
+		</service>
+		<!-- RuleProductResource -->
+		<service code="interface.RuleProductResource.Resource2Account"
+			clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[SELECT * FROM rule_product_resource t WHERE t.product_id = ?]]>
+			</script>
+		</service>
+		<service code="cyclerent.query.codelist" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM code_list t]]>
+			</script>
+		</service>
+		
+		<service code="account.cyclerent.LifeProductResourceRel" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[SELECT * FROM LIFE_PRODUCT_RESOURCE_REL T
+ 				WHERE T.USER_ID = ? AND T.USER_PRODUCT_ID = ?
+   				AND T.ACCT_MONTH = ? AND T.OFR_C_ID = ?]]>
+			</script>
+		</service>
+		
+		<service code="rating.infopaybalance.queryBalanceByType" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+		<script>
+			<![CDATA[
+				select balance_id,pay_id,balance_type_id,balance,real_balance,used_balance,latn_id,
+					eff_date,exp_date,local_net
+				from info_pay_balance where trunc(sysdate) between eff_date and exp_date and balance_type_id=?
+				and pay_id=?
+			]]>
+		</script>
+		</service>
+		
+		<service code="acct.infouser.getByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user where user_id = ? and VALID_FLAG = '0']]>
+			</script>
+		</service>
+		
+		<service code="acct.infouser.queryOpenByUserId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from info_user where user_id = ? and user_status in ('101','201')]]>
+			</script>
+		</service>
+		
+		<!-- yanhx infouserreson表 -->
+		<service code="rating.infouserreason.queryStopCaller" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from (
+							select rownum seqid,user_id,eff_date from (
+								select a.* from crm_user.info_user_reason a where a.reason_id= '300'  
+									order by eff_date))
+						where seqid >= ? and seqid < ? order by seqid 
+      			
+      			]]>
+			</script>
+		</service>
+		
+		
+		<service code="rating.cdrcalling.queryCdrCallingByUserId" clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+			<script>
+      			<![CDATA[
+      			
+      			select '' serviceType ,
+					to_date(sessionbegintime,'yyyyMMddHH24miss')as startTime ,
+					to_date(a.sessionterminatedtime,'yyyyMMddHH24miss')as endTime ,
+					a.callingparty,a.calledparty,a.forwardingflag,a.fowardingnumber,a.callduriation callduration ,
+					a.roamingtype,a.payFlag,a.call_type,
+					a.tariffinfo from cdr_cdr100_#AB# a 
+ 							where a.servid = ?
+   								and to_date(a.sessionbegintime,'yyyyMMddHH24miss') >=to_date(?,'yyyyMMddHH24miss')
+      			]]>
+			</script>
+		</service>
+		
+		<service code="account.restoacct.lifeUserProduct" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+			<![CDATA[
+			--@DataSource(1)
+			SELECT distinct T2.*  FROM RULE_PRODUCT_RESOURCE T1, CRM_USER.LIFE_USER_PRODUCT T2
+			 WHERE T1.PRODUCT_ID = T2.PRODUCT_ID AND t2.user_id = ?
+   			AND T2.EFF_FLAG = 0   AND SYSDATE BETWEEN T2.EFF_DATE AND T2.EXP_DATE]]>
+			</script>
+		</service>
+		
+		<service code="acct.codeacctmonth.getAll" clazz="com.tydic.vds.service.single.CommonService"
+		isQuery="true">
+			<script>
+           <![CDATA[select * from code_acct_month]]>
+			</script>
+		</service>
+	
+	 
+		<service code="rate.ruleParameters.addResOrNot" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select domain_code,para_name,para_desc,para_char1,para_char2,para_char3,para_char4,para_num1 
+					from rule_parameters where domain_code ='5030' and para_name='cycleRentForRating'
+
+				]]>
+			</script>
+		</service>
+		
+		<service code="rating.RuleSystemSwitch.getRuleSystemSwitch" clazz="com.tydic.vds.service.single.CommonService" isQuery="true">
+			<script>
+				<![CDATA[
+					select domain_code,program_name,resale_code,switch_code,switch_desc,switch_value from RULE_SYSTEM_SWITCH  ;
+				]]>
+			</script>
+		</service>
+ 
+<!-- end interface -->
+</services>
+</vds>

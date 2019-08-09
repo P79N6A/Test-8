@@ -1,0 +1,883 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<services>
+	<service data="com.tydic.beijing.billing.dao.LogActPay" type="jdbc">
+		<query name="queryBySerialNo">
+			acct.logactpay.getBySerialNo(#{filter.serial_no})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.RemainBalance"
+		type="jdbc">
+		<query>
+			rating.RemainBalance.queryBalance(#{filter.pay_id})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.BalanceConsumeData"
+		type="jdbc">
+
+		<query>
+			rating.BalanceConsumeData.queryBalanceFeeConsume(#{filter.pay_id},#{filter.userId}){
+			vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.BalanceConsumeResource"
+		type="jdbc">
+
+		<query>
+			rating.BalanceConsumeResource.queryBalanceConsume(#{filter.pay_id})
+
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.UserInfoForMemCached"
+		type="memcached">
+	</service>
+
+    <service data="com.tydic.beijing.billing.dao.LifeServiceAttrForMemcache"
+		type="memcached">
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.HistoryConsumeData"
+		type="jdbc">
+
+		<query>
+			interface.HistoryConsumeData.queryHistoryConsume(#{filter.pay_id},#{filter.userId},#{filter.start_month},#{filter.end_month})
+
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CodeAcctMonth"
+		type="jdbc">
+
+		<query>
+			interface.SubsBillPeriodData.querySubsBillPeriod(#{filter.startMonth},#{filter.endMonth})
+
+		</query>
+		<query name="queryCurrentSubsBillPeriod">
+			interface.SubsBillPeriodData.queryCurrentSubsBillPeriod()
+		</query>
+
+		<query name="getCurrentCodeAcctMonth">
+			interface.CodeAcctMonth.getCurrentCodeAcctMonth(#{filter.date})
+		</query>
+		<query name="queryCodeAcctMonth">
+			interface.queryCodeAcctMonth()
+		</query>
+		<query name="selectAcctMonthByUsgTag">
+			interface.CodeAcctMonth.Resource2Account()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.UserPayInfo" type="jdbc">
+		<query name="queryUserInfoByNbr">
+			interface.UserPayInfo.queryUserInfoByNbr(#{filter.deviceNumber})
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CDRCalling" type="jdbc">
+		<query name="queryCDRCalling">
+			interface.CDRCalling.queryCDRCalling(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+
+		</query>
+		
+		<!-- 
+		<query name="queryCdrForAutoHome">
+			interface.CDRCalling.queryForAutoHome(#{filter.startTime},#{filter.endTime},#{filter.userId}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+		 -->
+		<query name="queryCdrForCallForwardPartner">
+			interface.CDRCalling.queryForAutoHome(#{filter.startTime},#{filter.endTime},#{filter.group_id}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+		
+		
+		<query name=" queryHisCDRCalling ">
+			interface.CDRCalling.queryHisCDRCalling(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			vds.sql.replace("EF","${filter.monthsys}");
+			}
+		</query>
+		<query name="queryCDRCallingType2">
+			interface.CDRCalling.queryCDRCallingType2(#{filter.servId},#{filter.calledNbr},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+		</query>
+		<query name="queryCDRCallingType3">
+			interface.CDRCalling.queryCDRCallingType3(#{filter.servId},#{filter.callingNbr},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+		</query>
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.CDRCalling.queryCDRCallingCount(#{filter.startDate},#{filter.endDate},#{filter.servId}){
+					vds.sql.replace("CD","${filter.table}");
+					vds.sql.replace("AB","${filter.month}");
+					}
+				</when>
+			</choose>
+		</queryfor>
+		
+	</service>
+	
+	<!--  
+	<service data="com.tydic.beijing.billing.dao.CDRCalling" type="jdbc">
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.CDRCalling.queryCDRCallingCount(#{filter.startDate},#{filter.endDate},#{filter.servId}){
+					vds.sql.replace("CD","${filter.table}");
+					vds.sql.replace("AB","${filter.month}");
+					}
+				</when>
+			</choose>
+		</queryfor>
+
+	</service>-->
+	<service data="com.tydic.beijing.billing.dao.VoiceCdr" type="jdbc">
+		<query name="queryTotalTariffInfo">
+			interface.subscdr.totalTariffInfo(#{filter.servId},#{filter.startDate},#{filter.endDate}){
+				vds.sql.replace("CD","${filter.table}");
+				vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+		<query name="queryTotalTariffInfoWithCalledNbr" >
+			interface.subscdr.totalTariffInfoWithCalledNbr(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.calledNbr}){
+				vds.sql.replace("CD","${filter.table}");
+				vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+		
+		<query name="queryTotalTariffInfoWithCallingNbr" >
+			interface.subscdr.totalTariffInfoWithCallingNbr(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.callingNbr}){
+				vds.sql.replace("CD","${filter.table}");
+				vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+		
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.VoiceCdr.queryCdrCountWithCalledNbr(#{filter.startDate},#{filter.endDate},#{filter.calledNbr},#{filter.servId}){
+					vds.sql.replace("CD","${filter.table}");
+					vds.sql.replace("AB","${filter.month}");
+					}
+				</when>
+			</choose>
+		</queryfor>
+		
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.QueryLong" type="jdbc">
+	<query name="queryCdrCountWithCallingNbr">
+		interface.VoiceCdr.queryCdrCountWithCallingNbr(#{filter.startDate},#{filter.endDate},#{filter.callingNbr},#{filter.servId}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+		}
+	</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.dao.NetCdr" type="jdbc">
+	<query name="queryTotalDataFlow">
+			interface.subscdr.totalDataFlow(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.servId},#{filter.startDate},#{filter.endDate}){
+				vds.sql.replace("CD","${filter.table}");
+				vds.sql.replace("AB","${filter.month}");
+				vds.sql.replace("EF","${filter.partitionNo}");
+				vds.sql.replace("GH","${filter.netMonth}");
+			}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CDRSms" type="jdbc">
+		<query name="queryCDRSms">
+			interface.CDRSms.queryCDRSms(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+
+		</query>
+		<query name="queryHisCDRSms">
+			interface.CDRSms.queryHisCDRSms(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			vds.sql.replace("EF","${filter.monthsys}");
+			}
+		</query>
+		<query name="queryCDRSmsWithCalledNbr">
+			interface.CDRSms.queryCDRSmsWithCalledNbr(#{filter.servId},#{filter.calledNbr},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+		</query>
+		<query name="queryCDRSmsWithCallingNbr">
+			interface.CDRSms.queryCDRSmsWithCallingNbr(#{filter.servId},#{filter.callingNbr},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+
+			}
+		</query>
+		
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CDRNet" type="jdbc">
+		<query>
+			interface.CDRNet.queryCDRNet(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			vds.sql.replace("GH","${filter.partitionNo}");
+			vds.sql.replace("EF","${filter.netMonth}");
+			}
+
+		</query>
+		<query name="queryHisCDRNet">
+			interface.CDRNet.queryHisCDRNet(#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.servId},#{filter.startDate},#{filter.endDate},#{filter.startRow},#{filter.endRow}){
+			vds.sql.replace("CD","${filter.table}");
+			vds.sql.replace("AB","${filter.month}");
+			vds.sql.replace("EF","${filter.monthsys}");
+			}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActRealTimeBill"
+		type="jdbc">
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.BilActRealTimeBill.queryNonDeductFee(#{filter.userId},#{filter.payId},#{filter.month}){
+					vds.sql.replace("AB","${filter.month}");
+					}
+				</when>
+			</choose>
+		</queryfor>
+		<query name="getRealtimeBills">
+			interface.bilactrealtimebill.getRealtimeBills(#{filter.user_id},
+			#{filter.pay_id}) {
+			vds.sql.replace("MONTH", "${filter.month}");
+			}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActBill" type="jdbc">
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.BilActBill.queryOweFee(#{filter.userId},#{filter.payId})
+
+				</when>
+			</choose>
+		</queryfor>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.RuleParameters"
+		type="jdbc">
+		<query>
+			interface.RuleParameters.queryRuleParameters(#{filter.domainCode},#{filter.paraName},#{filter.paraChar1})
+		</query>
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.RuleParameters.queryRunFlag()
+				</when>
+			</choose>
+		</queryfor>
+		<query name="queryRunFlag">
+				interface.RuleParameters.queryRunFlag()
+		</query>
+		<query name="getChannelNoMod">
+
+			interface.parameters.getChannelNoMod()
+
+		</query>
+		<query name="getFileDir">
+			interface.parameters.getFileDir()
+		</query>
+
+		<query name="getRuleParametersofCdrConfig">
+			interface.parameters.getRuleParametersofCdrConfig(#{filter.domainCode},#{filter.paraName})
+		</query>
+
+		<query name="getSmsTemplateParam">
+			interface.RuleParameters.getSmsTemplateParam()
+		</query>
+		<query name="queryUnitType">
+			interface.ruleParameters.queryUnitType()
+		</query>
+		<query name="queryByDomainCodeandParaName">
+			select * from rule_parameters where domain_code= ${filter.domain_code} and para_name = '${filter.para_name}'
+		</query>
+		<query name="getFtpAddress">
+		    interface.RuleParameters.queryFtpAddress(#{filter.para_char1})
+		</query>
+		
+	</service>
+
+
+	<service data="com.tydic.beijing.billing.dao.InfoPayBalance"
+		type="jdbc">
+		<query>
+			interface.InfoPayBalance.queryInfoPayBalancebyPayId(#{filter.payId},#{filter.balanceTypeId})
+		</query>
+		<create name="createinfopaybalance">
+			insert into
+			info_pay_balance(balance_id,pay_id,balance_type_id,balance,real_balance,latn_id,eff_date,exp_date)
+			values
+			(${balance_id},${pay_id},${balance_type_id},${balance},${real_balance},${latn_id},to_date('${eff_date}','yyyy-mm-dd'),to_date('${exp_date}','yyyy-mm-dd'))
+		</create>
+		<update>
+			update info_pay_balance set real_balance = real_balance + ${real_balance},
+			balance = balance + ${balance}
+			where balance_id = ${balance_id}
+		</update>
+		<query name="queryBalanceInfoByPayId">
+			interface.infopaybalance.queryBalanceInfoByPayId(#{filter.pay_id})
+		</query>
+		<query name="getResourceBalanceForAdjust">
+			interface.resourceadjust.getResourceBalanceForAdjust(#{filter.payId},#{filter.balanceTypeId})
+		</query>
+		<query name="getResourceBalanceForCheck">
+			interface.resourceadjust.getResourceBalanceForCheck(#{filter.balanceId})
+		</query>
+		<query name="isBalanceIdExist">
+			interface.InfoPayBalance.isBalanceIdExist(#{filter.pay_id},
+			#{filter.balance_type_id}, #{filter.eff_date}, #{filter.exp_date})
+		</query>
+		<query name="getOldBalance">
+			interface.InfoPayBalance.getOldBalance(#{filter.pay_id},
+			#{filter.balance_type_id})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.BalanceAdjustLog"
+		type="jdbc">
+		<create name="createBalanceAdjustLog">
+			insert into
+			balance_adjust_log(session_id,jdpin,msisdn,channel_no,request_time,resource_type,resource_number,eff_date,exp_date,change_time,user_id,staff_id,real_deduct_info,activity_type,reason)
+			values
+			('${session_id}','${jdpin}',${msisdn},'${channel_no}',to_date('${request_time}','yyyy-mm-dd
+			hh24-mi-ss'),${resource_type},${resource_number},to_date('${eff_date}','yyyy-mm-dd'),to_date('${exp_date}','yyyy-mm-dd'),sysdate,
+			'${user_id}','${staff_id}','${real_deduct_info}','${activity_type}','${reason}')
+		</create>
+		<query name="getBalanceAdjustLogBySessionIdAndChannelNo">
+			interface.balanceadjustlog.getBalanceAdjustLogBySessionIdAndChannelNo(#{filter.sessionId},#{filter.channelNo})
+		</query>
+
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.LogCdrExpertHis" type="jdbc">
+	   <query name="getLastExpertInfo">
+	   select group_id,to_char(process_time,'YYYYMMDDHH24MISS') process_time,
+	   to_char(expert_start_time,'YYYYMMDDHH24MISS') expert_start_time,
+	   to_char(expert_end_time,'YYYYMMDDHH24MISS') expert_end_time,
+	   to_char(next_time,'YYYYMMDDHH24MISS') next_time,
+	   islastdeal,note
+	   from log_cdrexpert_his where group_id = '${filter.group_id}' and islastdeal='Y' and cdr_source = '${filter.cdr_source}';
+	   </query>
+       <update>
+       update log_cdrexpert_his set islastdeal ='${islastdeal}' where group_id = '${group_id}' and islastdeal='Y' and cdr_source = '${cdr_source}';  
+       </update>	
+       <create>
+        insert into log_cdrexpert_his (group_id,process_time,expert_start_time,
+        expert_end_time,next_time,islastdeal,note,filename,cdr_source)
+        values 
+        ('${group_id}',sysdate,to_date('${expert_start_time}','YYYYMMDDHH24MISS'),
+        to_date('${expert_end_time}','YYYYMMDDHH24MISS'),to_date('${next_time}','YYYYMMDDHH24MISS'),'${islastdeal}','${note}',
+        '${filename}','${cdr_source}'
+        )
+       </create>
+	</service>
+	
+
+	<service data="com.tydic.beijing.billing.dao.BilActAccesslog"
+		type="jdbc">
+		<create name="createBilActAccessLog">
+			insert into
+			bil_act_accesslog(OPERATE_ID,OPERATE_TYPE,PARTITION_ID,PAY_ID,BALANCE_ID,BALANCE_TYPE_ID,
+			ACCESS_TAG,MONEY,OLD_BALANCE,NEW_BALANCE,LOCAL_NET,OPERATE_TIME)
+			values
+			('${operate_id}','${operate_type}',${partition_id},'${pay_id}',${balance_id},${balance_type_id},
+			'${access_tag}',${money},${old_balance},${new_balance},'${local_net}',
+			sysdate)
+		</create>
+	</service>
+
+
+
+
+	<service data="com.tydic.beijing.billing.dao.Sequences" type="jdbc">
+		<query>
+			select seq_balance_id.nextval seq from v_dual
+		</query>
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.CDRCalling.queryHisCDRCallingCount(#{filter.startDate},#{filter.endDate},#{filter.servId}){
+					vds.sql.replace("CD","${filter.table}");
+					vds.sql.replace("AB","${filter.month}");
+					vds.sql.replace("EF","${filter.monthsys}");
+					}
+				</when>
+			</choose>
+		</queryfor>
+	</service>
+
+
+
+
+
+	<service data="com.tydic.beijing.billing.dao.ValueAddedRemainFee"
+		type="jdbc">
+		<query>
+
+			interface.InfoPayBalance.queryRealFeeForActItem(#{filter.feeType},#{filter.payId})
+
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.ValueAddedDual"
+		type="jdbc">
+		<queryfor>
+			<choose>
+				<when test="name=='String'">
+					interface.valueAddedDual.getSerialNumber()
+
+				</when>
+			</choose>
+		</queryfor>
+		<query name="getFileSerialNumber">
+			interface.valueAddedDual.getFileSerialNumber()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.ValueAddedTradeHistory"
+		type="jdbc">
+		<create>
+
+			interface.valueAddedTradeHistory.addHistory(){
+			vds.sql.append("insert into valueAdded_trade_history(
+			trade_id,
+			session_id,
+			msisdn,
+			user_event_code,
+			contact_channle,
+			valueAdded_order_id,
+			order_time,
+			product_id,
+			valueAdded_name,
+			fee_type,
+			valueAdded_charge_fee,
+			url,
+			user_id,
+			service_scenarious,
+			pay_flag,
+			serialNo,
+			tariff_info,
+			remain_fee,
+			charging_type,
+			mt_mode,
+			status,
+			error_code,
+			error_message,
+			insert_date,
+			local_net,
+			partition_no,
+			acct_month
+			)values(seq_valueAdded_tradeId.nextval,'${session_id}','${msisdn}','${user_event_code}','${contact_channle}','${valueadded_order_id}',
+			to_date('${order_time}','yyyy-MM-dd
+			HH24-mi-ss'),'${product_id}','${valueadded_name}','${fee_type}','${valueadded_charge_fee}','${url}','${user_id}',
+			'${service_scenarious}','${pay_flag}','${serialno}','${tariff_info}','${remain_fee}','${charging_type}','${mt_mode}',
+			'${status}','${error_code}','${error_message}',sysdate,'${local_net}','${partition_no}','${acct_month}'
+
+			)");
+
+			}
+
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.QAcctProcess"
+		type="jdbc">
+		<create>
+
+			interface.QAcctProcess.addQAcctProcess(){
+			vds.sql.append("insert into q_acct_process (
+			channel_no,session_id,charged_party,calling_party,called_party,user_id,session_begin_time,session_terminated_time,balance_info,
+			accumlator_info,tariff_info,process_tag,insert_time,update_time,service_scenarious,acct_month
+			)values
+			('${channel_no}','${session_id}','${charged_party}','${calling_party}','${called_party}','${user_id}',
+			'${session_begin_time}','${session_terminated_time}','${balance_info}','${accumlator_info}','${tariff_info}','${process_tag}',
+			sysdate,to_date('${update_time}','yyyyMMddHH24miss'),'${service_scenarious}','${acct_month}'
+			)");
+
+			}
+
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+		<query name="getUserInfoByDeviceNumber">
+			interface.infouser.getUserInfoByDeviceNumber(#{filter.device_number})
+		</query>
+		<query name="queryStatusUser">
+		   interface.infouser.queryStatusUser(#{filter.month_lastday},#{filter.month_minday})
+		</query>
+
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.GroupMemberRel" type="jdbc">
+		<query name="queryForAutoHome">
+			 select * from GROUP_MEMBER_REL where group_id = '${filter.group_id}'
+		</query>
+		<query name="getGroupByUserId">
+		   	 select * from GROUP_MEMBER_REL where user_id='${filter.user_id}'
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.dao.PayUserRel" type="jdbc">
+		<query name="getPayInfoByUserId">
+			interface.payuserrel.getPayInfoByUserId(#{filter.user_id})
+		</query>
+		<query name="getLatnId">
+			interface.PayUserRel.getLatnId(#{filter.pay_id})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.TbSmsSendHis"
+		type="jdbc">
+		<queryfor>
+			<choose>
+				<when test="name=='long'">
+					interface.TbSmsSendHis.querySmsCount()
+
+				</when>
+			</choose>
+		</queryfor>
+		<query name="querySmsSendHis">
+			interface.TbSmsSendHis.querySmsSendHis(#{filter.instanceId},#{filter.amount})
+		</query>
+		<query name="checkInstance">
+			interface.TbSmsSendHis.checkInstance(#{filter.instanceId},#{filter.instanceId})
+		</query>
+		
+		<update>
+			interface.TbSmsSendHis.updateProcessTag(){
+			vds.sql.append("update tb_sms_send_his set
+			process_tag='${process_tag}',deal_flag='${deal_flag}',complete_time=to_date('${complete_time}','yyyyMMddHH24miss') where msg_id='${msg_id}'");
+			}
+		</update>
+		<update name="recovery">
+			update tb_sms_send_his set process_tag='0' ,deal_flag = null where deal_flag=#{filter.instanceId} and process_tag='9'
+		</update>
+		
+	</service>
+	<service data="com.tydic.beijing.billing.dao.TbSmsSend" type="jdbc">
+		<update>
+			<![CDATA[
+			update tb_sms_send_his a set a.deal_flag='${deal_flag}',process_tag='9' where exists(
+			select 1 from (select msg_id,msisdn_send,msisdn_receive,message_text,send_time,process_tag,para_key from (
+          	select * from tb_sms_send_his where process_tag= '0' and send_time <= sysdate +1/24/60/6 order by msg_prior ,send_time
+          	) where rownum <='${amount}')b where a.msg_id=b.msg_id and a.process_tag='0' and a.deal_flag is null)
+          	
+          	]]>
+		</update>
+		
+	
+	</service>
+	
+	<!-- <service data="com.tydic.beijing.billing.dao.RuleParameters" type="jdbc"> 
+		<queryfor > <choose> <when test="name=='long'"> interface.RuleParameters.queryRunFlag() 
+		</when> </choose> </queryfor> </service> -->
+
+	<service data="com.tydic.beijing.billing.dao.SendSmsDealHis"
+		type="jdbc">
+		<create>
+			interface.SendSmsDealHis.addSmsDealHis(){
+			vds.sql.append("insert into tb_sms_send_deal_his(
+			msg_id,msisdn_send,msisdn_receive,request_id,request_time,response_time,response_id,result,process_tag
+			)values('${msg_id}','${msisdn_send}','${msisdn_receive}','${request_id}','${request_time}','${response_time}','${response_id}','${result}','${process_tag}')");
+			}
+		</create>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.CodeBilBalanceType"
+		type="jdbc">
+		<query>
+			acct.codebilbalancetype.getAll()
+		</query>
+		<query name="getBalanceTypeAddFalg">
+			interface.CodeBilBalanceType.getBalanceTypeAddFalg(#{filter.balance_type_id})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CurrentBillDto"
+		type="jdbc">
+
+		<query name="queryCurrentBill">
+			rating.CurrentBill.queryCurrentBill(#{filter.pay_id},#{filter.userId}){
+			vds.sql.replace("AB","${filter.month}");
+			}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActRealTimeBillForOracle"
+		type="jdbc">
+		<query name="getRealtimeBills">
+			interface.bilactrealtimebillfororacle.getRealtimeBills(#{filter.user_id},
+			#{filter.pay_id}) {
+			vds.sql.replace("MONTH", "${filter.month}");
+			}
+		</query>
+	</service>
+
+
+	<service data="com.tydic.beijing.billing.dao.CodeActAcctItem"
+		type="jdbc">
+		<query>
+			interface.CodeActAcctItem.getAllCodeActAcctItem()
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.QBeforeAdjust"
+		type="jdbc">
+		<query>
+			interface.QBeforeAdjust.getQBeforeAdjust()
+		</query>
+		<update>
+			update q_before_adjust set status = ${status}, update_date =
+			to_date('${update_date}', 'yyyy-mm-dd
+			hh24:mi:ss') where serial_no =
+			'${serial_no}'
+		</update>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.BilActAddUp" type="jdbc">
+		<query name="getBilActAddUp">
+			select * from bil_act_add_up_${filter.partition_no}
+			where
+			user_id = ${filter.user_id} and acct_month =
+			${filter.acct_month}
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.SystemTime" type="jdbc">
+		<query name="getTimestamp">
+			interface.systemtime.getTimestamp()
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.LifeProductResourceRel"
+		type="jdbc">
+		<query name="queryByUserId">
+			interface.lifeproductresourcerel.querybyuserid(#{filter.user_id})
+		</query>
+		<query name="selectLifeProductResourceRel">
+			interface.LifeProductResourceRel.Resource2Account(#{filter.user_id},#{filter.acct_month},#{filter.user_product_id},#{filter.balance_type_id})
+		</query>
+		<create>
+			INSERT INTO LIFE_PRODUCT_RESOURCE_REL
+			(USER_ID,USER_PRODUCT_ID,PRODUCT_ID,ACCT_MONTH,BALANCE_ID,
+			BALANCE_TYPE_ID,PRODUCT_FLAG,EFF_DATE,EXP_DATE,CREATE_DATE,SERIAL_NUM)
+			VALUES
+			('${user_id}','${user_product_id}','${product_id}','${acct_month}','${balance_id}',
+			'${balance_type_id}','${product_flag}',to_date('${eff_date}','YYYYMMDDHH24MISS'),to_date('${exp_date}','YYYYMMDDHH24MISS'),SYSDATE,'${serial_num}');
+		</create>
+	</service>
+
+
+	<!-- RuleProductResource -->
+	<service data="com.tydic.beijing.billing.dao.RuleProductResource"
+		type="jdbc">
+		<query name="selectRuleProductResource">
+			interface.RuleProductResource.Resource2Account(#{filter.product_id})
+		</query>
+	</service>
+
+	<!-- CreditSequenceUtils -->
+	<service data="com.tydic.beijing.billing.credit.dao.CreditSequenceUtils"
+		type="jdbc">
+		<query name="getSeq">
+			select ${filter.sequence_name}.nextVal as duckDuckgo from
+			credit_sequence_utils
+		</query>
+		<query name="selectOperType">
+			interface.CreditSequenceUtils.Resource2Account2()
+		</query>
+	</service>
+	 
+	<service data="com.tydic.beijing.billing.dao.ProvCode" type="jdbc">
+		<query name="SelectAllCityName">
+			interface.provcode.selectAllCityName()
+		</query>
+	
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.CDR100Transfer" type="jdbc">
+		
+		<query name="queryCallId">
+		select * from cdr100_transfer_${filter.partitionId} where callId = #{filter.callId} 
+		</query>
+		
+		<query name="querybyGroupIdandTime">
+		select   CALLID         ,
+				  CALLER         ,
+				  ORIGCALLED     ,
+				  TRANSFERCALL   ,
+				  CALLED         ,
+				  CALLEDRESULT   ,
+				  to_char(CALLERSTARTTIME ,'YYYYMMDDHH24MISS') CALLERSTARTTIME       ,
+				  to_char(CALLERENDTIME   ,'YYYYMMDDHH24MISS') CALLERENDTIME         ,
+				  to_char(CALLEDSTARTTIME ,'YYYYMMDDHH24MISS') CALLEDSTARTTIME       ,
+				  to_char(CALLEDRINGTIME  ,'YYYYMMDDHH24MISS') CALLEDRINGTIME        ,
+				  to_char(CALLEDANSWERTIME,'YYYYMMDDHH24MISS') CALLEDANSWERTIME      ,
+				  to_char(CALLEDENDTIME   ,'YYYYMMDDHH24MISS') CALLEDENDTIME         ,
+				  to_char(RECEIVETIME     ,'YYYYMMDDHH24MISS') RECEIVETIME           ,
+				  to_char(VIDEOLOADTIME   ,'YYYYMMDDHH24MISS') VIDEOLOADTIME         ,
+				  RECORDURL       ,
+				  VIDEOFILENAME   ,
+				  ENDPART         ,
+				  GROUPID   
+		 from cdr100_transfer_${filter.partitionId} 
+		where groupid = '${filter.groupid}'
+		and receivetime between to_date(${filter.startTime},'YYYYMMDDHH24MISS') and  to_date(${filter.endTime},'YYYYMMDDHH24MISS')
+		</query>
+
+		<create name="insertCDR100Transfer">
+			insert into cdr100_transfer_${partitionId} (callId,caller,origCalled,transferCall,called  ,calledResult  ,callerStartTime  ,
+			callerEndTime  ,calledStartTime  ,calledRingTime  ,calledAnswerTime  ,calledEndTime,recordUrl,receiveTime,
+			videoLoadTime,videoFileName,endPart,groupid)
+			values
+			(#{callId},#{caller},#{origCalled},#{transferCall},#{called},#{calledResult},to_date('${callerStartTime}','YYYYMMDDHH24MISS'),
+			to_date('${callerEndTime}','YYYYMMDDHH24MISS'),to_date('${calledStartTime}','YYYYMMDDHH24MISS'),to_date('${calledRingTime}','YYYYMMDDHH24MISS'),
+			to_date('${calledAnswerTime}','YYYYMMDDHH24MISS'),to_date('${calledEndTime}','YYYYMMDDHH24MISS'),#{recordUrl},to_date('${receiveTime}','YYYYMMDDHH24MISS'),'','',#{endPart},
+			#{groupid})
+		</create>
+		<update>
+			update cdr100_transfer_${partitionId}  set videoLoadtime=sysDate ,videoFilename='${videoFileName}'
+			  where callId='${callId}'
+		</update>
+		<!-- 
+		<query name="queryCDR100Transfer">
+			select callId,caller,origCalled,transferCall,called  ,calledResult  , to_char(calledAnswerTime,'YYYYMMDDHH24MISS') calledAnswerTime ,to_char(calledEndTime,'YYYYMMDDHH24MISS') calledEndTime,recordUrl from cdr100_transfer a where callid='${filter.callid}'
+		</query>
+		 -->
+	</service>
+	
+	<!-- q_transfer_download -->
+	<service data="com.tydic.beijing.billing.dao.QTransferDownload"
+		type="jdbc">
+		<create name="insertCDR100Transfer">
+			insert into q_transfer_download (callId,caller,origCalled,called,recordUrl,processTime,tryTimes,errMsg,state ,partitionId)
+			values
+			(#{callId},#{caller},#{origCalled},#{called},#{recordUrl},'','','','0',#{partitionId})
+		</create>	
+		<query name="queryQTransferDonwLoad">
+		<![CDATA[
+			select * from q_transfer_download a where a.state=0 or (a.state=1 and a.trytimes<3 and a.processtime <=to_date('${filter.processtime}','YYYY/MM/DD HH24:MI:SS'))
+		]]>
+		</query>
+
+		<query name="getforRecordUrl">
+			<![CDATA[
+			select * from q_transfer_download a where callid = '${filter.callid}'
+		]]>
+		</query>
+		
+		<update>
+		<![CDATA[
+			update q_transfer_download a set a.state=1, a.trytimes='${tryTimes}',a.processtime=sysdate,
+			a.errmsg=substr('${errMsg}',1,200) where a.callid='${callId}' 
+			]]>
+		</update>
+		<batch>
+			<choose>
+			
+				<when test="name == 'deleteQTransferDownload'">
+					delete from q_transfer_download a where 
+					a.callid='${filter.callid}'
+				</when>
+				
+			</choose>
+		</batch>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.CDR100TransferJDN" type="jdbc">
+		<query name="getinitRecord">
+		<![CDATA[
+		    select * from (
+		    select 
+		    CallId ,CdrType , CdrSubType ,CallingNbr ,CalledNbr ,
+			SessionBeginTime,SessionEndTime ,Duration ,
+			to_char(receivetime,'YYYYMMDDHH24MISS') receivetime,status 
+			 from cdr100_transfer_JDN_${filter.partitionId}
+		    where status ='0'
+		    union 
+		    select 
+		    CallId ,CdrType , CdrSubType ,CallingNbr ,CalledNbr ,
+			SessionBeginTime,SessionEndTime ,Duration ,
+			to_char(receivetime,'YYYYMMDDHH24MISS') receivetime,status 
+			 from cdr100_transfer_JDN_${filter.lastPartitionId}
+		    where status ='0'  )
+		    where rownum<50
+		    ]]>
+		</query>
+		<create>
+			insert into cdr100_transfer_JDN_${partitionId} 
+			(CallId,CdrType,CdrSubType,CallingNbr,
+             CalledNbr,SessionBeginTime,SessionEndTime,Duration,
+			 receivetime,status)
+			values
+			(#{callId},#{cdrType},#{cdrSubType},#{callingNbr},
+			#{calledNbr},#{sessionBeginTime},#{sessionEndTime},#{duration},
+			to_date(#{receiveTime},'YYYYMMDDHH24MISS'),#{status})
+		</create>
+		<update>
+			update cdr100_transfer_JDN_${partitionId}  set dealtime=sysDate ,status =#{status},filename =#{filename}
+			  where callId='${callId}'
+		</update>
+     </service>
+
+<!-- 
+	<service data="com.tydic.beijing.billing.dao.TransferMergeErrHis" type="jdbc">
+		<create>
+		   insert into Transfer_merge_err_his(userid,numbera,numberb,numberd,sessionbegintime,sessionendtime,note)
+		   values (#{userId},#{numbera},#{numberb},#{numberd},#{sessionbegintime},#{sessionendtime},#{note})
+		</create>
+	</service>
+ -->
+
+	<service data="com.tydic.beijing.billing.dao.LifeServiceAttr" type="jdbc">
+		<query name="getUserAttrbyUserId">
+		select * from life_service_attr where user_id = #{filter.user_id} and serv_attr = #{filter.serv_attr}
+		and to_date('${filter.cdrtime}','YYYYMMDDHH24MISS') between eff_date and exp_date
+		</query>
+	</service>
+	<!-- 恶意欠费用户-->
+	 <service data="com.tydic.beijing.billing.dao.MaliceUser" type="jdbc">
+		<query name="getUserDeviceNumberForMalice">
+			select * from billing.malace_user a
+  			where  a.jd_number in (select b.jd_number from billing.hsg_jd_number b where b.cs>=3) and 
+ 			user_status not like '4%' 
+  			and partition_id =?
+  			order by address1,jd_number	
+		</query>
+	</service>
+	<service data="com.tydic.beijing.billing.dao.PrivnumMessReceiveHis" type="jdbc">
+		<update>
+			update privnum_mess_receive_his set videoFileName=#{videoFileName},videoLoadTime=sysdate where callId=#{callId}
+		</update>
+		<query name="getLoadUrl">
+			select * from privnum_mess_receive_his where callId='${filter.callId}'
+		</query>
+	</service>
+</services>

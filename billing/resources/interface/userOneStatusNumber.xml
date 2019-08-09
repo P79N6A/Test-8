@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<import resource="uda.xml" />
+	<context:annotation-config />
+	
+	<bean id="userStatusNumber" 
+			class="com.tydic.beijing.billing.interfacex.service.impl.UserOneStatusNumberImpl">
+		<!-- 公司测试
+		<property name="fileSrcDir" value="D:\aa\usernumber\" />
+		<property name="host">
+		<list>
+		<value>172.168.1.217</value>
+		</list>
+		</property>
+		<property name="port" value="22" />
+		<property name="username" value="billing_dev" />
+		<property name="password" value="tydic123" />
+		<property name="dstDir" value="/home/billing_dev/bvalue/data/usernumber" /> -->
+		
+		
+		
+		<!-- 京东测试环境 -->
+	<property name="fileSrcDir" value="/home/billing/interface/data/usernumber/" />
+		<property name="host">
+		<list>
+		<value>192.168.177.18</value>
+		</list>
+		</property>
+		<property name="port" value="22" />
+		<property name="username" value="bvalue" />
+		<property name="password" value="654321" />
+		<property name="dstDir" value="/home/bvalue/bvalue/data/usernumber" />
+		
+		<!-- 京东预发布环境 -->
+	<!--<property name="fileSrcDir" value="/home/billing/interface/data/usernumber/" />
+		<property name="host">
+		<list>
+		<value>172.22.198.69</value>
+		<value>172.22.198.70</value>
+		<value>172.22.198.71</value>
+		</list>
+		</property>
+		<property name="port" value="22" />
+		<property name="username" value="bvalue" />
+		<property name="password" value="newbss" />
+		<property name="dstDir" value="/home/bvalue/bvalue/data/usernumber" />-->	
+		
+		<!-- 生产环境 -->
+	<!--<property name="fileSrcDir" value="/home/billing/interface/data/usernumber/" />
+		<property name="host">
+		<list>
+		<value>172.22.196.103</value>
+		<value>172.22.196.104</value>
+		<value>172.22.196.105</value>
+		<value>172.22.196.106</value>
+		<value>172.22.196.107</value>
+		<value>172.22.196.108</value>
+		</list>
+		</property>
+		<property name="port" value="22" />
+		<property name="username" value="bvalue" />
+		<property name="password" value="newbss" />
+		<property name="dstDir" value="/export/bvalue/bvalue/data/usernumber" />-->	
+		
+		
+	</bean>
+
+</beans> 

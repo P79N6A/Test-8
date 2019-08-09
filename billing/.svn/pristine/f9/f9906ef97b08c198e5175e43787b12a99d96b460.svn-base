@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration PUBLIC "-//log4j/log4j Configuration//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout"> 
+            <param name="ConversionPattern" value="%d [%t] [%-5p] %m(%c)%n"/> 
+        </layout> 
+    </appender>
+    
+    <appender name="lFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="./memcache.log" /><!-- 设置日志输出文件名 -->
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] [%-5p] %m(%c)%n"/> 
+        </layout>
+    </appender>
+    
+    <!--  
+    <logger name="com.tydic.beijing.billing.memcache">
+    	<level value="DEBUG" />
+    	<appender-ref ref="STDOUT" />
+    </logger> 
+    -->
+    
+    <root>
+        <priority value="DEBUG" /> 
+
+        <appender-ref ref="STDOUT" />
+         
+        <!--
+        <appender-ref ref="lFile" />  
+        -->
+    </root>
+</log4j:configuration>

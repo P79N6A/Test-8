@@ -1,0 +1,15 @@
+package test;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+public class Demo {
+	public static void main(String[] args) {
+		 final String DATEFORMAT_DATETIME = "yyyyMMddHHmmss";
+		 Calendar c1 = Calendar.getInstance();
+	     Calendar c2 = Calendar.getInstance();
+	     SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(DATEFORMAT_DATETIME);
+	     c1.setTime(simpleDateFormat2.parse(baseDate.getBaseDate()));
+	     int result = c2.get(Calendar.MONTH) - c1.get(Calendar.MONTH);
+	     System.out.println(result);
+	}
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:saf="http://code.360buy.com/schema/saf" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jsf="http://jsf.jd.com/schema/jsf"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop 
+	 http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://code.360buy.com/schema/saf 
+    http://code.360buy.com/schema/saf/saf.xsd
+    http://jsf.jd.com/schema/jsf  http://jsf.jd.com/schema/jsf/jsf.xsd">
+
+	 <import resource="uda.xml" /> 
+	
+	
+	<context:annotation-config />
+	 <!--
+	<saf:application name="SendSmsService" />
+
+	<saf:registry id="jdZooKeeper" protocol="jdZooKeeper"   address="127.0.0.1:2181" />
+-->
+  
+ 	<jsf:registry id="jsfRegistry"  address="jsf://172.168.3.88:2181" />
+ 	 
+	<bean  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+       <property name= "location" value="smsClient.properties" ></property>
+	</bean>
+	
+	<bean id="SendMsgService"
+		class="com.tydic.beijing.billing.interfacex.service.impl.SendMessageServiceImpl">
+	 	<!-- <property name="service" ref="Service" /> --> 
+	 	<property name="db"   ref="tool"/>
+	 	<property name="time"  value="3000"/>
+	 	<property name="amount"  value="${amount}" />
+	 	<property name="poolSize" value="${poolSize}"/>
+	 	<property name="accountCommon" value="mms.public.test.senderNum"/>
+	 	<property name="account170" value="mms.public.test.senderNum"/>
+	 	<property name="smsMessageRpcService" ref="smsMessageRpcService"/>
+	</bean>
+	
+
+	<bean id="tool" class="com.tydic.beijing.billing.interfacex.biz.DbTool"  />
+	
+ <!-- 
+	<saf:reference id="Service" interface="com.jiexun.sms.sv.SendMsg" timeout="2000" group="TestGateway" version="0.0.0" retries="0" protocol="dubbo"  registry="jdZooKeeper"/>
+ 	<jsf:consumer id="Service"  interface="com.jiexun.sms.sv.SendMsg" timeout="2000" alias="SMSGatewayjsf"   protocol="jsf" check="true" retries="0" />
+  -->
+ 
+ 	<jsf:consumer id="smsMessageRpcService"  interface="com.jd.mobilePhoneMsg.sender.client.service.SmsMessageRpcService" timeout="2000" alias="SMSGatewayjsf"   protocol="jsf" check="true" retries="0" />
+  
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+	
+</beans>
+	

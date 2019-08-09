@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tydic.beijing.billing.interfacex.biz.RetryCycleRentDbTool">
+
+	<resultMap type="com.tydic.beijing.billing.dao.CodeAcctMonth"
+		id="CodeAcctMonthMap">
+		<result column="ACCT_MONTH" property="acct_month" />
+		<result column="BIL_EFF_DATE" property="bil_eff_date" />
+		<result column="BIL_EXP_DATE" property="bil_exp_date" />
+		<result column="ACT_EFF_DATE" property="act_eff_date" />
+		<result column="ACT_EXP_DATE" property="act_exp_date" />
+		<result column="REV_EFF_DATE" property="rev_eff_date" />
+		<result column="REV_EXP_DATE" property="rev_exp_date" />
+		<result column="USE_TAG" property="use_tag" />
+		<result column="PARTITION_NO" property="partition_no" />
+		<result column="ACT_TAG" property="act_tag" />
+	</resultMap>
+
+	<resultMap type="com.tydic.beijing.billing.dao.RuleOfrSplit"
+		id="RuleOfrSplitMap">
+		<result column="PRODUCT_ID" property="product_id" />
+		<result column="OFR_A_ID" property="ofr_a_id" />
+		<result column="OFR_B_ID" property="ofr_b_id" />
+		<result column="OFR_C_ID" property="ofr_c_id" />
+		<result column="CREATE_DATE" property="create_date" />
+		<result column="UPDATE_DATE" property="update_date" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<resultMap type="com.tydic.beijing.billing.dao.RuleOfrTariffRelation"
+		id="RuleOfrTariffRelationMap">
+		<result column="OFR_C_ID" property="ofr_c_id" />
+		<result column="TARIFF_ID" property="tariff_id" />
+		<result column="USER_STATE" property="user_state" />
+	</resultMap>
+
+	<resultMap type="com.tydic.beijing.billing.dao.RuleGroupStateRelation"
+		id="RuleGroupStateRelationMap">
+		<result column="STATE_GROUP" property="state_group" />
+		<result column="USER_STATE" property="user_state" />
+	</resultMap>
+
+	<resultMap type="com.tydic.beijing.billing.dao.RuleTariffConfInfo"
+		id="RuleTariffConfInfoMap">
+		<result column="TARIFF_ID" property="tariff_id" />
+		<result column="LOCAL_NET" property="local_net" />
+		<result column="TARIFF_VALUE" property="tariff_value" />
+		<result column="ACCT_ITEM_CODE" property="acct_item_code" />
+		<result column="ITEM_GROUP" property="item_group" />
+		<result column="EFF_DATE" property="eff_date" />
+		<result column="EXP_DATE" property="exp_date" />
+		<result column="EVENT_TYPE_ID " property="event_type_id" />
+		<result column="TARIFF_NAME" property="tariff_name" />
+	</resultMap>
+
+	<resultMap type="com.tydic.beijing.billing.dao.LifeUserProduct"
+		id="LifeUserProductMap">
+		<result column="USER_PRODUCT_ID" property="user_product_id" />
+		<result column="ORDER_ID" property="order_id" />
+		<result column="USER_ID" property="user_id" />
+		<result column="OFR_ID" property="ofr_id" />
+		<result column="PRODUCT_ID" property="product_id" />
+		<result column="EFF_DATE" property="eff_date" />
+		<result column="EXP_DATE" property="exp_date" />
+		<result column="EFF_FLAG" property="eff_flag" />
+		<result column="CREATE_DATE" property="create_date" />
+		<result column="CHNG_ORDER_ID" property="chng_order_id" />
+		<result column="CHNG_EXP_DATE" property="chng_exp_date" />
+		<result column="PROD_PRICE_TYPE" property="prod_price_type" />
+		<result column="PROD_LEVEL" property="prod_level" />
+		<result column="EFF_TYPE" property="eff_type" />
+	</resultMap>
+
+
+	<resultMap type="RuleCycleHistory" id="RuleCycleHistoryMap">
+		<result column="USER_ID" property="user_id" />
+		<result column="PRODUCT_ID" property="product_id" />
+		<result column="OFR_ID" property="ofr_id" />
+		<result column="USER_STATE" property="user_state" />
+		<result column="TARIFF_ID" property="tariff_id" />
+		<result column="PRESENT_LAST_TIME" property="present_last_time" />
+		<result column="EVENT_TYPE_ID" property="event_type_id" />
+		<result column="TARIFF_VALUE" property="tariff_value" />
+	</resultMap>
+	
+	<resultMap type="com.tydic.beijing.billing.dao.RuleItemCodeRelation" id="RuleItemCodeRelationMap">
+		<result column="ITEM_GROUP" property="item_group" />
+		<result column="ACCT_ITEM_CODE" property="acct_item_code" />
+		<result column="GROUP_NAME" property="group_name" />
+	</resultMap>
+
+	<!-- CODE_ACCT_MONTH -->
+	<select id="selectCodeAcctMonth" resultMap="CodeAcctMonthMap">
+		SELECT
+		A.ACCT_MONTH,A.BIL_EFF_DATE,A.BIL_EXP_DATE,A.ACT_EFF_DATE,
+		A.ACT_EXP_DATE,A.REV_EFF_DATE,A.REV_EXP_DATE,A.USE_TAG,
+		A.PARTITION_NO,A.ACT_TAG
+		FROM CODE_ACCT_MONTH A /*where A.act_tag ='0'
+		and A.use_tag = '1'*/
+	</select>
+
+	<!-- RULE_OFR_SPLIT -->
+	<select id="selectRuleOfrSplit" resultMap="RuleOfrSplitMap">
+		SELECT
+		T.PRODUCT_ID,T.OFR_A_ID,T.OFR_B_ID,T.OFR_C_ID,
+		T.CREATE_DATE,T.UPDATE_DATE,T.REMARK
+		FROM RULE_OFR_SPLIT T where t.ofr_c_id is not null
+	</select>
+
+	<!-- RULE_OFR_TARIFF_RELATION -->
+	<select id="selectRuleOfrTariffRelation" resultMap="RuleOfrTariffRelationMap">
+		SELECT
+		t.ofr_c_id,t.state_group,t.tariff_id FROM Rule_Ofr_Tariff_Relation t
+	</select>
+
+	<!-- RULE_GROUP_STATE_RELATION -->
+	<select id="selectRuleGroupStateRelation" resultMap="RuleGroupStateRelationMap">
+		SELECT
+		t.state_group,t.user_state FROM Rule_Group_State_Relation t
+	</select>
+
+	<!-- RULE_TARIFF_CONF_INFO -->
+	<select id="selectRuleTariffConfInfo" resultMap="RuleTariffConfInfoMap">
+		SELECT
+		T.TARIFF_ID,T.LOCAL_NET,T.TARIFF_VALUE,T.ACCT_ITEM_CODE,
+		T.ITEM_GROUP,T.EFF_DATE,T.EXP_DATE,T.EVENT_TYPE_ID,T.TARIFF_NAME
+		FROM
+		RULE_TARIFF_CONF_INFO T
+	</select>
+
+	<!-- INFO_USER -->
+	<select id="selectInfoUser" resultType="com.tydic.beijing.billing.dao.InfoUser"
+		parameterType="java.lang.String">
+		SELECT
+		T1.USER_ID,T1.TELE_TYPE,T1.DEVICE_NUMBER,T1.USER_PWD,T2.USER_STATUS,T1.CREATE_DATE,
+		T1.ACTIVE_DATE,T1.USER_TYPE,T1.PREPAY_FLAG,T1.LOCAL_NET,T1.DEVELOP_CHANNEL_ID,T1.PROTO_FLAG,
+		T1.SUB_USER_STATUS,T1.STOP_DATE,T1.VALID_FLAG,T1.PRODUCT_ID,T1.OPERATORS_TYPE,
+		T1.OPERATORS_TYPE,T1.MAIN_OFR_ID
+		FROM CRM_USER.INFO_USER T1,
+		CRM_USER.LIFE_USER_STATUS T2
+		WHERE T1.USER_ID = T2.USER_ID
+		AND
+		T2.EFF_FLAG = '0'
+		AND t1.user_id = #{userId}
+	</select>
+
+	<!-- LIFE_USER_PRODUCT -->
+	<select id="selectLifeUserProduct" resultMap="LifeUserProductMap"
+		parameterType="java.lang.String">
+		SELECT T.USER_PRODUCT_ID,T.USER_ID,T.OFR_ID,
+		       T.PRODUCT_ID,T.EFF_DATE,T.EXP_DATE,
+		       T.EFF_FLAG,T.CREATE_DATE
+		  FROM CRM_USER.LIFE_USER_PRODUCT T
+		 WHERE T.USER_ID = #{USERID}
+		   AND T.EFF_FLAG = '0'
+		   AND SYSDATE BETWEEN T.EFF_DATE AND T.EXP_DATE
+	</select>
+	
+		<!-- LIFE_USER_PRODUCT -->
+	<select id="selectLifeUserProductByNotHost" resultMap="LifeUserProductMap"
+		parameterType="java.lang.String">
+		SELECT T.USER_PRODUCT_ID,T.USER_ID,T.OFR_ID,
+		       T.PRODUCT_ID,T.EFF_DATE,T.EXP_DATE,
+		       T.EFF_FLAG,T.CREATE_DATE
+		  FROM CRM_USER.LIFE_USER_PRODUCT T
+		 WHERE T.USER_ID = #{USERID}
+		   AND T.EFF_FLAG = '0'  AND T.PRODUCT_ID NOT IN
+       (SELECT T.PARA_CHAR1
+          FROM RULE_PARAMETERS T
+         WHERE T.DOMAIN_CODE = 7000
+           AND T.PARA_NAME = 'HostProductFlag') 
+		   AND SYSDATE BETWEEN T.EFF_DATE AND T.EXP_DATE
+	</select>
+
+
+	<select id="getFileSn" resultType="java.lang.Long">
+		SELECT
+		CYCLE_CDR_SERIAL_NO.Nextval FROM dual
+	</select>
+
+
+	<!-- RULE_CYCLE_HISTORY -->
+	<select id="selectRuleCycleHistory" resultMap="RuleCycleHistoryMap"
+		parameterType="com.tydic.beijing.billing.dao.RuleCycleHistory">
+		SELECT * FROM rule_cycle_history t WHERE t.event_type_id
+		= #{event_type_id} and t.user_id = #{user_id} and t.acct_month =
+		#{acct_month}
+	</select>
+
+
+	<!-- RULE_CYCLE_HISTORY -->
+	<delete id="deleteRuleCycleHistory" parameterType="com.tydic.beijing.billing.dao.RuleCycleHistory">
+		DELETE FROM
+		rule_cycle_history t WHERE t.user_id = #{user_id} and t.event_type_id
+		= #{event_type_id}
+	</delete>
+
+	<!-- 插入扣费历史表 -->
+	<select id="insertRuleCycleHistory" parameterType="java.util.List">
+		INSERT INTO rule_cycle_history
+		(user_id,product_id,ofr_id,user_state,tariff_id,present_last_time,event_type_id,tariff_value,acct_month)
+		<foreach collection="list" item="item" index="index"
+			separator="union all">
+			select
+			#{item.user_id,jdbcType=VARCHAR},#{item.product_id,jdbcType=VARCHAR},#{item.ofr_id,jdbcType=VARCHAR},#{item.user_state,jdbcType=VARCHAR},#{item.tariff_id,jdbcType=INTEGER},
+			to_char(SYSDATE,'yyyymmddhhmiss'),#{item.event_type_id,jdbcType=NUMERIC},#{item.tariff_value,jdbcType=NUMERIC},#{item.acct_month,jdbcType=INTEGER}
+			from dual
+		</foreach>
+	</select>
+
+	<!-- 插入q_acct_process -->
+	<insert id="insertQAcctProcess" parameterType="com.tydic.beijing.billing.dao.QAcctProcess">
+		INSERT INTO
+		Q_ACCT_PROCESS
+		(CHANNEL_NO,SESSION_ID,CHARGED_PARTY,CALLING_PARTY,CALLED_PARTY,USER_ID,
+		TARIFF_INFO,PROCESS_TAG,INSERT_TIME,SERVICE_SCENARIOUS,ACCT_MONTH)
+		values (
+		#{channel_no},UA_CDR_SERIAL_NO.Nextval,#{charged_party},#{calling_party},#{called_party},
+		#{user_id},#{tariff_info},#{process_tag},SYSDATE,#{service_scenarious},#{acct_month}
+		)
+	</insert>
+
+
+	<!-- RULE_ITEM_CODE_RELATION -->
+	<select id="selectRuleItemCodeRealtion" resultMap="RuleItemCodeRelationMap">
+		SELECT
+		t.item_group,t.acct_item_code,t.group_name FROM
+		rule_item_code_relation t
+	</select>
+
+	<!-- BIL_ACT_REAL_TIME_BILL_XXX -->
+	<select id="selectBilActRealTimeBill" resultType="java.lang.Long"
+		parameterType="com.tydic.beijing.billing.dto.BilActRealTimeBill">
+		SELECT SUM(A.FEE) FROM
+		BIL_ACT_REAL_TIME_BILL_${partition_num} A WHERE a.unit_type_id = 0 and
+		A.ACCT_ITEM_CODE IN (#{acct_item}) and A.USER_ID = #{user_id}
+	</select>
+
+	<!-- 获取用户账户实时费用 -->
+	<select id="getAllBilActRealTimeBill" resultType="java.lang.Long"
+		parameterType="com.tydic.beijing.billing.dto.BilActRealTimeBill">
+		SELECT SUM(A.FEE) FROM
+		BIL_ACT_REAL_TIME_BILL_${partition_num} A WHERE
+		a.unit_type_id = 0 and
+		A.USER_ID = #{user_id}
+	</select>
+
+</mapper>

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+ 
+ <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样--> 
+	<dubbo:application name="ratingprovider" />
+	<!--<dubbo:registry address="zookeeper://172.168.1.218:2181" />-->
+	<dubbo:registry address="multicast://224.5.6.7:1234" />
+	<dubbo:protocol name="dubbo" port="-1" dispather="message" threadpool="fixed" threads="10"/>
+	
+	<!-- memcached 支持 -->
+	<bean class="com.tydic.uda.resolver.mem.MemcachedOperateResolver">
+		<property name="memcachedAddress" value="172.168.1.217:12001" />
+		<property name="connectionPoolSize" value="1" />
+	</bean>
+	
+	<!-- uda -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.tydic.vds.jdbc.VdsDriver" />
+		 <property name="url" value="jdbc:vds:local://classpath?directsql=true&amp;loadxml=true&amp;loaddb=false" />
+	</bean>
+
+	<bean class="com.tydic.uda.service.factory.XmlDataServiceFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="serviceLocations" >
+			<list>
+			<!-- <value>./daoservices/accountdataService.xml</value> -->
+				<value>dataService.xml</value>
+			</list>
+		</property>
+	</bean>
+		
+	<bean id="openCallerDisplay"
+		class="com.tydic.beijing.billing.rating.service.impl.OpenCallerDisplayProcess" scope="prototype">
+	<property name="sleepTime" value="300000" />
+	<property name="openCallerDSms" ref="openCallerDSms" />
+	</bean>
+	<bean id="openCallerDSms" class="com.tydic.beijing.billing.rating.service.impl.SmsOpenCallerDisplay" scope="prototype">
+	</bean>
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+	
+	</beans>

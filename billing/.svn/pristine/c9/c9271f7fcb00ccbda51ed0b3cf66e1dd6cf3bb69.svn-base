@@ -1,0 +1,18 @@
+TableName = JIDO_CTC
+Spilt = |
+TableColumn = SChar1 String|SCHAR2 String|SCHAR3 String|SCHAR4 String|SCHAR5 String|SCHAR6 String|SCHAR7 String|SCHAR8 String|SCHAR9 String|SCHAR10 String|SCHAR11 String|SCHAR12 String|SCHAR13 String|SCHAR14 String|SCHAR15 String|SCHAR16 String|SCHAR17 String|SCHAR18 String|SCHAR19 String|SCHAR20 String|SCHAR21 String|SCHAR22 String|SCHAR23 String|SCHAR24 String
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 1
+MonthColumn = 
+InsertLogFlag = 1
+LogTable = log_file2db_jido_ctc
+
+commit_num = 500
+file_dir = D:/MyFile/jido_ctc
+bak_dir = D:/MyFile/jido_ctc_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

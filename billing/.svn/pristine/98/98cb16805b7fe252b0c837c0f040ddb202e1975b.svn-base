@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<service data="com.tydic.beijing.billing.sms.dao.HlpSmsSend" type="jdbc">
+		<query name="getsmslist">
+			sms.HlpSmsSend.getsmslist(#{filter.amount})
+		</query>
+		<batch>
+			<choose>
+				<when test=" name='deletehlpsmssend'">
+					sms.HlpSmsSend.delete(#{filter.msg_id})
+				</when>
+				<when test="name= 'deleteHlpSmsSent' ">
+					sms.HlpSmsSend.deleteHlpSmsSent(#{filter.msg_id})
+				</when>
+			</choose>
+		</batch>
+		
+		<update name="updateHlpSmsForErr">
+			update hlp_sms_send set retry_times=retry_times+1,reason_code=#{filter.reasonCode}
+			where msg_id=#{filter.msgId}
+		</update>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.sms.dao.HlpSystemParameter" type="jdbc">
+		<query name="getparavalue">
+			sms.HlpSystemParameter.getparavalue(#{filter.para_key})
+		</query>
+		<query name="GetHlpSystemParameterList">
+			sms.HlpSystemParameter.GetHlpSystemParameterList()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.sms.dao.TbSmsSendHis" type="jdbc">
+		<create>
+			insert into tb_sms_send_his(msg_id, msisdn_send, msisdn_receive,
+			message_text, para_key, job_number, msg_prior, send_time,process_tag,intb_time) values
+			('${msg_id}',
+			'${msisdn_send}', '${msisdn_receive}', '${message_text}',
+			'${para_key}','${job_number}', '${msg_prior}', to_date('${send_time}', 'yyyyMMddHH24miss'),'0',sysdate)
+		</create>
+		<query>
+			sms.TbSmsSendHis.getSmsHisList()
+		</query>
+		<batch>
+			<choose>
+				<when test=" name='deleteTbSmsSendHis'">
+					sms.TbSmsSendHis.delete(#{filter.msg_id})
+				</when>
+			</choose>
+		</batch>
+		
+		<delete name="delSuccSms">
+			delete from tb_sms_send_his a where exists(select 1 from sms_send_log where msg_id=a.msg_id)
+		</delete>
+		
+	</service>
+	
+	<service data="com.tydic.beijing.billing.sms.dao.SmsSendLog" type="jdbc">
+		<create>
+			insert into sms_send_log(msg_id, msisdn_send, msisdn_receive,
+			message_text, para_key, job_number, priority, send_time,create_time) values
+			('${msg_id}',
+			'${msisdn_send}', '${msisdn_receive}', '${message_text}',
+			'${para_key}','${job_number}', '${priority}', to_date('${send_time}', 'yyyy-mm-dd'),sysdate)
+		</create>
+		<update name="addAll">
+			<![CDATA[
+			insert into sms_send_log(msg_id,msisdn_send,msisdn_receive,message_text,para_key,job_number,priority,send_time,
+			complete_time,create_time,process_tag,deal_flag,intb_time)
+			select msg_id,msisdn_send,msisdn_receive,message_text,para_key,job_number,msg_prior,send_time,complete_time,sysdate,
+			process_tag,deal_flag,intb_time  
+			from tb_sms_send_his where process_tag='1' and rownum<=10000
+			]]>
+		</update>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.sms.dao.RuleSmsRecvOpt" type="jdbc">
+		<query name="GetRuleSmsRecvOptList">
+			sms.RuleSmsRecvOpt.GetRuleSmsRecvOptList()
+		</query>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.sms.dao.TbWssSmsRecv" type="jdbc">
+		<query name="GetTbWssSmsRecvList">
+			sms.TbWssSmsRecv.GetTbWssSmsRecvList()
+		</query>
+		<update>
+			update tb_wss_sms_recv set process_tag = '${process_tag}' where ID = '${ID}'
+		</update>
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.Sequences" type="jdbc">
+		<query name="GetNextMsgId">
+			billing.Sequences.GetNextMsgId()
+		</query>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.billing.dao.InfoUser" type="jdbc">
+		<query name="queryUserStatus">
+			select user_status from info_user where device_number=#{filter.deviceNumber} and valid_flag='0'
+		</query>
+	
+	</service>
+	
+	
+</services>

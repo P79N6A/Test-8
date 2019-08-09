@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:saf="http://code.360buy.com/schema/saf" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://code.360buy.com/schema/saf
+    http://code.360buy.com/schema/saf/saf.xsd">
+
+ 
+	<import resource="uda.xml" />
+ 
+	<context:annotation-config />
+
+	<dubbo:application name="queryTrade" />
+
+	 <dubbo:registry address="multicast://224.5.6.7:1234" />
+	<!--<dubbo:registry address="zookeeper://172.168.1.211:2185" /> -->
+	
+<!--	<dubbo:registry address="zookeeper://127.0.0.1:2181" />-->
+	
+	<dubbo:protocol name="dubbo" port="-1" dispather="message" threadpool="fixed" threads="24"/>
+	
+
+    <bean id="dbTool" class="com.tydic.beijing.bvalue.biz.DbTool"/>
+	<bean id="queryTradeImpl" class="com.tydic.beijing.bvalue.service.impl.QueryTradeImpl" >
+	    <property name="pinpaiMap" ref="pinpaiMap"/>
+	    <property name="attrCodeMap" ref="attrCodeMap"/>
+	   	<property name="desc502ChangeTime" value="20151222000000"/>
+	</bean>
+
+
+    
+    <bean id="pinpaiMap" class="java.util.HashMap"> 
+       <constructor-arg> 
+       <map> 
+          <entry key="01" value="自由行" /> 
+          <entry key="02" value="乐购卡" /> 
+       </map> 
+       </constructor-arg> 
+    </bean> 
+    <bean id="attrCodeMap" class="java.util.HashMap"> 
+       <constructor-arg> 
+       <map> 
+          <entry key="1001" value="主产品或协议" /> 
+          <entry key="1002" value="品牌" /> 
+          <entry key="1003" value="主产品或协议" />
+       </map> 
+       </constructor-arg> 
+    </bean> 
+	    
+	    
+	    
+	<dubbo:service interface="com.tydic.beijing.bvalue.service.QueryTrade" ref="queryTradeImpl" retries="0"
+		timeout="30000" />
+
+
+</beans>

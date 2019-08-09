@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing"
+			password="billing">
+			<active>
+				<tables schema="BILLING" filter="table_name like 'UA%' or table_name like '%SM%' or table_name='Q_ACCT_PROCESS' or table_name like 'LOG_UA%' or table_name like 'ERR_UA%'" />
+			</active>
+		</driver>
+	</drivers>
+	
+	<services>
+		<!-- ua_dst_cdr -->
+		<service code="ua.uadstcdr.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_dst_cdr where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_dst_file -->
+		<service code="ua.uadstfile.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_dst_file where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_dst_record -->
+		<service code="ua.uadstrecord.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_dst_record where file_type = ?]]>
+			</script>
+		</service>
+
+		<!-- ua_medial -->
+		<service code="ua.uamedial.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_medial where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_para_default -->
+		<service name="queryAll" code="ua.uaparadefault.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_para_default]]>
+			</script>
+		</service>
+		
+		<!-- ua_para_info -->
+		<service code="ua.uaparainfo.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_para_info where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_process -->
+		<service code="ua.uaprocess.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_process where file_type = ?]]>
+			</script>
+		</service>
+		<service name="queryByFileTypeAndRecordSerial" code="ua.uaprocess.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_process where file_type = ? and record_serial = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_src_file -->
+		<service code="ua.uasrcfile.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_src_file where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_src_record -->
+		<service code="ua.uasrcrecord.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_src_record where file_type = ?]]>
+			</script>
+		</service>
+		<service name="queryByFileTypeAndRecordSerial" code="ua.uasrcrecord.queryByFileTypeAndRecordSerial" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_src_record where file_type = ? and record_serial = ?]]>
+			</script>
+		</service>
+		
+		<!-- ua_start -->
+		<service name="queryByOnOff" code="ua.uastart.getByOnOff" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_start where on_off = ?]]>
+			</script>
+		</service>
+		
+		<!-- sm_spr_msisdn_area_map -->
+		<service name="queryByIsValid" code="ua.smsprmsisdnareamap.queryByIsValid" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_spr_msisdn_area_map ]]>
+			</script>
+		</service>
+		
+		<!-- sm_code_map -->
+		<service name="queryAll" code="ua.smcodemap.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_code_map]]>
+			</script>
+		</service>
+		
+		<!-- sm_spz_city -->
+		<service name="queryAll" code="ua.smspzcity.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_spz_city]]>
+			</script>
+		</service>
+		
+		<!-- q_acct_process -->
+		<service code="ua.qacctprocess.insertqacctprocess" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<!-- ua_dst_qtable -->
+		<service code="ua.uadstqtable.queryByFileType" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from ua_dst_qtable where file_type = ?]]>
+			</script>
+		</service>
+		
+		<!-- sm_spr_access_number -->
+		<service name="queryAll" code="ua.smspraccessnumber.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_spr_access_number]]>
+			</script>
+		</service>
+		
+		<!-- sm_rule_standard_number -->
+		<service name="queryAll" code="ua.smrulestandardnumber.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_rule_standard_number]]>
+			</script>
+		</service>
+		
+		<!-- sm_code_number_class -->
+		<service name="queryAll" code="ua.smcodenumberclass.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+      			<![CDATA[select * from sm_code_number_class]]>
+			</script>
+		</service>
+		
+		<!-- ua_sequence_utils -->
+		<service name="queryAll" code="ua.uasequenceutils.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		
+		<!-- log_ua_file_type -->
+		<service code="ua.loguafiletype.queryByFileName" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="ua.loguafiletype.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="ua.loguafiletype.updateByFileName" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		
+		
+		<!-- log_ua_file_type_list -->
+		<service code="ua.loguafiletypelist.queryByFileName" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="ua.loguafiletypelist.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		<service code="ua.loguafiletypelist.updateByFileName" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<!-- err_ua_file_type -->
+		<service code="ua.erruafiletype.queryAll" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+			</script>
+		</service>
+		<service code="ua.erruafiletype.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="ua.erruafiletype.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="ua.erruafiletype.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete err_ua_file_type where 1=1 ]]>
+			</script>
+		</service>
+		
+		
+	</services>
+</vds>

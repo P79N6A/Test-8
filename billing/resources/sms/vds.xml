@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+	<drivers>
+		<driver id="1" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+			password="BILLINGtest123">
+			<active>
+				<tables schema="billing"
+					filter="table_name not like '%$%' and table_name not in ('INFO_PAY', 'INFO_USER', 'PAY_USER_REL') 
+					and table_name in ('HLP_SMS_SEND','HLP_SYSTEM_PARAMETER','TB_SMS_SEND_HIS','SMS_SEND_LOG')" />
+			</active>
+		</driver>
+		<driver id="2" clazz="oracle.jdbc.driver.OracleDriver"
+			url="jdbc:oracle:thin:@172.168.1.211:1621:jdtest" user="billing"
+			password="BILLINGtest123">
+			<active>
+				<tables schema="CRM_USER"
+					filter="table_name in ('INFO_PAY','INFO_USER', 'PAY_USER_REL','Q_USER_REASON_SEND')" />
+			</active>
+		</driver>
+	</drivers>
+	
+	<services>
+		<service code="sms.HlpSmsSend.getsmslist" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					select msg_id,msisdn_send,msisdn_receive,priority,message_text,
+					to_char(send_time,'yyyyMMddHH24miss')send_time,
+					to_char(create_time,'yyyyMMddHH24miss')create_time,
+					retry_times from hlp_sms_send  a , hlp_system_parameter b
+          			where sysdate>=a.send_time and a.retry_times<3 
+          			and substr(a.message_text,2 ,instr (a.message_text,'|', 1, 2)- 2)=b.para_key
+          			and substr(to_char(sysdate,'yyyyMMddHH24miss' ),9 ,2 )>=b.begin_time
+          			and substr(to_char(sysdate,'yyyyMMddHH24miss' ),9 ,2 )<b.end_time
+          			and rownum<=?
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.HlpSmsSend.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete from hlp_sms_send where msg_id = ? ]]>
+			</script>
+		</service>
+		
+		<service code="sms.HlpSmsSend.deleteHlpSmsSent" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete from hlp_sms_send where msg_id = ? ]]>
+			</script>
+		</service>
+		
+		<service code="sms.HlpSystemParameter.GetHlpSystemParameterList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT para_group,para_group_desc,para_key,para_key_desc,para_value,
+					para_value_desc,begin_time,end_time,para_number,para_priority
+					FROM hlp_system_parameter
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.HlpSystemParameter.getparavalue" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT * FROM hlp_system_parameter a WHERE a.para_key =?
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.TbSmsSendHis.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="sms.TbSmsSendHis.getSmsHisList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT * FROM tb_sms_send_his a WHERE a.process_tag=1
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.TbSmsSendHis.delete" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[delete from tb_sms_send_his where msg_id = ? ]]>
+			</script>
+		</service>
+		
+		<service code="sms.SmsSendLog.insert" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="sms.RuleSmsRecvOpt.GetRuleSmsRecvOptList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT * FROM rule_sms_recv_opt
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.TbWssSmsRecv.GetTbWssSmsRecvList" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[
+					SELECT * FROM tb_wss_sms_recv where process_tag = 0
+				]]>
+			</script>
+		</service>
+		
+		<service code="sms.TbWssSmsRecv.update" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+			</script>
+		</service>
+		
+		<service code="billing.Sequences.GetNextMsgId" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="true">
+			<script>
+				<![CDATA[select SEQ_HLP_SMS_SEND.nextval seq from v_dual]]>
+			</script>
+		</service>
+		
+		<service code="remind.HlpSmsSend.create" clazz="com.tydic.vds.service.single.CommonService"
+			isQuery="false">
+			<script>
+				<![CDATA[]]>
+			</script>
+		</service>
+		
+		
+		
+	</services>
+	
+	
+</vds>

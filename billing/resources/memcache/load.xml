@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="./uda.xml" />
+
+	<bean id="DBInfo" class="com.tydic.beijing.billing.memcache.type.DBInfo"
+		scope="prototype">
+		<property name="username" value="billing" />
+		<property name="password" value="billing" />
+		<property name="db_url" value="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" />
+		<property name="acct_month" value="" />
+	</bean>
+	<!--  
+	<bean id="LoadThread"
+		class="com.tydic.beijing.billing.memcache.service.impl.LoadThread"
+		scope="prototype">
+	</bean>
+	-->
+	<bean id="DB2MemImpl"
+		class="com.tydic.beijing.billing.memcache.service.impl.DB2MemImpl"
+		scope="prototype">
+		<property name="g_imsi" value="g_imsi" /><!-- ¾©¶« -->
+		<!--  <property name="g_imsi" value="imsig" />  º£º½-->
+	</bean>
+</beans>

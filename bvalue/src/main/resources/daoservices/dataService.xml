@@ -1,0 +1,1205 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<services>
+
+	<service data="com.tydic.beijing.bvalue.dao.mem.InfoPayBalanceMem" type="redis">
+
+	</service>
+	<service data="com.tydic.beijing.bvalue.dao.InfoUser" type="jdbc">
+		<query name="queryInfoUserByUserId">
+			bvalue.infouser.queryInfoUserByUserId(#{filter.userId})
+		</query>
+		<create>
+			bvalue.infouser.createInfoUser(#{user_id},#{jd_pin},#{create_date},#{user_level},#{create_channel})
+		</create>
+		<update>
+			<![CDATA[
+			--@Router(user_id, $2)
+			update info_user set jd_pin = #{jd_pin} where user_id = #{user_id}
+			]]>
+		</update>
+	</service>
+	
+	
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeExchangeHis" type="jdbc">
+		<create>
+			<![CDATA[
+			--@Router(user_id, $3)
+			insert into log_trade_exchange_his(trade_id,trade_type_code,user_id,partition_id,resource_type_code,
+			resource_value,eff_date,exp_date,exchange_time,reserve_1,reserve_2,reserve_3,reserve_4) values
+			(#{trade_id},
+			#{trade_type_code}, 
+			#{user_id},
+			#{partition_id},
+			#{resource_type_code},
+			#{resource_value},
+			str_to_date(#{eff_date}, '%Y%m%d%H%i%s'),
+			str_to_date(#{exp_date}, '%Y%m%d%H%i%s'),
+			str_to_date(#{exchange_time}, '%Y%m%d%H%i%s'),
+			#{reserve_1},
+			#{reserve_2},
+			#{reserve_3},
+			#{reserve_4}
+			 )
+			 ]]>
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.InfoPayBalance" type="jdbc">
+		<query name="queryBalanceTo0ByUserId">
+		bvalue.query.queryBalanceTo0ByUserId(#{filter.userId})
+		</query>
+		<query name="getByUseridAndTypeId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			 from info_pay_balance where user_id=#{filter.userId} and balance_type_id=#{filter.typeId}
+			and date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.currDate} and #{filter.currDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			order by eff_date 
+			]]>
+		</query>
+		<query name="getInfoPayBalanceByUserId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			from info_pay_balance where user_id=#{filter.user_id} 
+			]]>
+		</query>
+		<query name="getValidInfoPayBalanceByUserId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			from info_pay_balance where user_id=#{filter.user_id} and exp_date>str_to_date(#{filter.currentTime},'%Y%m%d%H%i%s')
+			order by exp_date,balance_type_id desc;
+			]]>
+		</query>
+		<query name="getInfoPayBalanceByManager">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			from info_pay_balance 
+			where user_id=#{filter.user_id} and exp_date>str_to_date(#{filter.currentTime},'%Y%m%d%H%i%s')
+			and balance_type_id not in (1,2) 
+			order by exp_date,balance_type_id desc;
+			]]>
+		</query>		
+		
+		
+		
+		
+		
+		<query name="getByBalanceId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id, user_id, balance_type_id, balance,date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			 from info_pay_balance where user_id=#{filter.userId} and balance_id=#{filter.balanceId}
+			]]>
+		</query>
+		<query name="getEffectiveInfoPayBalanceByUserId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			from info_pay_balance where user_id=#{filter.user_id} and date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.currDate} 
+			and #{filter.currDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			]]>
+		</query>
+		<query name="getAll">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id, user_id, balance_type_id, balance,date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date from info_pay_balance where user_id=#{filter.userId} and balance_type_id != 1 and 
+			date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.currDate} and #{filter.currDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			]]>
+		</query>
+		<query name="getTopFlowInfoPayBalance">
+		    <![CDATA[
+			--@Router(user_id, $1)
+			select  b.balance_id, b.user_id, b.balance_type_id, b.balance,date_format(b.eff_date, '%Y%m%d%H%i%s') eff_date,date_format(b.exp_date, '%Y%m%d%H%i%s') exp_date
+			 from balance_access_log a,info_pay_balance b 
+			where a.user_id= #{filter.user_id} 
+			 and a.trade_id  = #{filter.trade_id} 
+			 and a.balance_type_id = #{filter.balanceTypeId} 
+			 and a.BALANCE_ID= b.BALANCE_ID;
+			]]>
+		</query>
+
+		<update name="updateByBalanceId">
+			<![CDATA[
+			--@Router(user_id, $2)
+			update info_pay_balance set balance = balance + #{balance} where user_id=#{user_id} and balance_id = #{balance_id}
+			]]>
+		</update>
+		<update name="updateInfoPayBalanceByUserIdAndBalanceId">
+			<![CDATA[
+			--@Router(user_id, $4)
+			update info_pay_balance set balance = balance + #{balance},
+					 exp_date=str_to_date(#{exp_date}, '%Y%m%d%H%i%s'),
+					 eff_date=str_to_date(#{eff_date}, '%Y%m%d%H%i%s')
+					 where user_id= #{user_id} and balance_id = #{balance_id}
+			]]>
+		</update>
+
+		<create>
+			<![CDATA[
+			--@Router(user_id, $2)
+		    insert into info_pay_balance(balance_id, user_id , balance_type_id,balance,eff_date,exp_date)
+		    values
+		    (#{balance_id},#{user_id},#{balance_type_id},#{balance},STR_TO_DATE(#{eff_date},'%Y%m%d%H%i%s'),
+			STR_TO_DATE(#{exp_date},'%Y%m%d%H%i%s'))
+			]]>
+		</create>
+
+		<batch>
+			<choose>
+				<when test="name=='updateBalanceAndExpDate'">
+					<![CDATA[
+					--@Router(USER_ID, $4)
+					update info_pay_balance set balance = balance + #{filter.balance}, exp_date=str_to_date(#{filter.exp_date}, '%Y%m%d%H%i%s') ,
+					eff_date=str_to_date(#{filter.eff_date}, '%Y%m%d%H%i%s')
+					where user_id=#{filter.user_id} and balance_id = #{filter.balance_id}
+					]]>
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.BalanceAccessLog" type="jdbc">
+		<query name="getBalanceAccessLogByUserIdandTime">
+			bvalue.BalanceAccessLog.getBalanceAccessLogByUserIdandTime(#{filter.startTime},#{filter.endTime},#{filter.userId})
+		</query>
+
+		<create>
+			<![CDATA[
+			--@Router(user_id, $3)
+	    	insert into balance_access_log(trade_Id, trade_Type_Code, user_Id, partition_Id, balance_Id, balance_Type_Id, access_Tag, money, old_Balance, new_Balance, operate_Time) 
+	    	values(#{trade_Id}, #{trade_Type_Code}, #{user_Id}, #{partition_Id}, 
+			#{balance_Id}, #{balance_Type_Id}, #{access_Tag}
+	    	, #{money}, #{old_Balance}, #{new_Balance}, str_to_date(#{operate_Time}, '%Y%m%d%H%i%s')
+	    	) 
+			]]>
+		</create>
+
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeExchangeHis" type="jdbc">
+		<query name="getLogTradeExchangeHisbyTradeId">
+			bvalue.LogTradeExchangeHis.getLogTradeExchangeHisbyTradeId(#{filter.trade_id},#{filter.user_id})
+		</query>
+
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LifeUserAutoExchange" type="jdbc">
+		<query name="queryAutoExchangeSet">
+			bvalue.query.queryAutoExchangeSet(#{filter.currentTime},#{filter.userId})
+		</query>
+		<query name="queryByTime">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select exchange_id, user_id,cycle_type, purchase_mode, top_b_value, exchange_mode,resource_list_id, 
+			date_format(eff_date, '%Y%m%d%H%i%s')  eff_date ,date_format(exp_date, '%Y%m%d%H%i%s') exp_date  from life_user_auto_exchange where user_id=#{filter.userId} and 
+			date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.effDate} and #{filter.effDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			and exp_date >eff_date
+			]]>
+		</query>
+
+		<query name="queryByUserId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select exchange_id, user_id,cycle_type, purchase_mode, top_b_value, exchange_mode,resource_list_id, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date   from life_user_auto_exchange
+			 where user_id=#{filter.userId}
+			and exp_date >eff_date and exp_date>#{filter.currDate};
+			]]>
+		</query>
+
+		<query name="queryByTime2">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select exchange_id, user_id,cycle_type, purchase_mode, top_b_value, exchange_mode,resource_list_id, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date from life_user_auto_exchange where user_id=#{filter.userId} and #{filter.effDate} <= date_format(eff_date, '%Y%m%d%H%i%s') and
+			exp_date >eff_date
+			]]>
+		</query>
+
+ 	
+<query name="queryEffectiveRecord">
+			<![CDATA[
+			--@DataSource(1)
+			select exchange_id, user_id,cycle_type, purchase_mode, top_b_value, exchange_mode,resource_list_id, 
+			date_format(eff_date, '%Y%m%d%H%i%s'),date_format(exp_date, '%Y%m%d%H%i%s')  from life_user_auto_exchange where   
+			date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.currDate} and #{filter.currDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			]]>
+		</query>
+	
+		
+		
+		<query name="xCheckExchangeId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select exchange_id from life_user_auto_exchange where user_id=#{filter.userId} and exchange_id = #{filter.exchangeId}
+			]]>
+		</query>
+		<query name="queryByExchangeId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select exchange_id, user_id,cycle_type, purchase_mode, top_b_value, exchange_mode,resource_list_id, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date  from life_user_auto_exchange where user_id=#{filter.userId} and exchange_id = #{filter.exchageId} and eff_date<exp_date and #{filter.currDate}<= date_format(eff_date, '%Y%m%d%H%i%s');
+			]]>
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(user_id, $2)
+			insert into life_user_auto_exchange(exchange_id,user_id,cycle_type,purchase_mode,
+			top_b_value,exchange_mode,resource_list_id,eff_date,exp_date)
+			values(#{exchange_id},#{user_id},#{cycle_type},#{purchase_mode},#{top_b_value},#{exchange_mode},
+			#{resource_list_id},str_to_date(#{eff_date}, '%Y%m%d%H%i%s'),str_to_date(#{exp_date}, '%Y%m%d%H%i%s'))
+			]]>
+		</create>
+		<update>
+			<![CDATA[
+			--@Router(user_id, $2)
+			update life_user_auto_exchange set exp_date=str_to_date(#{exp_date}, '%Y%m%d%H%i%s')
+			where user_id=#{user_id} and exchange_id=#{exchange_id}
+			]]>
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LifeUserAutoExchangeDao" type="jdbc">
+		<update>
+		<![CDATA[
+			--@Router(user_id, $3)
+			update life_user_auto_exchange set exp_date=str_to_date(#{exp_date},'%Y%m%d%H%i%s')
+			where exp_date>str_to_date(#{exp_date},'%Y%m%d%H%i%s') and user_id=#{user_id}
+		]]>
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeAutoExchangeSetHis" type="jdbc">
+		<create>
+			<![CDATA[
+			--@Router(user_id, $3)
+			insert into log_trade_auto_exchange_set_his
+			(trade_id, trade_type_code, user_id, partition_id, exchange_id, operation_type, cycle_type, 
+			purchase_mode, top_b_value, exchange_mode, eff_date, exp_date, resource_list_id, order_number,
+			resource_type_code, resource_value, reserve_1, reserve_2, reserve_3, reserve_4)
+			values(#{trade_id}, #{trade_type_code}, #{user_id}, #{partition_id}, #{exchange_id}, #{operation_type}, #{cycle_type}, 
+			#{purchase_mode}, #{top_b_value}, #{exchange_mode}, str_to_date(#{eff_date}, '%Y%m%d%H%i%s'), str_to_date(#{exp_date}, '%Y%m%d%H%i%s'), #{resource_list_id}, #{order_number}, #{resource_type_code}, #{resource_value}
+			, #{reserve_1}, #{reserve_2}, #{reserve_3}, #{reserve_4})
+			]]>
+		</create>
+		<query>
+		    <![CDATA[
+			--@Router(user_id, $1)
+			select trade_type_code,user_id,partition_id,exchange_id,operation_type,cycle_type,purchase_mode,top_b_value,
+			       exchange_mode,date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date,
+			       resource_list_id,order_number,resource_type_code,resource_value
+			 from LOG_TRADE_AUTO_EXCHANGE_SET_HIS
+			where user_id=#{filter.user_id} and trade_id = #{filter.trade_id}
+			]]>
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LifeResourceList" type="jdbc">
+		<query>
+			bvalue.query.queryExchangeResourceList(#{filter.resource_list_id},#{filter.userId})
+		</query>
+		<query name="xgetLifeSourceListByExchangeId">
+			<![CDATA[
+			--@DataSource(1)
+			select resource_list_id, user_id, order_number, resource_type_code, resource_value from life_resource_list
+			where user_id=#{filter.userId} and resource_list_id = #{filter.resourceListId}
+			]]>
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(user_id, $2)
+			insert into life_resource_list(resource_list_id,user_id, order_number,resource_type_code,resource_value
+			) values (#{resource_list_id},#{user_id}, #{order_number},#{resource_type_code},#{resource_value})
+			]]>
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeCreateUserHis" type="jdbc">
+		<create>
+			bvalue.logTradeCreateUserHis.createuser(#{trade_id},#{jd_pin},#{user_id},#{partition_id},#{process_tag})
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeCreateUser" type="jdbc">
+		<query>
+			--@Router(user_id, $2)
+			select trade_id,jd_pin,user_id,partition_id,process_tag
+			from log_trade_create_user
+			where
+			trade_id= #{trade_id} and user_id=#{user_id}
+			select trade_id,jd_pin,user_id,partition_id,process_tag
+			from
+			log_trade_create_user
+			where trade_id= #{trade_id}
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(user_id, $3)
+			INSERT INTO log_trade_create_user
+			(TRADE_ID, JD_PIN, USER_ID, PARTITION_ID, PROCESS_TAG)
+			VALUES(#{trade_id}, #{jd_pin}, #{user_id}, #{partition_id}, #{process_tag})
+			]]>
+		</create>
+
+		<batch>
+			<choose>
+				<when test="name=='deleteCreateUserByTradeId'">
+					<![CDATA[
+					--@Router(USER_ID, $1)
+					delete from log_trade_create_user where user_id = #{filter.user_id} and trade_id = #{filter.trade_id}
+					]]>
+				</when>
+			</choose>
+		</batch>
+
+	</service>
+	<!-- InfoBpool -->
+	<service data="com.tydic.beijing.bvalue.dao.InfoBpool" type="jdbc">	
+		<query name="queryInfoBPoolCRM">
+		bvalue.QueryInfoBPoolCRM.getCondtion(){
+		vds.sql.append("${filter.condition}");
+		}
+		</query>
+		<query name="getAllInfoBPoolCRM">
+		<![CDATA[
+        --@DataSource(1)		
+		select bpool_id, bpool_name ,departMent_type,activity_type,
+		date_format(eff_date,'%Y%m%d%H%i%s') eff_date,date_format(exp_date,'%Y%m%d%H%i%s') exp_date,
+		pwd,bpool,cost_value,used_balance,balance,threshold,thre_status,activity_status,
+		date_format(create_time,'%Y%m%d%H%i%s') create_time,create_staff,contact_phone,contact_email,note 
+		from info_bpool 
+		order by create_time desc
+		]]>
+		</query>
+		<query name="queryBPoolId">
+		<![CDATA[
+        --@DataSource(1)		
+		select bpool_id, bpool_name ,departMent_type,activity_type,date_format(eff_date,'%Y%m%d%H%i%s') eff_date,
+		date_format(exp_date,'%Y%m%d%H%i%s') exp_date,pwd,bpool,cost_value,used_balance
+		,balance,threshold,thre_status,activity_status,contact_phone,contact_email,note,
+		date_format(create_time,'%Y%m%d%H%i%s') create_time,create_staff
+		 from info_bpool where bpool_id=#{filter.bpool_id} 
+		]]>
+		</query>
+
+		<create>
+			bvalue.InfoBpool.createInfoBpool(#{bpool_id},#{bpool_name},#{departMent_type},#{activity_type},
+			#{eff_date},#{exp_date},#{pwd},#{bpool},#{cost_value},#{used_balance},#{balance},
+			#{threshold},#{thre_status},#{activity_status},#{create_time},#{create_staff},#{contact_phone},
+			#{contact_email},#{note})
+		</create>
+		<!-- updateInfoBpool -->
+		<update name="updateInfoBpool">
+			<![CDATA[
+			--@DataSource(1)
+			update info_bpool 
+			set bpool_name=#{bpool_name},departMent_type=#{departMent_type},activity_type=#{activity_type},
+				eff_date=str_to_date(#{eff_date},'%Y%m%d%H%i%s'),exp_date=str_to_date(#{exp_date},'%Y%m%d%H%i%s'),
+				bpool=#{bpool},cost_value=#{cost_value},threshold=#{threshold},activity_status=#{activity_status},
+				contact_phone=#{contact_phone},contact_email=#{contact_email},note=#{note},
+				balance=balance+#{balance},used_balance=used_balance+#{used_balance},thre_status=#{thre_status}
+		    	where bpool_id=#{bpool_id} 
+			]]>
+		</update>
+	</service>
+	
+	<!-- com.tydic.beijing.bvalue.dao.LogTradeRewardHis -->
+		<service data="com.tydic.beijing.bvalue.dao.LogTradeRewardHis" type="jdbc">	
+		<create>
+	     <![CDATA[
+			--@Router(USER_ID, $2)
+			insert into log_trade_reward_his(
+			trade_id,user_id,partition_id,bpool_id,plat_name,process_time,
+             process_tag,bvalue,reserve_c1,reserve_c2,reserve_c3,reserve_c4 )
+             values
+             (#{trade_id},#{user_id},#{partition_id},#{bpool_id},#{plat_name},str_to_date(#{process_time}, '%Y%m%d%H%i%s'),
+             #{process_tag},#{bvalue},#{reserve_c1},#{reserve_c2},#{reserve_c3},#{reserve_c4})			
+			]]>
+		</create>
+		
+		<query name="queryLogTradeRewardHis">
+		   <![CDATA[
+			--@Router(user_id, $1)
+			select trade_id,user_id,partition_id,bpool_id,plat_name,date_format(process_time , '%Y%m%d%H%i%s') process_time,
+             process_tag,bvalue,reserve_c1,reserve_c2,reserve_c3,reserve_c4
+            from log_trade_reward_his where user_id=#{filter.user_id} 
+			and  trade_id=#{filter.trade_id}
+			]]>
+		</query>
+	</service>
+	
+	<!-- LogTradeBpoolHisDtl -->
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeBpoolHisDtl" type="jdbc">	
+		<create>
+			bvalue.LogTradeBpoolHisDtl.createLogTradeBpoolHisDtl(#{trade_id},#{bpool_id},#{bpool_name},#{departMent_type},#{activity_type},
+			#{eff_date},#{exp_date},#{pwd},#{bpool},#{cost_value},#{used_balance},#{balance},
+			#{threshold},#{thre_status},#{activity_status},#{create_time},#{create_staff},#{contact_phone},
+			#{contact_email},#{activity_id},#{jdpin},#{bvalue},#{old_bpool},#{new_bpool},#{note})
+		</create>
+	
+		
+	</service>
+	
+	<!-- LogTradeBpoolHis -->
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeBpoolHis" type="jdbc">	
+		<create>
+			bvalue.LogTradeBpoolHis.createLogTradeBpoolHis(#{trade_id},#{TRADE_TYPE_CODE},#{bpool_id},#{PARTITION_ID},#{ORDER_NO},
+			#{PROCESS_TIME},#{PROCESS_TAG},#{RESERVE_C1},#{RESERVE_C2},#{RESERVE_C3},#{RESERVE_C4})
+		</create>
+			<query name="queryLogTradeBpoolHisbypoolandOrder">
+		   <![CDATA[
+			--@DataSource(1)
+			select *
+            from log_trade_bpool_his where bpool_id=#{filter.bpool_id} 
+			and  order_no=#{filter.order_no}
+			]]>
+		</query>
+	</service>
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeHis" type="jdbc">
+		<query name="xByOrderNoAndTradeTypeCode">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id, trade_type_code, external_system_code, channel_type, user_id, 
+			partition_id, order_no, order_type, order_amount, date_format(order_completion_time, '%Y%m%d%H%i%s') order_completion_time,
+			balance_type_id, unit_type_id, balance, overtop_value, process_tag, date_format(trade_time, '%Y%m%d%H%i%s') trade_time, 
+			date_format(process_time, '%Y%m%d%H%i%s') process_time from log_trade_his where user_id=#{filter.user_id} 
+			and trade_type_code in( #{filter.tradeTypeCodes} ) and order_no=#{filter.order_no}
+			]]>
+		</query>
+
+          <query name="getLogTradeHisByUserIdAndOrderNo">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id, trade_type_code, external_system_code, channel_type, user_id, 
+			partition_id, order_no, order_type, order_amount, date_format(order_completion_time, '%Y%m%d%H%i%s') order_completion_time,
+			balance_type_id, unit_type_id, balance, overtop_value, process_tag, date_format(trade_time, '%Y%m%d%H%i%s') trade_time, 
+			date_format(process_time, '%Y%m%d%H%i%s') process_time from log_trade_his where user_id=#{filter.userId} 
+			and  order_no=#{filter.orderNo}
+			]]>
+		</query>
+		<query name="getLogTradeExternalAccountHisByTradeId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id, trade_type_code, external_system_code, channel_type, user_id, 
+			partition_id, order_no, order_type, order_amount, date_format(order_completion_time, '%Y%m%d%H%i%s') order_completion_time,
+			balance_type_id, unit_type_id, balance, overtop_value, process_tag, date_format(trade_time, '%Y%m%d%H%i%s') trade_time, 
+			date_format(process_time, '%Y%m%d%H%i%s') process_time from log_trade_his where user_id=#{filter.userId} 
+			and  trade_id=#{filter.tradeId}
+			]]>
+		</query>
+		
+		<query name="getLogTradeHisByUserIdAndTime">
+			bvalue.LogTradeHis.getLogTradeHisByUserIdAndTime(#{filter.startTime},#{filter.endTime},#{filter.userId})
+		</query>
+		<query name="getLogTradeHisByUserIdAndDxztime">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id from log_trade_his where user_id=  #{filter.userId}
+		    and trade_type_code ='106' and  date_format(trade_time , '%Y%m%d%H%i%s') >= #{filter.dxztime1}
+			]]>
+		</query>
+		
+
+		<create>
+	     <![CDATA[
+			--@Router(user_id, $5)
+			insert into log_trade_his (trade_id,trade_type_code,external_system_code,channel_type, user_id,partition_id,order_no,
+			order_type,order_amount,order_completion_time,balance_type_id,unit_type_id,balance,process_tag,
+			trade_time,process_time,remark,overtop_value) values (
+				#{trade_id},#{trade_type_code},#{external_system_code},#{channel_type},
+			#{user_id},#{partition_id},#{order_no},#{order_type},#{order_amount},str_to_date(#{order_completion_time}, '%Y%m%d%H%i%s'),#{balance_type_id},#{unit_type_id},#{balance},
+			#{process_tag},str_to_date(#{trade_time}, '%Y%m%d%H%i%s'),str_to_date(#{process_time}, '%Y%m%d%H%i%s'),#{remark},#{overtop_value})
+			]]>
+		</create>
+		<update>
+			bvalue.LogTradeHis.updateProcessTag(#{process_tag},#{remark},#{trade_id},#{user_id})
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTrade" type="jdbc">
+		<query name="xByOrderNoAndTradeTypeCode">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id, trade_type_code, external_system_code, channel_type, user_id, 
+			partition_id, order_no, order_type, order_amount, date_format(order_completion_time, '%Y%m%d%H%i%s') order_completion_time,
+			balance_type_id, unit_type_id, balance, process_tag, date_format(trade_time, '%Y%m%d%H%i%s') trade_time, 
+			date_format(process_time, '%Y%m%d%H%i%s') process_time from log_trade where user_id=#{filter.user_id}
+			and trade_type_code in ( #{filter.tradeTypeCodes} ) and order_no=#{filter.order_no}
+			]]>
+		</query>
+		<!-- 重要：指定分库 ，SKU后台赠送 -->
+		<query name="byMod">
+			<![CDATA[
+			--@DataSource(1)
+			select trade_id, trade_type_code, external_system_code, channel_type, user_id, 
+			partition_id, order_no, order_type, order_amount, date_format(order_completion_time, '%Y%m%d%H%i%s') order_completion_time,
+			balance_type_id, unit_type_id, balance, process_tag, date_format(trade_time, '%Y%m%d%H%i%s') trade_time, 
+			date_format(process_time, '%Y%m%d%H%i%s') process_time,reserve_n1, reserve_n2, reserve_n3, reserve_n4, 
+			reserve_c1, reserve_c2, reserve_c3, reserve_c4 from log_trade where  
+			mod(hex(substr(user_id , -6)), #{filter.channel}) = #{filter.remainder} and (trade_type_code = '101' or 
+			trade_type_code='201') and process_tag=0 
+			]]>
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $4)
+			insert into log_trade(trade_id,trade_type_code,external_system_code,user_id,partition_id,order_no,order_type,
+			order_amount,order_completion_time,balance_type_id,unit_type_id,balance,process_tag,
+			trade_time,process_time, reserve_n1, reserve_n2, reserve_n3, reserve_n4, reserve_c1, reserve_c2, reserve_c3, reserve_c4) values (
+				#{trade_id},#{trade_type_code},#{external_system_code},#{user_id},#{partition_id},#{order_no},#{order_type},
+				#{order_amount},str_to_date(#{order_completion_time}, '%Y%m%d%H%i%s'),#{balance_type_id},#{unit_type_id},
+				#{balance},#{process_tag},str_to_date(#{trade_time}, '%Y%m%d%H%i%s'),str_to_date(#{process_time}, '%Y%m%d%H%i%s'),
+				#{reserve_n1}, #{reserve_n2}, #{reserve_n3}, #{reserve_n4}, #{reserve_c1}, #{reserve_c2}, #{reserve_c3}, #{reserve_c4})
+			]]>
+		</create>
+		
+		<update>
+			<![CDATA[
+			--@Router(user_id, $2)
+			update log_trade set process_tag =#{process_tag}
+			where user_id=#{user_id} and trade_id =#{trade_id}
+			]]>
+		</update>
+
+		<batch>
+			<choose>
+				<when test="name=='deleteByTradeId'">
+					<![CDATA[
+					--@Router(USER_ID, $1)
+					delete from log_trade where user_id = #{filter.user_id} and trade_id = #{filter.trade_id}
+					]]>
+				</when>
+			</choose>
+		</batch>
+
+
+
+	</service>
+
+
+
+	<service data="com.tydic.beijing.bvalue.dao.OriginalShoppingFile" type="jdbc">
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $7)
+			insert into original_shopping_file(jdpin ,order_no,order_type,amount,org_order_no,complete_time, user_id,import_time,process_tag)
+			values
+			(#{jdpin},#{order_no},#{order_type},#{amount},#{org_order_no},#{complete_time},#{user_id},#{import_time},#{process_tag})
+			]]>
+		</create>
+
+		<query name="getAllShoppingInfosbyUserId">
+		  <![CDATA[
+		    --@Router(USER_ID, $1)
+		   		 select jdpin,order_no,order_type,amount,org_order_no,
+						date_format(complete_time, '%Y%m%d%H%i%s')  complete_time,user_id,import_time,date_format(operate_time, '%Y%m%d%H%i%s') operate_time,process_tag ,trade_id
+				 from original_shopping_file where user_id=#{filter.user_id}
+		    ]]>
+		</query>
+
+		<batch>
+			<choose>
+				<when test="name=='dealSuccess'">
+					<![CDATA[
+					--@Router(USER_ID, $4)
+					update original_shopping_file 
+					set trade_id = #{filter.trade_id},process_tag=#{filter.process_tag},operate_time =#{filter.operate_time}
+					where user_id = #{filter.user_id}
+					]]>
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeShoppingHis" type="jdbc">
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $2)
+			insert into log_trade_shopping_his ( trade_id,user_id,partition_id,order_no,order_type,
+			order_completion_time,org_order_no,order_amount,process_tag,process_time) 
+			values
+			(#{trade_id},#{user_id},#{partition_id},#{order_no},#{order_type},
+			str_to_date(#{order_completion_time}, '%Y%m%d%H%i%s'),#{org_order_no},#{order_amount},#{process_tag},str_to_date(#{process_time}, '%Y%m%d%H%i%s'))
+			
+			]]>
+		</create>
+		<query name="getShoppingDetail">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id,user_id,partition_id,order_no,order_type,order_amount,
+					date_format(order_completion_time,'%Y%m%d%H%i%s')order_completion_time,
+					org_order_no,balance,unit_type_id,old_balance,new_balance,overtop_value,
+					process_tag,date_format(process_time,'%Y%m%d%H%i%s')process_time,
+					reserve_1,reserve_2,reserve_3,reserve_4
+            from log_trade_shopping_his where user_id=#{filter.user_id} and order_no=#{filter.order_no} 
+			]]>
+		</query>
+		<!-- add zxm -->
+		<query name="isOrderNoExits">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id,user_id,partition_id,order_no,order_type,order_amount,
+					date_format(order_completion_time,'%Y%m%d%H%i%s')order_completion_time,
+					org_order_no,balance,unit_type_id,old_balance,new_balance,overtop_value,
+					process_tag,date_format(process_time,'%Y%m%d%H%i%s')process_time,
+					reserve_1,reserve_2,reserve_3,reserve_4
+            from log_trade_shopping_his where user_id=#{filter.user_id} and order_no=#{filter.order_no} 
+			]]>
+		</query>
+	</service>
+	
+		<service data="com.tydic.beijing.bvalue.dao.LogTradeShopping" type="jdbc">
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $2)
+			insert into log_trade_shopping ( trade_id,user_id,partition_id,order_no,order_type,
+			reserve_1,reserve_2,order_amount,process_tag,process_time) 
+			values
+			(#{trade_id},#{user_id},#{partition_id},#{order_no},#{order_type},
+			#{reserve_1},str_to_date(#{reserve_2}, '%Y%m%d%H%i%s'),#{order_amount},#{process_tag},str_to_date(#{process_time}, '%Y%m%d%H%i%s'))		
+			]]>
+		</create>
+	</service>
+	
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeSku" type="jdbc">
+		<query name="checkExist">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id from log_trade_sku where user_id=#{filter.user_id} and order_no=#{filter.order_no} 
+			]]>
+		</query>
+		<query name="byTradeId">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id, trade_type_code, user_id, partition_id, order_no, order_type, sub_order_type, 
+			order_number, sku_id, purchase_quantity,
+			 b_value, org_order_no, balance, unit_type_id, old_balance, new_balance, overtop_value, process_tag, date_format(process_time, '%Y%m%d%H%i%s'),
+			  reserve_1, reserve_2, reserve_3, reserve_4 from log_trade_sku where user_id=#{filter.user_id} and trade_id=#{filter.trade_id} 
+			  and process_tag=0
+			  ]]>
+		</query>
+		<query name="xGetBValue">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id, trade_type_code, user_id, partition_id, order_no, order_type, sub_order_type, 
+			order_number, sku_id, purchase_quantity,
+			 b_value, org_order_no, balance, unit_type_id, old_balance, new_balance, overtop_value, process_tag, date_format(process_time, '%Y%m%d%H%i%s'),
+			  reserve_1, reserve_2, reserve_3, reserve_4 from log_trade_sku where user_id=#{filter.user_id} and trade_id=#{filter.trade_id} 
+			  and sku_id = #{filter.sku_id} 
+			  ]]>
+		</query>
+
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_sku (trade_id,trade_type_code,user_id,partition_id,order_no,order_type,sub_order_type,order_number,sku_id,
+			purchase_quantity,b_value,org_order_no,balance,unit_type_id,old_balance,new_balance,overtop_value,
+			process_tag,process_time,reserve_1,reserve_2,reserve_3,reserve_4) values (
+			#{trade_id},#{trade_type_code},#{user_id},#{partition_id},#{order_no},#{order_type},
+			#{sub_order_type},#{order_number},
+			#{sku_id},#{purchase_quantity},#{b_value},#{org_order_no},#{balance},#{unit_type_id},#{old_balance},#{new_balance},
+			#{overtop_value},#{process_tag},str_to_date(#{process_time}, '%Y%m%d%H%i%s'),#{reserve_1},#{reserve_2},
+			#{reserve_3},#{reserve_4})
+			]]>
+		</create>
+
+		<batch>
+			<choose>
+				<when test="name=='deleteByTradeId'">
+					<![CDATA[
+					--@Router(USER_ID, $1)
+					delete from log_trade_sku where user_id = #{filter.user_id} and trade_id = #{filter.trade_id}
+					]]>
+				</when>
+			</choose>
+		</batch>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.InfoUserExternalAccount" type="jdbc">
+		<query name="byUserid">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+	        select  external_account_id,user_id,jd_pin, external_system_code,external_account_code,date_format(eff_date, '%Y%m%d%H%i%s'),date_format(exp_date, '%Y%m%d%H%i%s')exp_date,date_format(create_date, '%Y%m%d%H%i%s') from info_user_external_account where user_id=#{filter.user_id} 
+	        and date_format(eff_date, '%Y%m%d%H%i%s') <= #{filter.currDate} 
+	        and #{filter.currDate} <= date_format(exp_date, '%Y%m%d%H%i%s')
+			]]>
+		</query>
+
+		<query name="queryPinRelation" flushCache="true">
+			bvalue.InfoUserExternalAccount.queryPinRelation(#{filter.currentTime},#{filter.currentTime},#{filter.user_id})
+		</query>
+
+		<query name="isRelationExists">
+			bvalue.InfoUserExternalAccount.isRelationExists(#{filter.currentTime},#{filter.user_id})
+		</query>
+		<create name="addExternalInfoUser">
+			<![CDATA[
+			--@Router(USER_ID, $2)
+	    	insert into info_user_external_account(external_account_id,user_id,jd_pin,external_system_code,external_account_code,eff_date,
+	    	exp_date,create_date)
+	    	values(#{external_account_id},#{user_id},#{jd_pin},
+	    	#{external_system_code},#{external_account_code},
+			now(),str_to_date(#{exp_date},'%Y%m%d%H%i%s'),now())
+			]]>
+		</create>
+		<update name="updatePinRelation">
+			<![CDATA[
+			--@Router(USER_ID, $2)
+	    	update info_user_external_account set exp_date=str_to_date(#{exp_date},'%Y%m%d%H%i%s') 
+	    	where user_id=#{user_id} and external_account_id=#{external_account_id}
+			]]>
+		</update>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeRelChg" type="jdbc">
+		<create name="addLogTradeRelChg">
+			<![CDATA[
+			--@Router(USER_ID, $5)
+			insert into log_trade_his (trade_id,trade_type_code,external_system_code,channel_type,
+			user_id,partition_id,process_tag ,trade_time,process_time ,remark) 
+			values 
+			(#{trade_id},#{trade_type_code},#{external_system_code},#{channel_type},#{user_id},#{partition_id},
+			#{process_tag},str_to_date(#{trade_time}, "%Y%m%d%H%i%s"),str_to_date(#{process_time}, "%Y%m%d%H%i%s"),#{remark}
+			)
+			]]>
+		</create>
+		<query name="queryProcess">
+			bvalue.LogTradeRelChg.queryProcess(#{filter.user_id})
+		</query>
+
+		<query name="queryPinRelation">
+			bvalue.InfoUserExternalAccount.queryPinRelation(#{filter.user_id})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.InfoUserExternalAccountAttr" type="jdbc">
+		<create name="addExternalUserAttr">
+			<![CDATA[
+			--@Router(USER_ID, $2)
+			insert into info_user_external_account_attr(external_account_id,user_id,jd_pin,external_system_code,
+			attr_code,attr_value,eff_date,exp_date)
+			 values(#{external_account_id},#{user_id},#{jd_pin},#{external_system_code},#{attr_code},
+			#{attr_value},str_to_date(#{eff_date},'%Y%m%d%H%i%s'),str_to_date(#{exp_date},'%Y%m%d%H%i%s'))
+			]]>
+		</create>
+		<update name="updateExternalAccountAttr">
+			bvalue.InfoUserExternalAccountAttr.updateExternalAccountAttr(#{exp_date},#{user_id},#{external_account_id})
+		</update>
+		<query name="getExternalAccountAttrbyUserIdAndExternal">
+			bvalue.infoUserExternalAccountAttr.getExternalAccountAttrbyUserIdAndExternal(#{filter.user_id},#{filter.external_account_id})
+		</query>
+		<query name="byExternalAttr">
+			bvalue.infoUserExternalAccountAttr.byExternalAttr(#{filter.userId},#{filter.externalId})
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeExternalAccountHis" type="jdbc">
+		<create name="addExternalUserHis">
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_external_account_his (trade_id,trade_type_code,user_id,partition_id,external_account_id,external_system_code,
+			operation_type,external_account_code,eff_date,exp_date)
+			values(#{trade_id},#{trade_type_code},#{user_id},#{partition_id},#{external_account_id},#{external_system_code},
+			#{operation_type},#{external_account_code},now(),str_to_date(#{exp_date},'%Y%m%d%H%i%s'))
+			]]>
+		</create>
+		<update name="updateExternalUserHis">
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_external_account_his (trade_id,trade_type_code,user_id,partition_id,external_account_id,external_system_code,
+			operation_type,external_account_code,eff_date,exp_date)
+			values(#{trade_id},#{trade_type_code},#{user_id},#{partition_id},#{external_account_id},#{external_system_code},
+			#{operation_type},#{external_account_code},str_to_date(#{eff_date},'%Y%m%d%H%i%s'),str_to_date(#{exp_date},'%Y%m%d%H%i%s'))
+			]]>
+		</update>
+		<query >
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select  trade_type_code,user_id,partition_id,external_account_id,external_system_code,
+			        operation_type,external_account_code,date_format(eff_date,'%Y%m%d%H%i%s') eff_date,date_format(exp_date,'%Y%m%d%H%i%s') exp_date
+			from log_trade_external_account_his 
+			where user_id=#{filter.user_id} and trade_id = #{filter.trade_id} 
+ 
+
+
+			]]>
+		</query>
+		
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeExternalAccountAttrHis" type="jdbc">
+		<create name="addExternalUserAttrHis">
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_external_account_attr_his(trade_id,trade_type_code,user_id,partition_id,
+			external_account_id,external_system_code,
+			operation_type,attr_code,attr_value,eff_date,exp_date)
+			values(#{trade_id},#{trade_type_code},#{user_id},#{partition_id},#{external_account_id},#{external_system_code},
+			#{operation_type},#{attr_code},#{attr_value},str_to_date(#{eff_date},'%Y%m%d%H%i%s'),
+			str_to_date(#{exp_date},'%Y%m%d%H%i%s'))
+			]]>
+		</create>
+		<update name="updateExternalUserAttrHis">
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_external_account_attr_his (trade_id,trade_type_code,user_id,partition_id,external_account_id,
+			external_system_code,operation_type,attr_code,attr_value,eff_date,exp_date)
+			select #{trade_id},#{trade_type_code},#{user_id},#{partition_id},b.external_account_id,
+			b.external_system_code,'2',b.attr_code,b.attr_value,
+			b.eff_date,b.exp_date from info_user_external_account_attr b 
+			where  b.external_account_id=#{external_account_id} and b.user_id=#{user_id} 
+			
+			
+			
+			]]>
+		</update>
+			<query>
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select  trade_type_code,user_id,partition_id,external_account_id,external_system_code,
+			        operation_type,attr_code,attr_value,date_format(eff_date,'%Y%m%d%H%i%s')  eff_date,date_format(exp_date,'%Y%m%d%H%i%s')  exp_date
+			from log_trade_external_account_attr_his
+			 where user_id=#{filter.user_id} and  trade_id = #{filter.trade_id} 
+			]]>
+		</query>
+		
+ 
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogRatableHistory" type="jdbc">
+		<query name="byUserId">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select ratable_history_id, user_id, ratable_type_code, `value`, start_cycle, 
+			end_cycle, date_format(create_time,'%Y%m%d%H%i%s')  create_time
+			from log_ratable_history where user_id=#{filter.user_id} and start_cycle <= #{filter.currDate} 
+			and #{filter.currDate} <= end_cycle 
+			]]>
+		</query>
+
+		<update>
+			<![CDATA[
+			--@Router(USER_ID, $2)
+			update log_ratable_history set value = value + #{value} where user_id=#{user_id} and ratable_history_id = #{ratable_history_id}
+			]]>
+		</update>
+
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $2)
+			insert into log_ratable_history
+			(ratable_history_id, user_id, ratable_type_code, `value`, start_cycle, end_cycle, create_time)
+			values(#{ratable_history_id}, #{user_id}, #{ratable_type_code}, #{value},
+			#{start_cycle}, #{end_cycle}, str_to_date(#{create_time},'%Y%m%d%H%i%s'))
+			]]>
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeSkuHis" type="jdbc">
+		<query name="checkExist">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id from log_trade_sku_his where user_id=#{filter.user_id} and order_no=#{filter.order_no} 
+			]]>
+		</query>
+		<query name="xGetBValue">
+			<![CDATA[
+			--@Router(USER_ID, $1)
+			select trade_id, trade_type_code, user_id, partition_id, order_no, order_type, sub_order_type, 
+			order_number, sku_id, purchase_quantity,
+			 b_value, org_order_no, balance, unit_type_id, old_balance, new_balance, overtop_value, process_tag, date_format(process_time, '%Y%m%d%H%i%s'),
+			  reserve_1, reserve_2, reserve_3, reserve_4 from log_trade_sku_his where user_id=#{filter.user_id} and trade_id=#{filter.trade_id} 
+			   and sku_id = #{filter.sku_id} 
+			  ]]>
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(USER_ID, $3)
+			insert into log_trade_sku_his (trade_id,trade_type_code,user_id,partition_id,order_no,order_type,sub_order_type,order_number,sku_id,
+			purchase_quantity,b_value,org_order_no,balance,unit_type_id,old_balance,new_balance,overtop_value,
+			process_tag,process_time,reserve_1,reserve_2,reserve_3,reserve_4) values (
+			#{trade_id},#{trade_type_code},#{user_id},#{partition_id},#{order_no},#{order_type},
+			#{sub_order_type},#{order_number},
+			#{sku_id},#{purchase_quantity},#{b_value},#{org_order_no},#{balance},#{unit_type_id},#{old_balance},#{new_balance},
+			#{overtop_value},#{process_tag},str_to_date(#{process_time}, '%Y%m%d%H%i%s'),#{reserve_1},#{reserve_2},
+			#{reserve_3},#{reserve_4})
+			]]>
+		</create>
+	</service>
+
+
+
+	<service data="com.tydic.beijing.bvalue.dao.ExternalAccountAttrInfo" type="jdbc">
+		  <update>
+		  <![CDATA[
+				--@Router(user_id, $5)
+				update info_user_external_account_attr set exp_date=str_to_date(#{exp_date},'%Y%m%d%H%i%s') 
+				where external_account_id=#{external_account_id}
+				and attr_code=#{attr_code} and attr_value=#{attr_value} and user_id=#{user_id} and exp_date>str_to_date(#{eff_date},'%Y%m%d%H%i%s')
+				]]>
+			</update>
+	</service>
+
+
+	
+
+	<service data="com.tydic.beijing.bvalue.dao.LogTradeAdjustHis" type="jdbc">
+		<create>
+			<![CDATA[
+				--@Router(USER_ID, $2)
+				insert into log_trade_adjust_his (trade_id,user_id,partition_id,adjust_mode,balance_type_id,unit_type_id,
+				adjust_fee,old_balance,new_balance,adjust_reason,adjust_time)
+				values(#{trade_id},#{user_id},#{partition_id},#{adjust_mode},#{balance_type_id},#{unit_type_id},
+				#{adjust_fee},#{old_balance},#{new_balance},#{adjust_reason},str_to_date(#{adjust_time},'%Y%m%d%H%i%s'))
+			
+			]]>
+		</create>
+		<query>
+			<![CDATA[
+				--@Router(USER_ID, $1)
+			select trade_id,user_id,partition_id,adjust_mode,balance_type_id,unit_type_id,
+			       adjust_fee,old_balance,new_balance, date_format(adjust_time, '%Y%m%d%H%i%s') adjust_time
+			from log_trade_adjust_his 
+			where user_id = #{filter.user_id} and trade_id = #{filter.trade_id}
+			]]>
+		</query>
+		
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.InfoPayBalanceDao" type="jdbc">
+		<update>
+			<![CDATA[
+				--@Router(USER_ID, $5)
+				update info_pay_balance set balance=#{balance} ,exp_date=str_to_date(#{exp_date},'%Y%m%d%H%i%s'),
+				eff_date=str_to_date(#{eff_date},'%Y%m%d%H%i%s')
+				where balance_id=#{balance_id} and user_id=#{user_id}
+		
+			]]>
+		</update>
+
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.LogAutoExchangeLog" type="jdbc">
+		<query name="xGetByExchangeId">
+			<![CDATA[
+				--@Router(USER_ID, $1)
+			select user_id, exchange_id, cycle_type, channel_no, cycle_id, process_tag, complete_time from log_auto_exchange_log 
+			where user_id = #{filter.userId} and exchange_id = #{filter.exchangeId} and cycle_id = #{filter.cycleId}
+			]]>
+		</query>
+		<create>
+			<!--指定数据库，重要 -->
+			<![CDATA[
+				--@Router(USER_ID, $1)
+				insert into log_auto_exchange_log (user_id, exchange_id, cycle_type, channel_no, cycle_id, process_tag, complete_time)
+				values
+				(#{user_id}, #{exchange_id}, #{cycle_type}, #{channel_no}, #{cycle_id}, 
+				#{process_tag}, str_to_date(#{complete_time}, '%Y%m%d%H%i%s'))
+			]]>
+		</create>
+	</service>
+
+	<service data=" com.tydic.beijing.bvalue.dao.LogTradeAutoExchangeHis" type="jdbc">
+		<create>
+			<!--指定数据库，重要 -->
+			<![CDATA[
+				--@Router(USER_ID, $3)
+				insert into log_trade_auto_exchange_his
+				(trade_id, trade_type_code, user_id, partition_id, exchange_id, exchange_cycle_id, resource_type_code, resource_value,
+				 eff_date, exp_date, exchange_time, reserve_1, reserve_2, reserve_3, reserve_4)
+				values
+				(#{trade_id}, #{trade_type_code}, #{user_id}, #{partition_id}, #{exchange_id}, #{exchange_cycle_id}, #{resource_type_code},
+				 #{resource_value}, str_to_date(#{eff_date}, '%Y%m%d%H%i%s'), str_to_date(#{exp_date}, '%Y%m%d%H%i%s'), 
+				 str_to_date(#{exchange_time}, '%Y%m%d%H%i%s'), #{reserve_1}, #{reserve_2}, #{reserve_3}, #{reserve_4})
+			]]>
+		</create>
+		
+		<query name="getLogTradeAutoExchangeHisbyTradeId">
+			<![CDATA[
+				--@Router(USER_ID, $1)
+			select trade_id,trade_type_code,user_id,partition_id,exchange_id,exchange_cycle_id,
+			resource_type_code,resource_value,
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,
+			date_format(exp_date, '%Y%m%d%H%i%s') exp_date,
+			date_format(exchange_time, '%Y%m%d%H%i%s') exchange_time
+			from log_trade_auto_exchange_his 
+			where user_id = #{filter.user_id}  and trade_id = #{filter.trade_id}
+			]]>
+		</query>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.TbSmsSendHis" type="jdbc">
+		<create>
+			<![CDATA[
+			--@DataSource(9)
+			insert into tb_sms_send_his(msg_id,msisdn_send,msisdn_receive,message_text,send_time,process_tag,para_key)
+			values(SEQ_HLP_SMS_SEND.nextval,#{msisdn_send} ,#{msisdn_receive} ,#{message_text} ,to_date(#{send_time},'yyyymmddhh24miss'),#{process_tag} ,#{para_key})
+			
+			]]>
+		</create>
+	</service>
+	
+	
+	<service data="com.tydic.beijing.bvalue.dao.LogBSmsZddh" type="jdbc">
+		<create>
+			<![CDATA[
+			--@DataSource(9)
+			insert into log_b_sms_zddh(msisdn,acctmonth,bvalue,restype,resvalue,note,money)
+			values(#{msisdn} ,#{acctmonth} ,#{bvalue} ,#{restype} ,#{resvalue},#{note},#{money})			
+			]]>
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.HlpSmsSend" type="jdbc">
+		<create>
+			<![CDATA[
+			--@DataSource(9)
+			insert into hlp_sms_send(msg_id,msisdn_send,msisdn_receive,priority,message_text,send_time,create_time,retry_times)
+			values(SEQ_HLP_SMS_SEND.nextval,#{msisdn_send} ,#{msisdn_receive} ,10,#{message_text} ,to_date(#{create_time},'yyyymmddhh24miss'),to_date(#{create_time},'yyyymmddhh24miss'),0)
+			]]>
+		</create>
+	</service>
+	
+	<!-- add zxm -->
+	<service data="com.tydic.beijing.bvalue.dao.AutoExchangeSmsSend" type="jdbc">
+		<create>
+			<![CDATA[
+			--@DataSource(9)
+			insert into log_b_sms_zddh(msisdn,acctmonth,voice,stream,resvalue,note,money)
+			values(#{msisdn},#{acctmonth} ,#{voice} ,#{stream}, #{resvalue}, #{note},#{money})
+			]]>
+		</create>
+	</service>
+
+	<service data="com.tydic.beijing.bvalue.dao.CodeBilBalanceType" type="jdbc">
+		<query name="getCodeBilBalanceType">
+
+			bvalue.CodeBilBalanceType.getCodeBilBalanceType()
+		</query>
+
+	</service>
+
+
+	<service data="com.tydic.beijing.bvalue.dao.RuleParameters" type="jdbc">
+		<query neme="query504attr">
+			select * from rule_parameters where DOMAIN_CODE='3000' and TRADE_TYPE_CODE='504'
+		</query>
+		<query name="checkServerRule">
+
+			bvalue.RuleParameters.checkServerRule()
+
+		</query>
+		<query name="getRunFlag">
+
+			bvalue.RuleParameters.getRunFlag(#{filter.domain_code},#{filter.trade_type_code},#{filter.para_name},#{filter.currentTime},#{filter.currentTime})
+
+		</query>
+		
+		<query name="byattrValue">
+		<![CDATA[
+			--@DataSource(100)
+			select domain_code, trade_type_code, para_name, para_desc, para_char1, para_char2, para_char3, para_char4, 
+			para_num1, para_num2, para_num3, para_num4, para_date1, para_date2, para_date3, para_date4
+			from rule_parameters where domain_code=#{filter.domain_code} and trade_type_code=#{filter.trade_type_code} 
+			]]>
+		</query>
+	</service>
+	<service data="com.tydic.beijing.bvalue.dao.ExchangeRatableHistory" type="jdbc">
+		<query name="getExchangeRatableHistory">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select * from Exchange_Ratable_History where user_id=#{filter.user_id} and acct_month=#{filter.acct_month}
+			]]>
+		</query>
+		<create>
+			<![CDATA[
+			--@Router(user_id, $1)
+			insert into Exchange_Ratable_History(USER_ID ,acct_month,update_time,ratable_BALANCE)
+			values(#{user_id},#{acct_month},#{update_time},#{ratable_balance})
+			]]>
+		</create>
+		<update>
+			<![CDATA[
+			--@Router(user_id, $2)
+			update Exchange_Ratable_History set ratable_BALANCE = ratable_BALANCE + #{ratable_balance} where user_id=#{user_id} and acct_month = #{acct_month}
+			]]>
+		</update>
+	</service>
+	
+	<service data="com.tydic.beijing.bvalue.dao.InfoPayBalanceSku" type="jdbc">
+		<query name="getInfoPayBalanceSkuByUserId0">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select * from info_pay_balance_sku where user_id=#{filter.user_id} and process_tag=0 and org_order_id=#{filter.org_order_id}
+			]]>
+		</query>
+		<query name="getInfoPayBalanceSkuByUserId2">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select * from info_pay_balance_sku where user_id=#{filter.user_id} and process_tag=1 and org_order_id=#{filter.org_order_id}
+			]]>
+		</query>
+		<update>
+			<![CDATA[
+			--@Router(user_id, $2)
+			update info_pay_balance_sku set balance = balance + #{balance} where user_id=#{user_id} and org_order_id=#{org_order_id} and process_tag=0
+			]]>
+		</update>
+
+		<create>
+			<![CDATA[
+			--@Router(user_id, $1)
+		    insert into info_pay_balance_sku(user_id ,balance,org_order_id,process_tag,month_flag)
+		    values
+		    (#{user_id},#{balance},#{org_order_id},0,#{month_flag})
+			]]>
+		</create>
+		<!-- 重要：指定分库 ，sku月底合并账本 -->
+		<query name="getUserIdInInfoPayBalanceSkubyMode">
+			<![CDATA[
+			--@DataSource(1)
+			select user_id from info_pay_balance_sku where  
+			mod(hex(substr(user_id , -6)), #{filter.channel}) = #{filter.remainder} and process_tag=0 
+			group by user_id LIMIT 10
+			]]>
+		</query>
+		
+		<query name="getIfpSkuByUserId">
+			<![CDATA[
+			--@Router(user_id, $1)
+			select * from info_pay_balance_sku where user_id=#{filter.user_id} and process_tag=0
+			]]>
+		</query>
+		
+		<batch>
+			<choose>
+				<when test="name=='updateProcessTag'">
+					<![CDATA[
+					--@Router(USER_ID, $2)
+					update info_pay_balance_sku set process_tag=#{filter.processTag},process_time=sysdate()
+					where user_id=#{filter.user_id} and process_tag=0
+					]]>
+				</when>
+			</choose>
+		</batch>
+	</service>
+	
+	
+	<!--**********************以上是资料表，以下是参数表***************** -->
+
+
+
+
+
+</services>

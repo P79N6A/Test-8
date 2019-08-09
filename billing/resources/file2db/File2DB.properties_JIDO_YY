@@ -1,0 +1,18 @@
+TableName = JIDO_YY
+Spilt = ,
+TableColumn = CDR_TYPE String,FILE_ID String,RECORD_TYPE String,ORG_AREA_CODE String,ORG_NUMBER String,TRIM_AREA_CODE String,TRIM_NUMBER String,THIRD_NUMBER String,START_TIME String,DURATION String,IMSI String,IMEI String,ROAM_AREA_CODE String,PLMN String,ROAM_TYPE String,INTER_ROAM_FEE String,LONG_TYPE String,TURN_TYPE String,RESERVE_1 String,RESERVE_2 String,RESERVE_3 String,RESERVE_4 String,RESERVE_5 String
+UpdateColumn = 
+UpFlag = 0
+MonthBranch = 1
+MonthColumn = 
+InsertLogFlag = 1
+LogTable = log_file2db_JIDO_YY
+
+commit_num = 50
+file_dir = /Users/persen/tmp/JIDO_YY
+bak_dir = /Users/persen/tmp/JIDO_YY_bak
+DateFormat = yyyy-MM-dd HH:mm:ss
+
+DB.UserName = billing
+DB.PassWord = billing
+DB.Url = jdbc:oracle:thin:@172.168.1.246:1521:bssgx

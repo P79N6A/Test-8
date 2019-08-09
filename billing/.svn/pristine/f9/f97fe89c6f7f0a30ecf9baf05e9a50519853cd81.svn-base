@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+
+	<service data="com.tydic.beijing.billing.dao.UserInfoForMemCached"
+		type="memcached">
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.PayUserRelForMemCached"
+		type="memcached">
+	</service>
+	
+	<service data="com.tydic.beijing.billing.dao.BilActUserRealTimeBillForMemcached"
+		type="memcached">
+	</service>
+
+	<service data="com.tydic.beijing.billing.dao.LifeServiceAttrForMemcache"
+		type="memcached">
+	</service>
+	
+</services>

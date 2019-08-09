@@ -1,0 +1,765 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vds>
+
+ <!-- 
+	<drivers>
+		<driver id="3" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_param" password="b_param">
+			<active>
+				<tables schema="jd_param" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="1" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="2" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.218:3306" user="b_data" password="b_data" >
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="4" clazz="oracle.jdbc.driver.OracleDriver" url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing" password="billing" >
+			<active>
+				<tables schema="BILLING" filter="table_name like 'HLP_SMS_SEND' or table_name in ('LOG_B_SMS_ZDDH','LOG_B_SMS_GWZ') " />
+			</active>
+		</driver>
+	</drivers>
+ 		  
+-->
+	<drivers>
+		<driver id="100" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_param" password="b_param">
+			<active>
+				<tables schema="jd_param" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="1" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.217:3306" user="b_data" password="b_data">
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="2" clazz="com.mysql.jdbc.Driver" url="jdbc:mysql://172.168.1.218:3306" user="b_data" password="b_data" >
+			<active>
+				<tables schema="jd_data" filter="1=1" />
+			</active>
+		</driver>
+		<driver id="9" clazz="oracle.jdbc.driver.OracleDriver" url="jdbc:oracle:thin:@172.168.1.246:1521:bssgx" user="billing" password="billing" >
+			<active>
+				<tables schema="BILLING" filter="table_name like 'HLP_SMS_SEND' or table_name in ('LOG_B_SMS_ZDDH','LOG_B_SMS_GWZ') " />
+			</active>
+		</driver>
+	</drivers>
+
+	
+	<sharding>
+		<table schema="JD_DATA" name="balance_access_log">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		<table schema="JD_DATA" name="log_trade_reward_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="info_pay_balance">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="info_user">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_attr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_external_account">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="info_user_external_account_attr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="life_resource_list">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="life_user_auto_exchange">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="life_user_ofr">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="log_auto_exchange_log">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		
+		<table schema="JD_DATA" name="log_ratable_history">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_adjust_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_auto_exchange_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_auto_exchange_set_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_create_user">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_create_user_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_exchange_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_external_account_attr_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_external_account_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_shopping">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_shopping_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_sku">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="log_trade_sku_his">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		
+		<table schema="JD_DATA" name="original_shopping_file">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+		</table>
+		<table schema="JD_DATA" name="exchange_ratable_history">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+		<table schema="JD_DATA" name="info_pay_balance_sku">
+			<partition id="1">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 0 and 799]]>
+				</accept>
+			</partition>
+
+			<partition id="2">
+				<accept>
+					<![CDATA[mod(abs(vds_hash(USER_ID)), 1600) between 800 and 1599]]>
+				</accept>
+			</partition>
+
+		</table>
+	</sharding>
+	
+	<services>		 
+		<service code="bvalue.infouser.createInfoUser" clazz="com.tydic.vds.service.single.CommonService " isQuery="false" >
+			<script>
+				<![CDATA[
+				--@Router(user_id, $1)
+				insert into info_user(user_id,jd_pin,create_date,user_level,create_channel)
+				values(?,?,STR_TO_DATE(?,'%Y%m%d%H%i%s'),?,?)
+				]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.logTradeCreateUserHis.createuser" clazz="com.tydic.vds.service.single.CommonService " isQuery="false" >
+			<script>
+				<![CDATA[
+				--@Router(user_id, $3)
+				insert into log_trade_create_user_his(trade_id,jd_pin,user_id,partition_id,process_tag)
+				values(?,?,?,?,?)
+				]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.infouser.queryInfoUserByUserId" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+				--@Router(user_id, $1)
+				select * from info_user  where user_id=?
+			]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.query.queryAutoExchangeSet" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+				--@Router(user_id, $2)
+				select a.exchange_id,a.user_id ,a.cycle_type ,a.purchase_mode ,a.top_b_value ,a.exchange_mode,
+				a.resource_list_id ,date_format(a.eff_date,'%Y-%m-%d %H-%i-%s') eff_date ,date_format(a.exp_date,'%Y-%m-%d %H-%i-%s') exp_date
+				from life_user_auto_exchange a where  a.exp_date >=str_to_date(?,'%Y%m%d%H%i%s') and a.user_id=? 
+				
+			]]>
+			</script>
+		</service>
+		<service code="bvalue.query.queryBalanceTo0ByUserId" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+		<script>
+			<![CDATA[
+			--@Router(user_id, $1)
+			select balance_id,user_id,balance_type_id,balance, 
+			date_format(eff_date, '%Y%m%d%H%i%s') eff_date,date_format(exp_date, '%Y%m%d%H%i%s') exp_date
+			 from info_pay_balance where user_id=? and balance>0
+			]]>
+			</script>
+		</service>
+		<service code="bvalue.query.queryExchangeResourceList" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+				--@Router(user_id, $2)
+				select resource_list_id,user_id,order_number,resource_type_code,resource_value from life_resource_list a
+				where a.resource_list_id=?  and a.user_id=? 
+			]]>
+			</script>
+		</service>
+		
+		
+<!-- queryInfoBpoolByBpoolId -->
+		
+		<service code="bvalue.QueryInfoBPoolCRM.getCondtion" clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+			<script>
+				<![CDATA[
+				--@DataSource(1)
+				 select bpool_id, bpool_name ,departMent_type,activity_type,
+				date_format(eff_date,'%Y-%m-%d %H-%i-%s') eff_date,date_format(exp_date,'%Y-%m-%d %H-%i-%s') exp_date,
+				pwd,bpool,cost_value,used_balance,balance,threshold,thre_status,activity_status,date_format(create_time,'%Y-%m-%d %H-%i-%s') create_time,
+				create_staff,contact_phone,contact_email,note from info_bpool 
+				]]>
+			</script>
+		</service>
+		
+<!-- createInfoBpool -->		
+		<service code="bvalue.InfoBpool.createInfoBpool" clazz="com.tydic.vds.service.single.CommonService " isQuery="false" >
+			<script>
+			<![CDATA[
+			--@DataSource(1)
+			insert into info_bpool (bpool_id, bpool_name,departMent_type, activity_type,
+				eff_date,exp_date,pwd,bpool,cost_value,used_balance,balance,threshold, thre_status,activity_status,
+				create_time,create_staff, contact_phone,contact_email,note) values (
+				?,?,?,?,
+				STR_TO_DATE(?,'%Y%m%d%H%i%s'),STR_TO_DATE(?,'%Y%m%d%H%i%s'),?,?,?,?,?,?,?,?,
+				STR_TO_DATE(?,'%Y%m%d%H%i%s'),?,?,?,?)
+			]]>			
+			</script>
+		</service>
+   		
+<!-- createLogTradeBpoolHisDtl -->			
+			<service code="bvalue.LogTradeBpoolHisDtl.createLogTradeBpoolHisDtl" clazz="com.tydic.vds.service.single.CommonService " isQuery="false" >
+			<script>
+			<![CDATA[
+			--@DataSource(1)
+			insert into log_trade_bpool_his_dtl(trade_id,bpool_id, bpool_name,departMent_type, activity_type,
+				eff_date,exp_date,pwd,bpool,cost_value,used_balance,balance,threshold, thre_status,activity_status,
+				create_time,create_staff, contact_phone,contact_email,activity_id,jdpin,bvalue,old_bpool,new_bpool,note) values (
+				?,?,?,?,?,
+				STR_TO_DATE(?,'%Y%m%d%H%i%s'),STR_TO_DATE(?,'%Y%m%d%H%i%s'),?,?,?,?,?,?,?,?,
+				STR_TO_DATE(?,'%Y%m%d%H%i%s'),?,?,?,?,?,?,?,?,?)
+			]]>
+			</script>
+		</service>
+
+
+<!-- createLogTradeBpoolHis -->			
+				<service code="bvalue.LogTradeBpoolHis.createLogTradeBpoolHis" clazz="com.tydic.vds.service.single.CommonService " isQuery="false" >
+			<script>
+			<![CDATA[
+			--@DataSource(1)
+			insert into log_trade_bpool_his (trade_id,TRADE_TYPE_CODE, bpool_id,PARTITION_ID, ORDER_NO,
+				PROCESS_TIME,PROCESS_TAG,RESERVE_C1,RESERVE_C2,RESERVE_C3,RESERVE_C4) values (
+				?,?,?,?,?,
+				STR_TO_DATE(?,'%Y-%m-%d %H-%i-%s'),?,?,?,?,?)
+			]]>
+			</script>
+		</service>	
+		<service code="bvalue.LogTradeHis.getLogTradeHisByUserIdAndTime" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[  
+				--@Router(user_id, $3)
+				select trade_id ,trade_type_code, user_id , partition_id ,order_no,
+				order_type ,order_amount,order_completion_time,balance_type_id,unit_type_id , balance,
+				process_tag ,DATE_FORMAT(trade_time,'%Y-%m-%d %H-%i-%s') trade_time,DATE_FORMAT(process_time,'%Y-%m-%d %H-%i-%s') process_time,remark
+				from log_trade_his 
+				where  trade_time between str_to_date(?,'%Y-%m-%d %H-%i-%s') and str_to_date(?,'%Y-%m-%d %H-%i-%s')
+				and  user_id =?
+				order by trade_time desc   
+			]]>
+			</script>
+		</service>
+	    
+		<service code="bvalue.BalanceAccessLog.getBalanceAccessLogByUserIdandTime" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[         
+				--@Router(user_id, $3)
+				select trade_Id,trade_Type_Code,user_Id,partition_Id,balance_Id,balance_Type_Id,
+					   access_Tag,money,old_Balance,new_Balance,operate_Time 
+				from balance_access_log 
+				where  operate_time between str_to_date(?,'%Y-%m-%d %H-%i-%s') and str_to_date(?,'%Y-%m-%d %H-%i-%s')
+				and  user_id =?
+				order by operate_time desc
+			 ]]>
+			</script>
+		</service>			
+		 
+		 <service code="bvalue.LogTradeExchangeHis.getLogTradeExchangeHisbyTradeId" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+				--@Router(user_id, $2)
+               select TRADE_ID,TRADE_TYPE_CODE,USER_ID,PARTITION_ID,RESOURCE_TYPE_CODE,RESOURCE_VALUE,
+			   DATE_FORMAT(EFF_DATE,'%Y%m%d%H%i%s')  EFF_DATE, DATE_FORMAT(EXP_DATE,'%Y%m%d%H%i%s')  EXP_DATE,
+			   DATE_FORMAT(EXCHANGE_TIME,'%Y%m%d%H%i%s')  EXCHANGE_TIME,
+			   RESERVE_1,RESERVE_2,RESERVE_3,RESERVE_4
+			  from log_trade_exchange_his a where a.trade_id = ? and a.user_id =?
+			]]>
+			</script>
+		</service>
+		
+ 		<service code="bvalue.InfoUserExternalAccount.queryPinRelation" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+			
+				--@Router(user_id, $3)
+				select * from info_user_external_account a  where  a.eff_date<=str_to_date(?,'%Y%m%d%H%i%s')
+				and a.exp_date >str_to_date(?,'%Y%m%d%H%i%s') and a.user_id=?
+				
+			]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.InfoUserExternalAccount.isRelationExists" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+				--@Router(user_id, $2)
+                select * from info_user_external_account a where a.exp_date>str_to_date(?,'%Y%m%d%H%i%s') and a.user_id=?
+			]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.LogTradeRelChg.queryProcess" clazz="com.tydic.vds.service.single.CommonService " isQuery="true" >
+			<script>
+			<![CDATA[
+			--@Router(user_id, $1)
+			select trade_id,trade_type_code,external_system_code,channel_type,user_id,partition_id,process_tag,trade_time,
+			process_time,remark from log_trade_his  where user_id=? and process_tag='0'    
+			]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.LogTradeHis.updateProcessTag" clazz="com.tydic.vds.service.single.CommonService " isQuery="false">
+			<script>
+				<![CDATA[
+					--@Router(user_id, $3)
+					update log_trade_his set process_tag=?, remark=? where trade_id=? and user_id=?
+				]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.InfoUserExternalAccountAttr.updateExternalAccountAttr" isQuery="false">
+			<script>
+				<![CDATA[
+				--@Router(user_id, $2)
+				update info_user_external_account_attr a set exp_date=str_to_date(?,'%Y%m%d%H%i%s')  where 
+				a.user_id=? and a.external_account_id=? 
+				
+				]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.infoUserExternalAccountAttr.getExternalAccountAttrbyUserIdAndExternal"  isQuery="true">
+			<script>
+			<![CDATA[
+			
+			--@Router(USER_ID, $1)
+			select  EXTERNAL_ACCOUNT_ID, USER_ID, JD_PIN, EXTERNAL_SYSTEM_CODE, ATTR_CODE, ATTR_VALUE, date_format(EFF_DATE,'%Y%m%d%H%i%s') eff_date, 
+			date_format(EXP_DATE,'%Y%m%d%H%i%s') exp_date
+			from info_user_external_account_attr where user_id = ? and
+			external_account_id = ?
+			]]>
+			</script>
+		</service>
+		
+		
+		<service code="bvalue.infoUserExternalAccountAttr.byExternalAttr"  isQuery="true">
+			<script>
+			<![CDATA[
+			
+			--@Router(USER_ID, $1)
+			select  EXTERNAL_ACCOUNT_ID, USER_ID, JD_PIN, EXTERNAL_SYSTEM_CODE, ATTR_CODE, ATTR_VALUE, date_format(EFF_DATE,'%Y%m%d%H%i%s') eff_date, 
+			date_format(EXP_DATE,'%Y%m%d%H%i%s') exp_date
+			from info_user_external_account_attr where user_id=? and external_account_id = ?
+			]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.CodeBilBalanceType.getCodeBilBalanceType"  clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+			<script>
+				<![CDATA[
+				
+				--@DataSource(100)
+				select balance_type_id,resource_type_code,balance_type_name,priority from code_bil_balance_type 
+				
+				]]>
+			</script>
+		</service>
+		
+		
+		
+		
+		<service code="bvalue.RuleParameters.getRunFlag"  clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+			<script>
+				<![CDATA[
+				--@DataSource(100)
+				select domain_code, trade_type_code, para_name, para_desc, para_char1, para_char2, para_char3, para_char4, 
+				para_num1, para_num2, para_num3, para_num4, para_date1, para_date2, para_date3, para_date4
+				from rule_parameters where domain_code=? and trade_type_code=? and lower(para_name)=lower(?)
+				and para_date1<=str_to_date(?,'%Y%m%d%H%i%s') and para_date2 >str_to_date(?,'%Y%m%d%H%i%s')
+				
+				]]>
+			</script>
+		</service>
+		
+		<service code="bvalue.RuleParameters.checkServerRule"  clazz="com.tydic.vds.service.single.CommonService"  isQuery="true">
+			<script>
+				<![CDATA[
+				--@DataSource(100)
+				select domain_code, trade_type_code, para_name, para_desc, para_char1, para_char2, para_char3, para_char4, 
+				para_num1, para_num2, para_num3, para_num4, para_date1, para_date2, para_date3, para_date4
+				from rule_parameters where domain_code='1000' and trade_type_code='501' and para_name='server'
+				group by para_char2 having count(para_char2)>1;
+				
+				]]>
+			</script>
+		</service>
+		<service code="bvalue.infoUserExternalAccountAttr.getExternalAccountAttrbyUserIdAndExternal"  isQuery="true">
+			<script>
+				<![CDATA[
+											
+			--@Router(USER_ID, $1)
+				select  EXTERNAL_ACCOUNT_ID, USER_ID, JD_PIN, EXTERNAL_SYSTEM_CODE, ATTR_CODE, ATTR_VALUE, 
+				date_format(EFF_DATE,'%Y%m%d%H%i%s') eff_date, 
+				date_format(EXP_DATE,'%Y%m%d%H%i%s') exp_date
+				from info_user_external_account_attr where user_id = ? and
+				external_account_id = ?
+																		
+			
+			]]>
+			</script>
+		</service>
+
+	</services>
+</vds>
